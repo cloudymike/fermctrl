@@ -1,2 +1,2 @@
-# fermenter
+# TempCtrl
 Fermentation temperature controller
