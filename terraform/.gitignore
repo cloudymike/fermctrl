@@ -1,0 +1,7 @@
+.terraform
+*.tfstate
+*.tfstate.backup
+endpoint.py
+planfile
+certs
+
