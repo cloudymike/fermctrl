@@ -3,9 +3,9 @@
 #Define some variables, change if needed
 
 # These are your certificates, update with the path were you put it (and NOT in the repo)
-CERT_FILE_PATH=../terraform/certs/tempctrlex_cert.pem.crt
+CERT_FILE_PATH=../terraform/certs/tempctrl_cert.pem.crt
 ROOT_CERT_FILE_PATH=../terraform/certs/AmazonRootCA1.pem
-KEY_FILE_PATH=../terraform/certs/tempctrlex_cert.private.key
+KEY_FILE_PATH=../terraform/certs/tempctrl_cert.private.key
 
 WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
 
@@ -57,3 +57,35 @@ $PUSHCMD textout.py
 $PUSHCMD tempreader.py
 $PUSHCMD main.py
 sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+
+
+
+
+echo "Publish message to turn LED on and off"
+echo "Loops forever so ctrl-C when done"
+while [ 1 ];
+do
+  mosquitto_pub \
+  -h "${MQTT_HOST}" \
+  --cert ${CERT_FILE_PATH} \
+  --cafile ${ROOT_CERT_FILE_PATH} \
+  --key ${KEY_FILE_PATH} \
+  -t "${MQTT_TOPIC}" \
+  -i "testmonitor" \
+  -p ${MQTT_PORT} \
+  -m "on"
+
+  sleep 1
+
+  mosquitto_pub \
+  -h "${MQTT_HOST}" \
+  --cert ${CERT_FILE_PATH} \
+  --cafile ${ROOT_CERT_FILE_PATH} \
+  --key ${KEY_FILE_PATH} \
+  -t "${MQTT_TOPIC}" \
+  -i "testmonitor" \
+  -p ${MQTT_PORT} \
+  -m "off"
+
+  sleep 1
+done

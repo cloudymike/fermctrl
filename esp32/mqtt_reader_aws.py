@@ -11,6 +11,7 @@ def sub_cb(topic, msg):
         LED.LED.off()
 
 
+# Wrapper around MQTT client with AWS setup
 class MQTTReaderAWS:
     __slots__ = ('host', 'port', 'topic', 'client')
 
@@ -57,5 +58,19 @@ class MQTTReaderAWS:
     def disconnect(self):
         self.mqtt_client.disconnect()
 
+    # Checks whether a pending message from server is available.
+    # If not, returns immediately with None. Otherwise, does
+    # the same processing as wait_msg.
     def wait_msg(self):
         self.mqtt_client.wait_msg()
+
+    # Wait for a single incoming MQTT message and process it.
+    # Subscribed messages are delivered to a callback previously
+    # set by .set_callback() method. Other (internal) MQTT
+    # messages processed internally.
+    def check_msg(self):
+        self.mqtt_client.check_msg()
+
+    # Behaves like wait_msg, but worse
+    def subscribe(self):
+        self.mqtt_client.subscribe(self.topic, 0)

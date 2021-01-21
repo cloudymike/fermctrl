@@ -37,7 +37,9 @@ class mainloop:
     def run(self):
         old_second = 99
         while True:
-            self.m.wait_msg()
+            # Check message, if none, keep going
+            # If in separate loop, use wait_msg that holds until there is a message
+            self.m.check_msg()
             #date_str = "Date: {1:02d}/{2:02d}/{0:4d}".format(*self.rtc.datetime())
             current_time = self.rtc.datetime()
             year,*z,hour,min,second,us=current_time
