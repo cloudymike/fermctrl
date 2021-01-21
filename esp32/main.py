@@ -50,9 +50,11 @@ class mainloop:
                 temp = self.tempDevice.get_temp()
                 time_str = "UTC: {4:02d}:{5:02d}:{6:02d}".format(*current_time)
                 self.txt.clear()
-                self.txt.centerline(time_str,4)
+                self.txt.centerline(time_str,3)
 
-                self.txt.centerline("Temp: {:.1f}{}".format(temp,self.unit),5)
+                self.txt.centerline("Temp: {:.1f}{}".format(temp,self.unit),4)
+
+                self.txt.centerline("Target: {}".format(self.m.last_msg()),5)
                 self.txt.show()
 
 

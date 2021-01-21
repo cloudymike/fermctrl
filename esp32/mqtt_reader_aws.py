@@ -3,12 +3,19 @@ from umqtt.simple import MQTTClient
 import json
 import LED
 
+LEDON=False
+MESSAGE = b''
+
 def sub_cb(topic, msg):
-    print((topic, msg))
-    if msg == b'on':
+    global MESSAGE
+    global LEDON
+    MESSAGE = msg
+    print((topic, MESSAGE))
+    if LEDON:
         LED.LED.on()
-    if msg == b'off':
+    else:
         LED.LED.off()
+    LEDON = not LEDON
 
 
 # Wrapper around MQTT client with AWS setup
@@ -74,3 +81,6 @@ class MQTTReaderAWS:
     # Behaves like wait_msg, but worse
     def subscribe(self):
         self.mqtt_client.subscribe(self.topic, 0)
+
+    def last_msg(self):
+        return(str(MESSAGE, 'utf-8'))
