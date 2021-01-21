@@ -1,21 +1,12 @@
 import machine
 from umqtt.simple import MQTTClient
-import json
-import LED
 
-LEDON=False
 MESSAGE = b''
 
 def sub_cb(topic, msg):
     global MESSAGE
-    global LEDON
     MESSAGE = msg
     print((topic, MESSAGE))
-    if LEDON:
-        LED.LED.on()
-    else:
-        LED.LED.off()
-    LEDON = not LEDON
 
 
 # Wrapper around MQTT client with AWS setup

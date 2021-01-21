@@ -57,35 +57,3 @@ $PUSHCMD textout.py
 $PUSHCMD tempreader.py
 $PUSHCMD main.py
 sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
-
-
-
-
-echo "Publish message to turn LED on and off"
-echo "Loops forever so ctrl-C when done"
-while [ 1 ];
-do
-  mosquitto_pub \
-  -h "${MQTT_HOST}" \
-  --cert ${CERT_FILE_PATH} \
-  --cafile ${ROOT_CERT_FILE_PATH} \
-  --key ${KEY_FILE_PATH} \
-  -t "${MQTT_TOPIC}" \
-  -i "testmonitor" \
-  -p ${MQTT_PORT} \
-  -m "on"
-
-  sleep 1
-
-  mosquitto_pub \
-  -h "${MQTT_HOST}" \
-  --cert ${CERT_FILE_PATH} \
-  --cafile ${ROOT_CERT_FILE_PATH} \
-  --key ${KEY_FILE_PATH} \
-  -t "${MQTT_TOPIC}" \
-  -i "testmonitor" \
-  -p ${MQTT_PORT} \
-  -m "off"
-
-  sleep 1
-done
