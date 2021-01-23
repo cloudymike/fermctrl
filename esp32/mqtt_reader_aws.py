@@ -1,5 +1,5 @@
 import machine
-from umqtt.simple import MQTTClient
+from umqtt.robust import MQTTClient
 
 MESSAGE = b''
 
@@ -67,7 +67,10 @@ class MQTTReaderAWS:
     # set by .set_callback() method. Other (internal) MQTT
     # messages processed internally.
     def check_msg(self):
-        self.mqtt_client.check_msg()
+        try:
+            self.mqtt_client.check_msg()
+        except:
+            pass
 
     # Behaves like wait_msg, but worse
     def subscribe(self):

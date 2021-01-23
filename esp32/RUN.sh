@@ -53,6 +53,7 @@ $PUSHCMD wlan.py
 $PUSHCMD LED.py
 $PUSHCMD mqtt_reader_aws.py
 $PUSHCMD ssd1306.py
+$PUSHCMD gfx.py
 $PUSHCMD textout.py
 $PUSHCMD tempreader.py
 $PUSHCMD main.py
