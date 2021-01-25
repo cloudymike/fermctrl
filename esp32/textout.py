@@ -11,7 +11,7 @@ import gfx
 class textout:
     def __init__(self):
         # ESP32 Pin assignment
-        i2c = I2C(-1, scl=Pin(15), sda=Pin(4))
+        i2c = I2C(-1, scl=Pin(22), sda=Pin(21))
 
         # ESP8266 Pin assignment
         #i2c = I2C(-1, scl=Pin(5), sda=Pin(24))
