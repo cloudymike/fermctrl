@@ -42,10 +42,18 @@ class mainloop:
         self.get_target()
         self.get_temp()
         print("Thermostat, temp:{} target:{}".format(self.temp, self.target))
-        if self.temp + self.hysterisis > self.target:
+        if self.temp > self.target + self.hysterisis:
+            print("COLD on")
             relay.COLD.on()
-        if self.temp - self.hysterisis < self.target:
+            relay.HOT.off()
+        elif self.temp < self.target - self.hysterisis :
+            print("HOT on")
             relay.HOT.on()
+            relay.COLD.off()
+        else:
+            print("All off")
+            relay.COLD.off()
+            relay.HOT.off()
 
     def get_target(self):
         targetstring = self.m.last_msg()
