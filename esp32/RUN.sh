@@ -48,9 +48,15 @@ $PUSHCMD ${KEY_FILE_PATH} ${KEY_FILE}
 $PUSHCMD ${WLAN_CONFIG_PATH}
 $PUSHCMD awsiotconfig.py
 
+echo "Loading packages"
+$PUSHCMD errno.py
+$PUSHCMD simple2.py
+$PUSHCMD robust2.py
+
 echo "Loading programs"
 $PUSHCMD wlan.py
 $PUSHCMD LED.py
+$PUSHCMD relay.py
 $PUSHCMD mqtt_reader_aws.py
 $PUSHCMD ssd1306.py
 $PUSHCMD gfx.py

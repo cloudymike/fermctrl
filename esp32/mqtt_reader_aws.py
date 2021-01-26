@@ -1,5 +1,6 @@
 import machine
-from umqtt.robust import MQTTClient
+from simple2 import MQTTClient
+import time
 
 MESSAGE = b''
 
@@ -68,9 +69,21 @@ class MQTTReaderAWS:
     # messages processed internally.
     def check_msg(self):
         try:
+            print("BEFORE: {4:02d}:{5:02d}:{6:02d}".format(*machine.RTC().datetime()))
             self.mqtt_client.check_msg()
+            print("AFTER: {4:02d}:{5:02d}:{6:02d}".format(*machine.RTC().datetime()))
         except:
-            pass
+            #reconnect
+            print("Mqtt failed, reconnecting")
+            try:
+                self.disconnect()
+            except:
+                print("Disconnect failed")
+            try:
+                self.mqtt_client.connect()
+                print("Mqtt reconnected")
+            except:
+                print("Reconnect failed")
 
     # Behaves like wait_msg, but worse
     def subscribe(self):
