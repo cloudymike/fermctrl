@@ -6,9 +6,13 @@ import machine
 import ntptime
 import wlan
 import tempreader
-import awsiotconfig
-from mqtt_reader_aws import MQTTReaderAWS
 import relay
+
+#import awsiotconfig
+#from mqtt_reader_aws import MQTTReaderAWS
+
+import mqtthost
+from mqtt_reader import MQTTReader
 
 
 class mainloop:
@@ -28,13 +32,11 @@ class mainloop:
         self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
 
-        self.m = MQTTReaderAWS(
-            awsiotconfig.MQTT_CLIENT_ID,
-            awsiotconfig.MQTT_HOST,
-            awsiotconfig.MQTT_PORT,
-            awsiotconfig.MQTT_TOPIC,
-            awsiotconfig.KEY_FILE,
-            awsiotconfig.CERT_FILE)
+        self.m = MQTTReader(
+            mqtthost.MQTT_CLIENT_ID,
+            mqtthost.MQTT_HOST,
+            mqtthost.MQTT_PORT,
+            mqtthost.MQTT_TOPIC)
 
         self.txt = textout.textout()
 
