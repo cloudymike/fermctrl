@@ -49,9 +49,9 @@ $PUSHCMD ${WLAN_CONFIG_PATH}
 $PUSHCMD awsiotconfig.py
 
 echo "Loading packages"
-$PUSHCMD errno.py
-$PUSHCMD simple2.py
-$PUSHCMD robust2.py
+#$PUSHCMD errno.py
+#$PUSHCMD simple2.py
+#$PUSHCMD robust2.py
 
 echo "Loading programs"
 $PUSHCMD wlan.py

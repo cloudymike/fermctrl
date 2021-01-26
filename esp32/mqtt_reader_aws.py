@@ -1,5 +1,5 @@
 import machine
-from simple2 import MQTTClient
+from umqtt.robust import MQTTClient
 import time
 
 MESSAGE = b''
