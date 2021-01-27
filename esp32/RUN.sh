@@ -51,6 +51,7 @@ $PUSHCMD awsiotconfig.py
 echo "Loading programs"
 $PUSHCMD wlan.py
 $PUSHCMD LED.py
+$PUSHCMD relay.py
 $PUSHCMD mqtt_reader_aws.py
 $PUSHCMD ssd1306.py
 $PUSHCMD gfx.py

@@ -25,4 +25,5 @@ if __name__ == "__main__":
     do_connect(wlanconfig.ESSID,wlanconfig.PASSWORD)
     import upip
     upip.install('micropython-uuid')
-    upip.install('micropython-umqtt.robust')
+    upip.install('micropython-umqtt.simple2')
+    upip.install('micropython-umqtt.robust2')
