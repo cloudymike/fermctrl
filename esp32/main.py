@@ -7,7 +7,7 @@ import ntptime
 import wlan
 import tempreader
 import awsiotconfig
-from mqtt_reader_aws import MQTTReaderAWS
+from mqtt_aws import MQTTAWS
 import relay
 
 
@@ -28,11 +28,12 @@ class mainloop:
         self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
 
-        self.m = MQTTReaderAWS(
+        self.m = MQTTAWS(
             awsiotconfig.MQTT_CLIENT_ID,
             awsiotconfig.MQTT_HOST,
             awsiotconfig.MQTT_PORT,
-            awsiotconfig.MQTT_TOPIC,
+            awsiotconfig.MQTT_PUB_TOPIC,
+            awsiotconfig.MQTT_SUB_TOPIC,
             awsiotconfig.KEY_FILE,
             awsiotconfig.CERT_FILE)
 
@@ -65,10 +66,8 @@ class mainloop:
 
     def run(self):
         old_second = 99
+        old_min = 99
         while True:
-            # Check message, if none, keep going
-            # If in separate loop, use wait_msg that holds until there is a message
-            self.m.check_msg()
             #date_str = "Date: {1:02d}/{2:02d}/{0:4d}".format(*self.rtc.datetime())
             current_time = self.rtc.datetime()
             year,*z,hour,min,second,us=current_time
@@ -76,7 +75,10 @@ class mainloop:
             # Cycle over x time
             if second != old_second:
                 old_second = second
+
+                self.m.check_msg()
                 self.thermostat()
+
                 time_str = "UTC: {4:02d}:{5:02d}:{6:02d}".format(*current_time)
                 self.txt.clear()
                 self.txt.centerline(time_str,3)
@@ -85,6 +87,10 @@ class mainloop:
 
                 self.txt.centerline("Target: {}".format(self.target),5)
                 self.txt.show()
+            if min != old_min:
+                old_min = min
+                self.m.pub_msg("{\"temperature\":" + str(self.temp) + "}")
+
 
 
 if __name__ == "__main__":

@@ -13,7 +13,8 @@ WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
 #MQTT_HOST="a2d09uxsvr5exq-ats.iot.us-west-2.amazonaws.com"
 MQTT_HOST=$(cut -f 3 -d ' ' < ../terraform/endpoint.py)
 MQTT_PORT=8883
-MQTT_TOPIC="tempctrlpub"
+MQTT_PUB_TOPIC="tempctrlpub"
+MQTT_SUB_TOPIC="tempctrlsub"
 
 # Filename for cert and key on the esp32 device
 CERT_FILE=cert
@@ -36,7 +37,8 @@ MQTT_CLIENT_ID = "esp32"
 MQTT_PORT = "${MQTT_PORT}"
 
 #if you change the topic make sure update AWS policy
-MQTT_TOPIC = "${MQTT_TOPIC}"
+MQTT_PUB_TOPIC = "${MQTT_PUB_TOPIC}"
+MQTT_SUB_TOPIC = "${MQTT_SUB_TOPIC}"
 
 #Change the following to match your environment
 MQTT_HOST = "${MQTT_HOST}"
@@ -52,7 +54,7 @@ echo "Loading programs"
 $PUSHCMD wlan.py
 $PUSHCMD LED.py
 $PUSHCMD relay.py
-$PUSHCMD mqtt_reader_aws.py
+$PUSHCMD mqtt_aws.py
 $PUSHCMD ssd1306.py
 $PUSHCMD gfx.py
 $PUSHCMD textout.py
