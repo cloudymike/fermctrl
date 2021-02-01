@@ -1,5 +1,4 @@
-import machine
-from umqtt.robust import MQTTClient
+from umqtt.simple import MQTTClient
 
 MESSAGE = b''
 
@@ -8,25 +7,32 @@ def sub_cb(topic, msg):
     MESSAGE = msg
     print((topic, MESSAGE))
 
-
-# Wrapper around MQTT client with AWS setup
-class MQTTReaderAWS:
+class MQTTAWS:
     __slots__ = ('host', 'port', 'topic', 'client')
 
-    def __init__(self, client_id, host, port, topic, key_file, cert_file):
+    def __init__(self, client_id, host, port, pub_topic, sub_topic, key_file, cert_file):
         self.client_id = client_id
         self.host = host
         self.port = port
-        self.topic = topic
+        self.pub_topic = pub_topic
+        self.sub_topic = sub_topic
         self.key_file = key_file
         self.cert_file = cert_file
+
         self.mqtt_client = None
 
         self.connect_mqtt()
 
         self.mqtt_client.set_callback(sub_cb)
-        self.mqtt_client.subscribe(topic=self.topic)
+        self.mqtt_client.subscribe(topic=self.sub_topic)
 
+    def pub_msg(self, msg):
+        try:
+            self.mqtt_client.publish(self.pub_topic, msg, qos=0)
+            print("Sent: " + msg)
+        except Exception as e:
+            print("Exception publish: " + str(e))
+            raise
 
     def connect_mqtt(self):
 
@@ -67,10 +73,7 @@ class MQTTReaderAWS:
     # set by .set_callback() method. Other (internal) MQTT
     # messages processed internally.
     def check_msg(self):
-        try:
-            self.mqtt_client.check_msg()
-        except:
-            pass
+        self.mqtt_client.check_msg()
 
     # Behaves like wait_msg, but worse
     def subscribe(self):

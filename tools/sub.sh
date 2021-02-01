@@ -12,14 +12,13 @@ WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
 # Server and topic
 MQTT_HOST=$(cut -f 3 -d ' ' < ../terraform/endpoint.py)
 MQTT_PORT=8883
-MQTT_TOPIC="tempctrlsub"
+MQTT_TOPIC="tempctrlpub"
 
-mosquitto_pub \
+mosquitto_sub \
   -h "${MQTT_HOST}" \
   --cert ${CERT_FILE_PATH} \
   --cafile ${ROOT_CERT_FILE_PATH} \
   --key ${KEY_FILE_PATH} \
   -t "${MQTT_TOPIC}" \
   -i "testmonitor" \
-  -p ${MQTT_PORT} \
-  -m "$1"
+  -p ${MQTT_PORT} 
