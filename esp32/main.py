@@ -9,6 +9,7 @@ import tempreader
 import awsiotconfig
 from mqtt_aws import MQTTAWS
 import relay
+import LED
 
 
 class mainloop:
@@ -75,6 +76,7 @@ class mainloop:
             # Cycle over x time
             if second != old_second:
                 old_second = second
+                LED.LED.value(abs(LED.LED.value()-1))
 
                 self.m.check_msg()
                 self.thermostat()
@@ -94,5 +96,7 @@ class mainloop:
 
 
 if __name__ == "__main__":
+    LED.LED.value(1)
     m = mainloop()
+    LED.LED.value(0)
     m.run()
