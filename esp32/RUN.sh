@@ -25,6 +25,7 @@ PORT='/dev/ttyUSB0'
 PUSHCMD="ampy --port $PORT put "
 CURDIR=$(pwd)
 TOPDIR=${CURDIR%/*}
+MICROPYTHONEXAMPLE=${TOPDIR}/micropythonexamples
 
 # Create configuration file
 cat > awsiotconfig.py << EOF
@@ -51,13 +52,15 @@ $PUSHCMD ${WLAN_CONFIG_PATH}
 $PUSHCMD awsiotconfig.py
 
 echo "Loading programs"
-$PUSHCMD wlan.py
-$PUSHCMD LED.py
+$PUSHCMD ${MICROPYTHONEXAMPLE}/wlan/wlan.py
+$PUSHCMD ${MICROPYTHONEXAMPLE}/LED/LED.py
+$PUSHCMD ${MICROPYTHONEXAMPLE}/gcloud-pub/mqttgcloud.py
+$PUSHCMD ${MICROPYTHONEXAMPLE}/oled/ssd1306.py
+$PUSHCMD ${MICROPYTHONEXAMPLE}/oled/gfx.py
+$PUSHCMD ${MICROPYTHONEXAMPLE}/textout/textout.py
+
 $PUSHCMD relay.py
-$PUSHCMD mqtt_aws.py
-$PUSHCMD ssd1306.py
-$PUSHCMD gfx.py
-$PUSHCMD textout.py
 $PUSHCMD tempreader.py
 $PUSHCMD main.py
+
 sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py

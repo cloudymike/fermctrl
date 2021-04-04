@@ -7,9 +7,8 @@ import ntptime
 import wlan
 import tempreader
 import awsiotconfig
-from mqtt_aws import MQTTAWS
 import relay
-
+import mqttgcloud
 
 class mainloop:
     def __init__(self):
@@ -28,15 +27,7 @@ class mainloop:
         self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
 
-        self.m = MQTTAWS(
-            awsiotconfig.MQTT_CLIENT_ID,
-            awsiotconfig.MQTT_HOST,
-            awsiotconfig.MQTT_PORT,
-            awsiotconfig.MQTT_PUB_TOPIC,
-            awsiotconfig.MQTT_SUB_TOPIC,
-            awsiotconfig.KEY_FILE,
-            awsiotconfig.CERT_FILE)
-
+        self.m = mqttgcloud.mqttgcloud.MQTTgcloud()
         self.txt = textout.textout()
 
     def thermostat(self):
@@ -89,7 +80,7 @@ class mainloop:
                 self.txt.show()
             if min != old_min:
                 old_min = min
-                self.m.pub_msg("{\"temperature\":" + str(self.temp) + "}")
+                self.m.publish("{\"temperature\":" + str(self.temp) + "}")
 
 
 
