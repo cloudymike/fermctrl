@@ -27,7 +27,7 @@ class mainloop:
         self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
 
-        self.m = mqttgcloud.mqttgcloud.MQTTgcloud()
+        self.m = mqttgcloud.MQTTgcloud()
         self.txt = textout.textout()
 
     def thermostat(self):
