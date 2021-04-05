@@ -14,8 +14,10 @@ import LED
 
 class mainloop:
     def __init__(self):
-        wlan.do_connect()
         self.rtc = machine.RTC()
+
+        self.txt = textout.textout()
+        self.txt.text('Starting....')
 
         try:
             ntptime.settime()
@@ -30,7 +32,6 @@ class mainloop:
         self.tempDevice = tempreader.tempreader(self.unit)
 
         self.m = mqttgcloud.MQTTgcloud()
-        self.txt = textout.textout()
 
     def thermostat(self):
         self.get_target()
@@ -88,6 +89,7 @@ class mainloop:
 
 
 if __name__ == "__main__":
+    wlan.do_connect()
     LED.LED.value(1)
     m = mainloop()
     LED.LED.value(0)
