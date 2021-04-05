@@ -1,15 +1,16 @@
 # Complete project details at https://RandomNerdTutorials.com
 
-import textout
 import time
 import machine
 import ntptime
+import json
 import wlan
 import tempreader
 import awsiotconfig
 import relay
 import mqttgcloud
 import LED
+import textout
 
 
 class mainloop:
@@ -31,7 +32,24 @@ class mainloop:
         self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
 
+        self.loadstate()
+
         self.m = mqttgcloud.MQTTgcloud()
+
+    def storestate(self):
+        state={}
+        state['target'] = self.target
+        with open('state.json', 'w') as outfile:
+            json.dump(state, outfile)
+
+    def loadstate(self):
+        try:
+            with open('state.json') as json_file:
+                state = json.load(json_file)
+            self.target = state['target']
+        except:
+            pass
+
 
     def thermostat(self):
         self.get_target()
@@ -85,6 +103,7 @@ class mainloop:
             if min != old_min:
                 old_min = min
                 self.m.publish("{\"temperature\":" + str(self.temp) + "}")
+                self.storestate()
 
 
 
