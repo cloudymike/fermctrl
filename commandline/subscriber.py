@@ -1,16 +1,16 @@
-
+#!/usr/bin/env python
 import sys
 sys.path.append('..')
-import esp32.config
+import gcloudconfig.config
 
 from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1
 
 # TODO(developer)
-project_id = esp32.config.google_cloud_config['project_id']
+project_id = gcloudconfig.config.google_cloud_config['project_id']
 
 # This one is not currently in the config file
-subscription_id = 'oauthferm1pub'
+subscription_id = 'ferm1topic'
 # Number of seconds the subscriber should listen for messages
 timeout = 5.0
 

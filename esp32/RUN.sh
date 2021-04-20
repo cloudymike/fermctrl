@@ -12,7 +12,7 @@ UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
 
 echo "Loading certs, keys and configs"
 $PUSHCMD ${WLAN_CONFIG_PATH}
-$PUSHCMD config.py
+$PUSHCMD ${TOPDIR}/gcloudconfig/config.py
 
 echo "Loading programs"
 $PUSHCMD ${UPYEX}/wlan/wlan.py
