@@ -1,15 +1,16 @@
+#!/usr/bin/env python
 
 import sys
 sys.path.append('..')
-import esp32.config
+import gcloudconfig.config
 
 from google.cloud import iot_v1
 import argparse
 
-project_id = esp32.config.google_cloud_config['project_id']
-cloud_region = esp32.config.google_cloud_config['cloud_region']
-registry_id = esp32.config.google_cloud_config['registry_id']
-device_id = esp32.config.google_cloud_config['device_id']
+project_id = gcloudconfig.config.google_cloud_config['project_id']
+cloud_region = gcloudconfig.config.google_cloud_config['cloud_region']
+registry_id = gcloudconfig.config.google_cloud_config['registry_id']
+device_id = gcloudconfig.config.google_cloud_config['device_id']
 
 
 parser = argparse.ArgumentParser(description='Execute a command to device')
