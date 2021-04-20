@@ -10,7 +10,7 @@ from google.cloud import pubsub_v1
 project_id = gcloudconfig.config.google_cloud_config['project_id']
 
 # This one is not currently in the config file
-subscription_id = 'ferm1topic'
+subscription_id = gcloudconfig.config.google_cloud_config['topic']
 # Number of seconds the subscriber should listen for messages
 timeout = 5.0
 

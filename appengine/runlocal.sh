@@ -3,7 +3,7 @@
 # End of skip
 
 # Load app
-cd hello_world
+cd app
 python3 -m venv env
 source env/bin/activate
 pip install  -r requirements.txt

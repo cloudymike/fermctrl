@@ -25,6 +25,7 @@ google_cloud_config = {
     'cloud_region':'$REGION',
     'registry_id':'$REGISTRY_ID',
     'device_id':'$DEVICE_ID',
+    'topic':'$TOPIC',
     'mqtt_bridge_hostname':'mqtt.googleapis.com',
     'mqtt_bridge_port':8883
 }
