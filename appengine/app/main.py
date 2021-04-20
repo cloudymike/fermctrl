@@ -16,8 +16,7 @@
 # [START gae_python3_app]
 from flask import Flask
 import sys
-sys.path.append('../..')
-import gcloudconfig.config
+import config
 import json
 
 from concurrent.futures import TimeoutError
@@ -39,10 +38,10 @@ def hello():
 def displayTemp():
 
     # TODO(developer)
-    project_id = gcloudconfig.config.google_cloud_config['project_id']
+    project_id = config.google_cloud_config['project_id']
 
     # This one is not currently in the config file
-    subscription_id = gcloudconfig.config.google_cloud_config['topic']
+    subscription_id = config.google_cloud_config['topic']
     # Number of seconds the subscriber should listen for messages
     timeout = 5.0
 
