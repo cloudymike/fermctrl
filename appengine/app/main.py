@@ -23,7 +23,7 @@ import config
 import json
 
 from concurrent.futures import TimeoutError
-from google.cloud import pubsub_v1
+from google.cloud import pubsub_v1, iot_v1
 
 TEMPERATURE='No temp'
 
@@ -43,12 +43,21 @@ def hello():
 
 @app.route('/target', methods=['GET', 'POST'])
 def setTarget():
-    print(1)
     form = targetForm()
-    print(2)
     if form.validate_on_submit():
         print('Got temperature {}'.format(form.targetTemp.data))
-    print(4)
+        project_id = config.google_cloud_config['project_id']
+        cloud_region = config.google_cloud_config['cloud_region']
+        registry_id = config.google_cloud_config['registry_id']
+        device_id = config.google_cloud_config['device_id']
+        client = iot_v1.DeviceManagerClient()
+        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
+
+        command = str(form.targetTemp.data)
+        data = command.encode("utf-8")
+
+        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+
     return render_template('target.html', form=form)
 
 @app.route('/temp')
