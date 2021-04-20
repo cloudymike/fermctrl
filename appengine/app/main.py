@@ -14,25 +14,51 @@
 
 # [START gae_python38_app]
 # [START gae_python3_app]
-from flask import Flask
+from flask import Flask, render_template
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, SubmitField
+from wtforms.validators import DataRequired
 import sys
 import config
 import json
 
 from concurrent.futures import TimeoutError
-from google.cloud import pubsub_v1
+from google.cloud import pubsub_v1, iot_v1
 
 TEMPERATURE='No temp'
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 
+class targetForm(FlaskForm):
+    targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
+    submit = SubmitField('Set')
 
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
-    return 'Hello World!'
+    return 'Hello World..'
+
+@app.route('/target', methods=['GET', 'POST'])
+def setTarget():
+    form = targetForm()
+    if form.validate_on_submit():
+        print('Got temperature {}'.format(form.targetTemp.data))
+        project_id = config.google_cloud_config['project_id']
+        cloud_region = config.google_cloud_config['cloud_region']
+        registry_id = config.google_cloud_config['registry_id']
+        device_id = config.google_cloud_config['device_id']
+        client = iot_v1.DeviceManagerClient()
+        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
+
+        command = str(form.targetTemp.data)
+        data = command.encode("utf-8")
+
+        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+
+    return render_template('target.html', form=form)
 
 @app.route('/temp')
 def displayTemp():
