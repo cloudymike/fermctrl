@@ -1,5 +1,6 @@
 Flask==1.1.2
-coolname
+Flask-WTF==0.14.3
+WTForms==2.3.3
 cryptography==3.4.7
 flaky==3.7.0
 google-api-python-client==2.1.0

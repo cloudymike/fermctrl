@@ -14,7 +14,10 @@
 
 # [START gae_python38_app]
 # [START gae_python3_app]
-from flask import Flask
+from flask import Flask, render_template
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, SubmitField
+from wtforms.validators import DataRequired
 import sys
 import config
 import json
@@ -27,12 +30,26 @@ TEMPERATURE='No temp'
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 
+class targetForm(FlaskForm):
+    targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
+    submit = SubmitField('Set')
 
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
-    return 'Hello World!'
+    return 'Hello World..'
+
+@app.route('/target', methods=['GET', 'POST'])
+def setTarget():
+    print(1)
+    form = targetForm()
+    print(2)
+    if form.validate_on_submit():
+        print('Got temperature {}'.format(form.targetTemp.data))
+    print(4)
+    return render_template('target.html', form=form)
 
 @app.route('/temp')
 def displayTemp():
