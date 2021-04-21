@@ -1,0 +1,18 @@
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - Fermentation Controller</title>
+      {% else %}
+      <title>Welcome to the Fermentation Controller</title>
+      {% endif %}
+    </head>
+    <body>
+        <div>
+            <a href="index">Home</a>
+            <a href="target">Set Target</a>
+            <a href="displaytemp">Status</a>
+        </div>
+        <hr>
+        {% block content %}{% endblock %}
+    </body>
+</html>
