@@ -1,2 +1,4 @@
 rsa_private.pem
+rsa_public.pem
 config.py
+variables.sh
