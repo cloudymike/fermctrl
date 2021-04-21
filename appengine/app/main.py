@@ -37,9 +37,10 @@ class targetForm(FlaskForm):
     submit = SubmitField('Set')
 
 @app.route('/')
-def hello():
+@app.route('/index')
+def index():
     """Return a friendly HTTP greeting."""
-    return 'Hello World..'
+    return render_template('index.html', title='Home page')
 
 @app.route('/target', methods=['GET', 'POST'])
 def setTarget():
@@ -58,9 +59,9 @@ def setTarget():
 
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 
-    return render_template('target.html', form=form)
+    return render_template('target.html', title='Target temp', form=form)
 
-@app.route('/temp')
+@app.route('/displaytemp')
 def displayTemp():
 
     # TODO(developer)
@@ -94,6 +95,7 @@ def displayTemp():
             outstr = streaming_pull_future.result(timeout=timeout)
         except TimeoutError:
             streaming_pull_future.cancel()
+    return render_template('displaytemp.html', title='Current', temperature=TEMPERATURE)
     return(TEMPERATURE)
 
 if __name__ == '__main__':

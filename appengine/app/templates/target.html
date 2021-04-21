@@ -1,12 +1,10 @@
-<html>
-    <head>
-      <title>Target form</title>
-    </head>
-    <body>
+{% extends "base.html" %}
+
+{% block content %}
 <form method="POST" action="/target">
     {{ form.hidden_tag() }}
     {{ form.targetTemp.label }} {{ form.targetTemp(size=3) }}
     {{ form.submit() }}
 </form>
-</body>
-</html>
+
+{% endblock %}
