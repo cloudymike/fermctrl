@@ -25,7 +25,7 @@ import json
 from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1, iot_v1
 
-TEMPERATURE='No temp'
+TEMPERATURE='? '
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
