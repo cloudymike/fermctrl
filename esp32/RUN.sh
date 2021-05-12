@@ -6,11 +6,8 @@
 
 #set -x
 
-# Put your password for webrepl here, you would hate to type it forever
-WEBREPLPASS=MyPass
-
 loadfile () {
-  if [[ $1 -nt lastbuild ]]
+  if [[ $1 -nt ${CURDIR}/lastbuild ]]
   then
     if [[ -d $1 ]]
     then
@@ -34,16 +31,53 @@ loadfile () {
   fi
 }
 
-IP=$1
+usage ()
+{
+  echo "USAGE: $0 options"
+  echo "-f     Fast load, do not load files not changed since last load"
+  echo "-i     IP, implies used of webrepl"
+  echo "-p     Password to use with webrepl, default: $WEBREPLPASS"
+  echo "-P     Port to use for USB connection, default: $PORT"
+  exit 0
+}
+
+IP=""
 PORT='/dev/ttyUSB0'
+WEBREPLPASS="MyPass"
+FASTBUILD=0
+
+CURDIR=$(pwd)
+TOPDIR=${CURDIR%/*}
+UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
+
+while getopts "fi:hp:P:" arg; do
+  case $arg in
+    f)
+      FASTBUILD=1
+      ;;
+    h)
+      usage
+      ;;
+    i)
+      IP=$OPTARG
+      ;;
+    p)
+      WEBREPLPASS=$OPTARG
+      ;;
+    P)
+      WEBREPLPASS=$OPTARG
+      ;;
+    *) usage
+    ;;
+  esac
+done
+
+
+if [ $FASTBUILD != 1 ]; then rm -f ${CURDIR}/lastbuild; fi
 
 #Define some variables, change if needed
 WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
 
-# Create command aliasPORT='/dev/ttyUSB0'
-CURDIR=$(pwd)
-TOPDIR=${CURDIR%/*}
-UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
 
 echo "Loading certs, keys and configs"
 loadfile ${WLAN_CONFIG_PATH}
