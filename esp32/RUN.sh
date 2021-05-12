@@ -64,4 +64,7 @@ loadfile main.py
 
 touch lastbuild
 
-sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+if [ "$IP" == "" ]
+then
+  sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+fi
