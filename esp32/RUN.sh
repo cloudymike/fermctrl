@@ -1,30 +1,104 @@
 #!/bin/bash
 
-#Define some variables, change if needed
-WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
+# Will only load files newer than lastbuild
+# lastbuild is touched at end
+# To load all files, remove lastbuild
 
-# Create command aliasPORT='/dev/ttyUSB0'
+#set -x
+
+loadfile () {
+  if [[ $1 -nt ${CURDIR}/lastbuild ]]
+  then
+    if [[ -d $1 ]]
+    then
+      for f in $(find $1 -name '*.py')
+      do
+        loadfile $f
+      done
+    elif [[ ! -f $1 ]]
+    then
+       echo "Missing file: $1"
+       exit 1
+    else
+
+      if [ "$IP" == "" ]
+      then
+        ampy --port $PORT put $1
+      else
+        ../webrepl/webrepl_cli.py -p $WEBREPLPASS $1 $IP:/
+      fi
+    fi
+  fi
+}
+
+usage ()
+{
+  echo "USAGE: $0 options"
+  echo "-f     Fast load, do not load files not changed since last load"
+  echo "-i     IP, implies used of webrepl"
+  echo "-p     Password to use with webrepl, default: $WEBREPLPASS"
+  echo "-P     Port to use for USB connection, default: $PORT"
+  exit 0
+}
+
+IP=""
 PORT='/dev/ttyUSB0'
-PUSHCMD="ampy --port $PORT put "
+WEBREPLPASS="MyPass"
+FASTBUILD=0
+
 CURDIR=$(pwd)
 TOPDIR=${CURDIR%/*}
 UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
 
+while getopts "fi:hp:P:" arg; do
+  case $arg in
+    f)
+      FASTBUILD=1
+      ;;
+    h)
+      usage
+      ;;
+    i)
+      IP=$OPTARG
+      ;;
+    p)
+      WEBREPLPASS=$OPTARG
+      ;;
+    P)
+      WEBREPLPASS=$OPTARG
+      ;;
+    *) usage
+    ;;
+  esac
+done
+
+
+if [ $FASTBUILD != 1 ]; then rm -f ${CURDIR}/lastbuild; fi
+
+#Define some variables, change if needed
+WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
+
+
 echo "Loading certs, keys and configs"
-$PUSHCMD ${WLAN_CONFIG_PATH}
-$PUSHCMD ${TOPDIR}/gcloudconfig/config.py
+loadfile ${WLAN_CONFIG_PATH}
+loadfile ${TOPDIR}/gcloudconfig/config.py
 
 echo "Loading programs"
-$PUSHCMD ${UPYEX}/wlan/wlan.py
-$PUSHCMD ${UPYEX}/LED/LED.py
-$PUSHCMD ${UPYEX}/gcloud-pub/mqttgcloud.py
-$PUSHCMD ${UPYEX}/gcloud-pub/third_party
-$PUSHCMD ${UPYEX}/oled/ssd1306.py
-$PUSHCMD ${UPYEX}/oled/gfx.py
-$PUSHCMD ${UPYEX}/textout/textout.py
+loadfile ${UPYEX}/wlan/wlan.py
+loadfile ${UPYEX}/LED/LED.py
+loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
+loadfile ${UPYEX}/gcloud-pub/third_party
+loadfile ${UPYEX}/oled/ssd1306.py
+loadfile ${UPYEX}/oled/gfx.py
+loadfile ${UPYEX}/textout/textout.py
 
-$PUSHCMD relay.py
-$PUSHCMD tempreader.py
-$PUSHCMD main.py
+loadfile relay.py
+loadfile tempreader.py
+loadfile main.py
 
-sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+touch lastbuild
+
+if [ "$IP" == "" ]
+then
+  sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+fi
