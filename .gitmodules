@@ -4,6 +4,3 @@
 [submodule "micropythonexamples"]
 	path = micropythonexamples
 	url = https://github.com/cloudymike/micropythonexamples.git
-[submodule "webrepl"]
-	path = webrepl
-	url = git@github.com:micropython/webrepl.git
