@@ -1,23 +1,35 @@
 #!/bin/bash
 
-loadfile () {
-  if [[ -d $1 ]]
-  then
-    for f in $(find $1 -name '*.py')
-    do
-      loadfile $f
-    done
-  elif [[ ! -f $1 ]]
-  then
-     echo "Missing file: $1"
-     exit 1
-  else
+# Will only load files newer than lastbuild
+# lastbuild is touched at end
+# To load all files, remove lastbuild
 
-    if [ "$IP" == "" ]
+#set -x
+
+# Put your password for webrepl here, you would hate to type it forever
+WEBREPLPASS=MyPass
+
+loadfile () {
+  if [[ $1 -nt lastbuild ]]
+  then
+    if [[ -d $1 ]]
     then
-      ampy --port $PORT put $1
+      for f in $(find $1 -name '*.py')
+      do
+        loadfile $f
+      done
+    elif [[ ! -f $1 ]]
+    then
+       echo "Missing file: $1"
+       exit 1
     else
-      ../webrepl/webrepl_cli.py -p MyPass $1 $IP:/
+
+      if [ "$IP" == "" ]
+      then
+        ampy --port $PORT put $1
+      else
+        ../webrepl/webrepl_cli.py -p $WEBREPLPASS $1 $IP:/
+      fi
     fi
   fi
 }
@@ -49,5 +61,7 @@ loadfile ${UPYEX}/textout/textout.py
 loadfile relay.py
 loadfile tempreader.py
 loadfile main.py
+
+touch lastbuild
 
 sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
