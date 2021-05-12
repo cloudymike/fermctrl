@@ -27,7 +27,8 @@ class mainloop:
             #Use old time
 
         self.unit='F'
-        self.hysterisis=0.5
+        self.temprange=0.5   # Range to hold the temperature in
+        self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
@@ -54,15 +55,18 @@ class mainloop:
     def thermostat(self):
         self.get_target()
         self.get_temp()
-        if self.temp > self.target + self.hysterisis:
+        if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
             relay.HOT.off()
-        elif self.temp < self.target - self.hysterisis :
+        elif self.temp < self.target - self.hysterisis - self.temprange:
             relay.HOT.on()
             relay.COLD.off()
-        else:
+        elif self.temp < self.target + self.temprange and self.temp > self.target - self.temprange:
             relay.COLD.off()
             relay.HOT.off()
+        else:
+            pass
+
 
     def get_target(self):
         targetstring = self.m.last_msg()
