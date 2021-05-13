@@ -91,6 +91,7 @@ loadfile ${UPYEX}/gcloud-pub/third_party
 loadfile ${UPYEX}/oled/ssd1306.py
 loadfile ${UPYEX}/oled/gfx.py
 loadfile ${UPYEX}/textout/textout.py
+loadfile ${UPYEX}/save_state/savestate.py
 
 loadfile relay.py
 loadfile tempreader.py
