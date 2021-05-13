@@ -11,6 +11,7 @@ import relay
 import mqttgcloud
 import LED
 import textout
+import savestate
 
 
 class mainloop:
@@ -30,27 +31,15 @@ class mainloop:
         self.temprange=0.5   # Range to hold the temperature in
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
-        self.target = 0.0
         self.tempDevice = tempreader.tempreader(self.unit)
 
-        self.loadstate()
+        self.state = savestate.readState()
+        try:
+            self.target = self.state['target']
+        except:
+            self.target = 0.0
 
         self.m = mqttgcloud.MQTTgcloud()
-
-    def storestate(self):
-        state={}
-        state['target'] = self.target
-        with open('state.json', 'w') as outfile:
-            json.dump(state, outfile)
-
-    def loadstate(self):
-        try:
-            with open('state.json') as json_file:
-                state = json.load(json_file)
-            self.target = state['target']
-        except:
-            pass
-
 
     def thermostat(self):
         self.get_target()
@@ -73,7 +62,7 @@ class mainloop:
         try:
             self.target = float(targetstring)
         except:
-            print("ERROR: No valid target")
+            pass
         return(self.target)
 
     def get_temp(self):
@@ -107,7 +96,7 @@ class mainloop:
             if min != old_min:
                 old_min = min
                 self.m.publish("{\"temperature\":" + str(self.temp) + "}")
-                self.storestate()
+                savestate.writeState({'target': self.target})
 
 
 
