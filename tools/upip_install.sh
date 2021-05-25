@@ -13,5 +13,5 @@ UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
 
 echo "Loading packages"
 $PUSHCMD ${WLAN_CONFIG_PATH}
-PUSHCMD ${UPYEX}/wlan/wlan.py
+$PUSHCMD ${UPYEX}/wlan/wlan.py
 timeout 20  ampy --port /dev/ttyUSB0 run upip_install.py
