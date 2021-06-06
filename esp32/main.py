@@ -12,7 +12,7 @@ import LED
 import textout
 import savestate
 
-
+AVAILABLE_COMMANDS = ['stop','run','pause']
 class mainloop:
     def __init__(self):
         self.rtc = machine.RTC()
@@ -31,6 +31,8 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
+        self.cmd = 'stop'
+
 
         self.state = savestate.readState()
         try:
@@ -60,9 +62,15 @@ class mainloop:
         targetstring = self.m.last_msg()
         try:
             self.target = float(targetstring)
+            self.set_command('run')
         except:
-            pass
+            self.set_command(targetstring)
         return(self.target)
+
+    def set_command(self, cmd):
+        if cmd in AVAILABLE_COMMANDS:
+            self.cmd = cmd
+
 
     def get_temp(self):
         self.temp = self.tempDevice.get_temp()
@@ -89,8 +97,10 @@ class mainloop:
                 self.txt.centerline(time_str,3)
 
                 self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
-
-                self.txt.centerline("Target: {}".format(self.target),5)
+                if self.cmd == 'run':
+                    self.txt.centerline("Target: {}".format(self.target),5)
+                else:
+                    self.txt.centerline("{}".format(self.cmd),5)
                 self.txt.show()
             if min != old_min:
                 old_min = min

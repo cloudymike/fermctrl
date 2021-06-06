@@ -37,7 +37,7 @@ class targetForm(FlaskForm):
     submit = SubmitField('Set')
 
 class cmdForm(FlaskForm):
-    cmd = RadioField('Command', choices=[('stop','stop'),('run','run'),('pause','pause'),('skip','skip'),('terminate','terminate')])
+    cmd = RadioField('Command', choices=[('stop','stop'),('run','run'),('pause','pause')])
     submit = SubmitField('Execute')
 
 @app.route('/')
@@ -80,7 +80,7 @@ def setCmd():
         command = str(form.cmd.data)
         data = command.encode("utf-8")
 
-        #result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 
     return render_template('cmd.html', title='Command', form=form)
 
