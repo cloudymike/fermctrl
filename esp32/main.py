@@ -6,7 +6,6 @@ import ntptime
 import json
 import wlan
 import tempreader
-import awsiotconfig
 import relay
 import mqttgcloud
 import LED
