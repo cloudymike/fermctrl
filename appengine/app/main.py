@@ -16,7 +16,7 @@
 # [START gae_python3_app]
 from flask import Flask, render_template
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, SubmitField
+from wtforms import IntegerField, SubmitField, RadioField
 from wtforms.validators import DataRequired
 import sys
 import config
@@ -35,6 +35,10 @@ app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 class targetForm(FlaskForm):
     targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
     submit = SubmitField('Set')
+
+class cmdForm(FlaskForm):
+    cmd = RadioField('Command', choices=[('stop','stop'),('run','run'),('pause','pause'),('skip','skip'),('terminate','terminate')])
+    submit = SubmitField('Execute')
 
 @app.route('/')
 @app.route('/index')
@@ -60,6 +64,25 @@ def setTarget():
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 
     return render_template('target.html', title='Target temp', form=form)
+
+@app.route('/cmd', methods=['GET', 'POST'])
+def setCmd():
+    form = cmdForm()
+    if form.validate_on_submit():
+        print('Got command {}'.format(form.cmd.data))
+        project_id = config.google_cloud_config['project_id']
+        cloud_region = config.google_cloud_config['cloud_region']
+        registry_id = config.google_cloud_config['registry_id']
+        device_id = config.google_cloud_config['device_id']
+        client = iot_v1.DeviceManagerClient()
+        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
+
+        command = str(form.cmd.data)
+        data = command.encode("utf-8")
+
+        #result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+
+    return render_template('cmd.html', title='Command', form=form)
 
 @app.route('/displaytemp')
 def displayTemp():
