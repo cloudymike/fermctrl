@@ -46,6 +46,9 @@ To create device use
 To delete device use
 `./delete_device.sh`
 
+Note that this script also creates topics and subscriptions. These are kind of the same thing in mqtt but
+not in gcloud. Note that a subscription expire after EXPIRATION_PERIOD, set to max 365 days.
+
 # config.py
 You should now have a file config.py. This file will NOT be checked in with the repo, so you may want to copy
 it to a safe place. This file will be used by both app engine build and esp32 build to
