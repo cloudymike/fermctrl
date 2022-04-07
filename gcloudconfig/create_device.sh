@@ -41,4 +41,4 @@ echo '}' >> config.py
 
 # Create subscription
 gcloud pubsub topics create $TOPIC --project=$PROJECT_ID
-gcloud pubsub subscriptions create $TOPIC  --topic=$TOPIC --project=$PROJECT_ID
+gcloud pubsub subscriptions create $TOPIC  --topic=$TOPIC --project=$PROJECT_ID --expiration-period=never --message-retention-duration=600

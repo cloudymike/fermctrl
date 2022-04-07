@@ -3,6 +3,10 @@
 Source setup.sh  to setup virtual environment and include required packages.
 Then run each file as a command
 
+## Setup service account credentials
+export GOOGLE_APPLICATION_CREDENTIALS=~/secrets/gcloud/myproject.json
+See https://cloud.google.com/pubsub/docs/building-pubsub-messaging-system#create_service_account_credentials
+
 ## Initial command line with python
 
 ### command.py
@@ -16,7 +20,7 @@ Example:
 ### subscribe.py
 Will get all metrics from device, and try to clean queue
 ```
-# ./subscriber.py 
+# ./subscriber.py
 Listening for messages on projects/tempctrlproj/subscriptions/ferm1topic..
 
 Received Message {

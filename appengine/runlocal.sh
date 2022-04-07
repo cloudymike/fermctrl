@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# End of skip
+# setup service account credentials
+# see https://cloud.google.com/pubsub/docs/building-pubsub-messaging-system#create_service_account_credentials
+export GOOGLE_APPLICATION_CREDENTIALS=~/secrets/gcloud/myproject.json
 
 # Load app
 cd app
