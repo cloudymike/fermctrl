@@ -12,6 +12,9 @@ import LED
 import textout
 import savestate
 
+
+wdt = machine.WDT(timeout=60000)  # enable it with a timeout of 60s
+
 AVAILABLE_COMMANDS = ['stop','run','pause']
 class mainloop:
     def __init__(self):
@@ -88,6 +91,7 @@ class mainloop:
             if second != old_second:
                 old_second = second
                 LED.LED.value(abs(LED.LED.value()-1))
+                wdt.feed()
 
                 self.m.check_msg()
                 self.thermostat()
