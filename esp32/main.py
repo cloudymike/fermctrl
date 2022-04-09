@@ -35,7 +35,7 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
-        self.cmd = 'stop'
+
 
 
         self.state = savestate.readState()
@@ -43,8 +43,25 @@ class mainloop:
             self.target = self.state['target']
         except:
             self.target = 0.0
+        try:
+            self.cmd = self.state['cmd']
+        except:
+            self.cmd = 'stop'
+
+
+        # Rebuild the state with current values
+        # Creates a clean file for the future
+        self.writeStateFile()
+
 
         self.m = mqttgcloud.MQTTgcloud()
+
+    def writeStateFile(self):
+        self.state = {}
+        self.state['target'] = self.target
+        self.state['cmd'] = self.cmd
+        savestate.writeState(self.state)
+
 
     def thermostat(self):
         self.get_target()
@@ -66,6 +83,7 @@ class mainloop:
         targetstring = self.m.last_msg()
         try:
             self.target = float(targetstring)
+            self.writeStateFile()
             self.set_command('run')
         except:
             self.set_command(targetstring)
@@ -74,6 +92,7 @@ class mainloop:
     def set_command(self, cmd):
         if cmd in AVAILABLE_COMMANDS:
             self.cmd = cmd
+            self.writeStateFile()
 
 
     def get_temp(self):
@@ -110,7 +129,10 @@ class mainloop:
             if min != old_min:
                 old_min = min
                 self.m.publish("{\"temperature\":" + str(self.temp) + "}")
-                savestate.writeState({'target': self.target})
+                # Write state file once a minute just in case
+                # We should be able to remove this.
+                self.writeStateFile()
+
 
 
 
