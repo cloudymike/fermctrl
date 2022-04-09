@@ -12,6 +12,10 @@ import LED
 import textout
 import savestate
 
+# enable watchdog with a timeout of 5min
+# Keep a long timeout so you can reload software before timeout
+wdt = machine.WDT(timeout=300000)
+
 AVAILABLE_COMMANDS = ['stop','run','pause']
 class mainloop:
     def __init__(self):
@@ -88,6 +92,7 @@ class mainloop:
             if second != old_second:
                 old_second = second
                 LED.LED.value(abs(LED.LED.value()-1))
+                wdt.feed()
 
                 self.m.check_msg()
                 self.thermostat()
