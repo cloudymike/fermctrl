@@ -12,8 +12,9 @@ import LED
 import textout
 import savestate
 
-
-wdt = machine.WDT(timeout=60000)  # enable it with a timeout of 60s
+# enable watchdog with a timeout of 5min
+# Keep a long timeout so you can reload software before timeout
+wdt = machine.WDT(timeout=300000)
 
 AVAILABLE_COMMANDS = ['stop','run','pause']
 class mainloop:
