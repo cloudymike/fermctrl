@@ -12,7 +12,7 @@ import LED
 import textout
 import savestate
 
-VERSION=0.1
+VERSION=0.2
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
@@ -49,7 +49,10 @@ class mainloop:
             self.cmd = self.state['cmd']
         except:
             self.cmd = 'stop'
-
+        try:
+            self.start_epoch = self.state['start_epoch']
+        except:
+            self.start_epoch = time.time()
 
         # Rebuild the state with current values
         # Creates a clean file for the future
@@ -58,10 +61,12 @@ class mainloop:
 
         self.m = mqttgcloud.MQTTgcloud()
 
+    # Create a proper dict and save as a json file
     def writeStateFile(self):
         self.state = {}
         self.state['target'] = self.target
         self.state['cmd'] = self.cmd
+        self.state['start_epoch'] = self.start_epoch
         savestate.writeState(self.state)
 
 
@@ -93,6 +98,8 @@ class mainloop:
 
     def set_command(self, cmd):
         if cmd in AVAILABLE_COMMANDS:
+            if cmd == 'run' and self.cmd != 'run':
+                self.start_epoch = time.time()
             self.cmd = cmd
             self.writeStateFile()
 
@@ -101,13 +108,19 @@ class mainloop:
         self.temp = self.tempDevice.get_temp()
         return(self.temp)
 
+    def run_time(self):
+        current_secs = time.time() - self.start_epoch
+        year,month,day,hour,min,second,dummy1,dummy2 = time.localtime(current_secs)
+        day = day - 1
+        if month == 2:
+            day = day + 31
+        return((day,hour,min,second))
+
     def run(self):
         old_second = 99
         old_min = 99
         while True:
-            #date_str = "Date: {1:02d}/{2:02d}/{0:4d}".format(*self.rtc.datetime())
-            current_time = self.rtc.datetime()
-            year,*z,hour,min,second,us=current_time
+            day,hour,min,second = self.run_time()
 
             # Cycle over x time
             if second != old_second:
@@ -118,7 +131,7 @@ class mainloop:
                 self.m.check_msg()
                 self.thermostat()
 
-                time_str = "UTC: {4:02d}:{5:02d}:{6:02d}".format(*current_time)
+                time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
                 self.txt.clear()
                 self.txt.centerline(time_str,3)
 
