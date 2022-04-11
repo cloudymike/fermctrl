@@ -12,7 +12,7 @@ import LED
 import textout
 import savestate
 
-VERSION=0.1
+VERSION=0.2
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
