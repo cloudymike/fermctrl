@@ -54,7 +54,6 @@ class mainloop:
         except:
             self.start_epoch = time.time()
 
-
         # Rebuild the state with current values
         # Creates a clean file for the future
         self.writeStateFile()
@@ -111,20 +110,17 @@ class mainloop:
 
     def run_time(self):
         current_secs = time.time() - self.start_epoch
-        current_time = time.localtime(current_secs)
+        year,month,day,hour,min,second,dummy1,dummy2 = time.localtime(current_secs)
         day = day - 1
         if month == 2:
             day = day + 31
-        return(current_time)
-
+        return((day,hour,min,second))
 
     def run(self):
         old_second = 99
         old_min = 99
         while True:
-            #date_str = "Date: {1:02d}/{2:02d}/{0:4d}".format(*self.rtc.datetime())
-            year,month,day,hour,min,second,dummy1,dummy2 = self.run_time()
-
+            day,hour,min,second = self.run_time()
 
             # Cycle over x time
             if second != old_second:
