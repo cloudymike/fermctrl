@@ -12,6 +12,8 @@ import LED
 import textout
 import savestate
 
+VERSION=0.1
+
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
 wdt = machine.WDT(timeout=300000)
@@ -125,6 +127,7 @@ class mainloop:
                     self.txt.centerline("Target: {}".format(self.target),5)
                 else:
                     self.txt.centerline("{}".format(self.cmd),5)
+                self.txt.centerline("Version: {}".format(VERSION),6)
                 self.txt.show()
             if min != old_min:
                 old_min = min
