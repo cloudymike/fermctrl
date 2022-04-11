@@ -112,8 +112,9 @@ class mainloop:
     def run_time(self):
         current_secs = time.time() - self.start_epoch
         current_time = time.localtime(current_secs)
-
-        print(current_time)
+        day = day - 1
+        if month == 2:
+            day = day + 31
         return(current_time)
 
 
@@ -122,9 +123,8 @@ class mainloop:
         old_min = 99
         while True:
             #date_str = "Date: {1:02d}/{2:02d}/{0:4d}".format(*self.rtc.datetime())
-            current_time = self.run_time()
-            year,month,day,hour,min,second,dummy1,dummy2 = current_time
-            day = day - 1
+            year,month,day,hour,min,second,dummy1,dummy2 = self.run_time()
+
 
             # Cycle over x time
             if second != old_second:
