@@ -10,9 +10,10 @@ import relay
 import mqttgcloud
 import LED
 import textout
+import bignumber
 import savestate
 
-VERSION=0.2
+VERSION=0.3
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
@@ -116,10 +117,36 @@ class mainloop:
             day = day + 31
         return((day,hour,min,second))
 
+    def display_detail(self):
+        day,hour,min,second = self.run_time()
+        time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
+        self.txt.clear()
+        self.txt.centerline(time_str,3)
+
+        self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
+        if self.cmd == 'run':
+            self.txt.centerline("Target: {}".format(self.target),5)
+        else:
+            self.txt.centerline("{}".format(self.cmd),5)
+        self.txt.centerline("Version: {}".format(VERSION),6)
+        self.txt.show()
+
+    def display_simple(self):
+        self.txt.clear()
+        day,hour,min,second = self.run_time()
+        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
+        self.txt.leftline("Day:{}".format(day),1)
+        self.txt.rightline("Tgt:{}".format(self.target),1)
+        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
+
     def run(self):
         old_second = 99
         old_min = 99
         while True:
+
+            #self.display_detail()
+            self.display_simple()
+
             day,hour,min,second = self.run_time()
 
             # Cycle over x time
@@ -131,17 +158,6 @@ class mainloop:
                 self.m.check_msg()
                 self.thermostat()
 
-                time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
-                self.txt.clear()
-                self.txt.centerline(time_str,3)
-
-                self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
-                if self.cmd == 'run':
-                    self.txt.centerline("Target: {}".format(self.target),5)
-                else:
-                    self.txt.centerline("{}".format(self.cmd),5)
-                self.txt.centerline("Version: {}".format(VERSION),6)
-                self.txt.show()
             if min != old_min:
                 old_min = min
                 self.m.publish("{\"temperature\":" + str(self.temp) + "}")

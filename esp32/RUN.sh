@@ -9,24 +9,11 @@
 loadfile () {
   if [[ $1 -nt ${CURDIR}/lastbuild ]]
   then
-    if [[ -d $1 ]]
+    if [ "$IP" == "" ]
     then
-      for f in $(find $1 -name '*.py')
-      do
-        loadfile $f
-      done
-    elif [[ ! -f $1 ]]
-    then
-       echo "Missing file: $1"
-       exit 1
+      sudo ampy --port $PORT put $1
     else
-
-      if [ "$IP" == "" ]
-      then
-        ampy --port $PORT put $1
-      else
-        ../webrepl/webrepl_cli.py -p $WEBREPLPASS $1 $IP:/
-      fi
+      ../webrepl/webrepl_cli.py -p $WEBREPLPASS $1 $IP:/
     fi
   fi
 }
@@ -84,12 +71,17 @@ loadfile ${WLAN_CONFIG_PATH}
 loadfile ${TOPDIR}/gcloudconfig/config.py
 
 echo "Loading programs"
+
+pushd ${UPYEX}/gcloud-pub
+loadfile third_party
+popd
+
 loadfile ${UPYEX}/wlan/wlan.py
 loadfile ${UPYEX}/LED/LED.py
 loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
-loadfile ${UPYEX}/gcloud-pub/third_party
 loadfile ${UPYEX}/oled/ssd1306.py
 loadfile ${UPYEX}/oled/gfx.py
+loadfile ${UPYEX}/oled/bignumber.py
 loadfile ${UPYEX}/textout/textout.py
 loadfile ${UPYEX}/save_state/savestate.py
 
