@@ -38,7 +38,7 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
-
+        self.temp_direction = ' '
 
 
         self.state = savestate.readState()
@@ -77,12 +77,15 @@ class mainloop:
         if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
             relay.HOT.off()
+            self.temp_direction = 'v'
         elif self.temp < self.target - self.hysterisis - self.temprange:
             relay.HOT.on()
             relay.COLD.off()
+            self.temp_direction = '^'
         elif self.temp < self.target + self.temprange and self.temp > self.target - self.temprange:
             relay.COLD.off()
             relay.HOT.off()
+            self.temp_direction = ' '
         else:
             pass
 
@@ -117,26 +120,12 @@ class mainloop:
             day = day + 31
         return((day,hour,min,second))
 
-    def display_detail(self):
-        day,hour,min,second = self.run_time()
-        time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
-        self.txt.clear()
-        self.txt.centerline(time_str,3)
-
-        self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
-        if self.cmd == 'run':
-            self.txt.centerline("Target: {}".format(self.target),5)
-        else:
-            self.txt.centerline("{}".format(self.cmd),5)
-        self.txt.centerline("Version: {}".format(VERSION),6)
-        self.txt.show()
-
     def display_simple(self):
         self.txt.clear()
         day,hour,min,second = self.run_time()
-        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
         self.txt.leftline("Day:{}".format(day),1)
         self.txt.rightline("Tgt:{}".format(self.target),1)
+        self.txt.centerline("{}".format(self.temp_direction),1)
         bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
 
     def run(self):
