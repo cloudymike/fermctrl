@@ -26,6 +26,7 @@ from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1, iot_v1
 
 TEMPERATURE='? '
+TARGET='? '
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -102,9 +103,15 @@ def displayTemp():
 
     def callback(message):
         global TEMPERATURE
+        global TARGET
         print(f"Received {message}.")
         TEMPERATURE=str(json.loads(message.data)['temperature'])
+        try:
+            TARGET=str(json.loads(message.data)['target'])
+        except:
+            TARGET = '?'
         print(f"Temperature {TEMPERATURE}.")
+        print(f"Target {TARGET}.")
         message.ack()
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
@@ -118,8 +125,8 @@ def displayTemp():
             outstr = streaming_pull_future.result(timeout=timeout)
         except TimeoutError:
             streaming_pull_future.cancel()
-    return render_template('displaytemp.html', title='Current', temperature=TEMPERATURE)
-    return(TEMPERATURE)
+    return render_template('displaytemp.html', title='Current', temperature=TEMPERATURE, target=TARGET)
+    #return(TEMPERATURE)
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
