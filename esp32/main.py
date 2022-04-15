@@ -160,7 +160,7 @@ class mainloop:
 
             if min != old_min:
                 old_min = min
-                self.m.publish("{\"temperature\":" + str(self.temp) + "}")
+                self.m.publish("{\"temperature\":" + str(self.temp) + ", \"target\":" + str(self.target) +"}")
                 # Write state file once a minute just in case
                 # We should be able to remove this.
                 self.writeStateFile()
