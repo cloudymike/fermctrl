@@ -37,6 +37,11 @@ class targetForm(FlaskForm):
     targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
     submit = SubmitField('Set')
 
+class profileForm(FlaskForm):
+    targetDay1 = IntegerField('targetDay1', validators=[DataRequired()])
+    targetTemp1 = IntegerField('targetTemp1', validators=[DataRequired()])
+    submit = SubmitField('Set')
+
 class cmdForm(FlaskForm):
     cmd = RadioField('Command', choices=[('stop','stop'),('run','run'),('pause','pause')])
     submit = SubmitField('Execute')
@@ -49,6 +54,7 @@ def index():
 
 @app.route('/target', methods=['GET', 'POST'])
 def setTarget():
+    print("In setTarget")
     form = targetForm()
     if form.validate_on_submit():
         print('Got temperature {}'.format(form.targetTemp.data))
@@ -65,6 +71,31 @@ def setTarget():
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 
     return render_template('target.html', title='Target temp', form=form)
+
+@app.route('/profile', methods=['GET', 'POST'])
+def setProfile():
+    print("In setProfile")
+    form = profileForm()
+    print(form)
+    if form.validate_on_submit():
+        print('Day1 {}'.format(form.targetDay1.data))
+        project_id = config.google_cloud_config['project_id']
+        cloud_region = config.google_cloud_config['cloud_region']
+        registry_id = config.google_cloud_config['registry_id']
+        device_id = config.google_cloud_config['device_id']
+        client = iot_v1.DeviceManagerClient()
+        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
+
+        day1Return = form.targetDay1.data
+        temp1Return = form.targetTemp1.data
+        print("setProfile day1: {}".format(day1Return))
+        commandDay1 = '{'+str(day1Return) + ':'+ str(temp1Return)+'}'
+        dataDay1 = commandDay1.encode("utf-8")
+
+        print("Sending: {}".format(dataDay1))
+        result = client.send_command_to_device(request={"name": device_path, "binary_data": dataDay1})
+
+    return render_template('profile.html', title='Set Profile', form=form)
 
 @app.route('/cmd', methods=['GET', 'POST'])
 def setCmd():

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="POST" action="/profile">
+  {{ form.hidden_tag() }}
+  Day1 {{ form.targetDay1(size=3) }}
+  Temp1 {{ form.targetTemp1(size=3) }}
+  {{ form.submit() }}
+</form>
+
+{% endblock %}
