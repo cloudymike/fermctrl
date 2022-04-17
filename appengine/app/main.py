@@ -17,7 +17,7 @@
 from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, SubmitField, RadioField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired,Optional
 import sys
 import config
 import json
@@ -38,8 +38,10 @@ class targetForm(FlaskForm):
     submit = SubmitField('Set')
 
 class profileForm(FlaskForm):
-    targetDay1 = IntegerField('targetDay1', validators=[DataRequired()])
-    targetTemp1 = IntegerField('targetTemp1', validators=[DataRequired()])
+    targetDay0 = IntegerField('targetDay0', validators=[DataRequired()])
+    targetTemp0 = IntegerField('targetTemp0', validators=[Optional()])
+    targetDay1 = IntegerField('targetDay1', validators=[Optional()])
+    targetTemp1 = IntegerField('targetTemp1', validators=[Optional()])
     submit = SubmitField('Set')
 
 class cmdForm(FlaskForm):
@@ -74,11 +76,14 @@ def setTarget():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
+    profile = {}
     print("In setProfile")
     form = profileForm()
     print(form)
-    if form.validate_on_submit():
-        print('Day1 {}'.format(form.targetDay1.data))
+    if form.is_submitted():
+    #if form.validate_on_submit():
+    #if True:
+        print('Day0 {}'.format(form.targetDay0.data))
         project_id = config.google_cloud_config['project_id']
         cloud_region = config.google_cloud_config['cloud_region']
         registry_id = config.google_cloud_config['registry_id']
@@ -86,14 +91,12 @@ def setProfile():
         client = iot_v1.DeviceManagerClient()
         device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
-        day1Return = form.targetDay1.data
-        temp1Return = form.targetTemp1.data
-        print("setProfile day1: {}".format(day1Return))
-        commandDay1 = '{'+str(day1Return) + ':'+ str(temp1Return)+'}'
-        dataDay1 = commandDay1.encode("utf-8")
+        profile[str(form.targetDay0.data)] = str(form.targetTemp0.data)
+        profile[str(form.targetDay1.data)] = str(form.targetTemp1.data)
 
-        print("Sending: {}".format(dataDay1))
-        result = client.send_command_to_device(request={"name": device_path, "binary_data": dataDay1})
+        profileJSON = json.dumps(profile)
+        print("Sending: {}".format(profileJSON))
+        result = client.send_command_to_device(request={"name": device_path, "binary_data": profileJSON})
 
     return render_template('profile.html', title='Set Profile', form=form)
 

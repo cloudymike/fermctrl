@@ -3,8 +3,10 @@
 {% block content %}
 <form method="POST" action="/profile">
   {{ form.hidden_tag() }}
-  Day1 {{ form.targetDay1(size=3) }}
-  Temp1 {{ form.targetTemp1(size=3) }}
+  Day {{ form.targetDay0(size=3, value="0") }}
+  Temp {{ form.targetTemp0(size=3, value=" ") }}<br>
+  Day {{ form.targetDay1(size=3, value=" ") }}
+  Temp {{ form.targetTemp1(size=3, value=" ") }}<br>
   {{ form.submit() }}
 </form>
 
