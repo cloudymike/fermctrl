@@ -10,7 +10,6 @@ import relay
 import mqttgcloud
 import LED
 import textout
-import bignumber
 import savestate
 
 VERSION=0.3
@@ -108,8 +107,6 @@ class mainloop:
                 self.start_epoch = time.time()
             self.cmd = cmd
             self.writeStateFile()
-        else:
-            print("THIS SHOULD NOT HAPPEN".format(cmd))
 
 
     def get_temp(self):
@@ -128,6 +125,7 @@ class mainloop:
         day,hour,min,second = self.run_time()
         time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
         self.txt.clear()
+        self.txt.centerline(self.profile,1)
         self.txt.centerline(time_str,3)
 
         self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
@@ -138,21 +136,13 @@ class mainloop:
         self.txt.centerline("Version: {}".format(VERSION),6)
         self.txt.show()
 
-    def display_simple(self):
-        self.txt.clear()
-        day,hour,min,second = self.run_time()
-        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
-        self.txt.leftline("Day:{}".format(day),1)
-        self.txt.rightline("Tgt:{}".format(self.target),1)
-        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
-
     def run(self):
         old_second = 99
         old_min = 99
         while True:
 
             #self.display_detail()
-            self.display_simple()
+            self.display_detail()
 
             day,hour,min,second = self.run_time()
 
