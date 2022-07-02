@@ -38,6 +38,7 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
+        self.tempProfile = {}
 
 
 
@@ -94,7 +95,10 @@ class mainloop:
             self.writeStateFile()
             self.set_command('run')
         except:
-            self.set_command(targetstring)
+            try:
+                self.tempProfile = json.loads(targetstring)
+            except:
+                self.set_command(targetstring)
         return(self.target)
 
     def set_command(self, cmd):
