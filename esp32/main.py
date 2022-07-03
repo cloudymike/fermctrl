@@ -37,7 +37,7 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
-        self.profile = {"0":"0"}
+        self.profile = {0:0}
 
 
 
@@ -68,11 +68,13 @@ class mainloop:
         self.state['target'] = self.target
         self.state['cmd'] = self.cmd
         self.state['start_epoch'] = self.start_epoch
+        self.state['profile'] = self.profile
         savestate.writeState(self.state)
 
 
     def thermostat(self):
-        self.get_target()
+        self.get_mqttdata()
+        self.current_target()
         self.get_temp()
         if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
@@ -86,20 +88,43 @@ class mainloop:
         else:
             pass
 
+    def current_target(self):
+        day,hour,min,second = self.run_time()
+        target_value = self.profile[0]
 
-    def get_target(self):
+        for key_day, value_day in self.profile.items():
+            if key_day > day:
+                break;
+            target_value = value_day
+        self.target = target_value
+        print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
+
+
+    def sorted_numeric_dict(self,rawdict):
+        numeric_dict = {}
+        for k,v in rawdict.items():
+            numeric_dict[int(k)] = float(v)
+        sorted_dict = dict(sorted(numeric_dict.items()))
+        return(sorted_dict)
+
+
+    def get_mqttdata(self):
         targetstring = self.m.last_msg()
         try:
-            self.target = float(targetstring)
+            target = float(targetstring)
+            self.profile = { 0: target}
             self.writeStateFile()
             self.set_command('run')
         except:
             try:
-                self.profile = json.loads(targetstring)
-                print("PROFILE: {}".format(self.profile))
+                rawdict = json.loads(targetstring)
+                self.profile = self.sorted_numeric_dict(rawdict)
+                self.writeStateFile()
             except:
                 self.set_command(targetstring)
-        return(self.target)
+
+        return()
+
 
     def set_command(self, cmd):
         if cmd in AVAILABLE_COMMANDS:
@@ -135,6 +160,15 @@ class mainloop:
             self.txt.centerline("{}".format(self.cmd),5)
         self.txt.centerline("Version: {}".format(VERSION),6)
         self.txt.show()
+
+#    def display_simple(self):
+#        self.txt.clear()
+#        day,hour,min,second = self.run_time()
+#        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
+#        self.txt.leftline("Day:{}".format(day),1)
+#        self.txt.rightline("Tgt:{}".format(self.target),1)
+#        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
+#
 
     def run(self):
         old_second = 99

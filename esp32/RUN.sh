@@ -65,17 +65,19 @@ if [ $FASTBUILD != 1 ]; then rm -f ${CURDIR}/lastbuild; fi
 #Define some variables, change if needed
 WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
 
-
+if [ $FASTBUILD != 1 ]
+then
 echo "Loading certs, keys and configs"
 loadfile ${WLAN_CONFIG_PATH}
 loadfile ${TOPDIR}/gcloudconfig/config.py
 
-echo "Loading programs"
-
+echo "Loading gcloud mqtt"
 pushd ${UPYEX}/gcloud-pub
 loadfile third_party
 popd
+fi
 
+echo "Loading programs"
 loadfile ${UPYEX}/wlan/wlan.py
 loadfile ${UPYEX}/LED/LED.py
 loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
