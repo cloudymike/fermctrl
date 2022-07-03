@@ -47,6 +47,10 @@ class mainloop:
         except:
             self.target = 0.0
         try:
+            self.profile = self.state['profile']
+        except:
+            self.profile = {0:0}
+        try:
             self.cmd = self.state['cmd']
         except:
             self.cmd = 'stop'
