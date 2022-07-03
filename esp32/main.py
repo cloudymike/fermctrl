@@ -105,7 +105,7 @@ class mainloop:
             if key_day > day:
                 break;
             self.target = self.profile[key_day]
-        print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
+        #print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
 
 
     def numeric_dict(self,rawdict):
@@ -155,9 +155,9 @@ class mainloop:
 
     def display_detail(self):
         day,hour,min,second = self.run_time()
-        time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
+        time_str = "Day {}".format(day)
         self.txt.clear()
-        self.txt.centerline(self.profile,1)
+        #self.txt.centerline(self.profile,1)
         self.txt.centerline(time_str,3)
 
         self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
@@ -165,7 +165,7 @@ class mainloop:
             self.txt.centerline("Target: {}".format(self.target),5)
         else:
             self.txt.centerline("{}".format(self.cmd),5)
-        self.txt.centerline("Version: {}".format(VERSION),6)
+        #self.txt.centerline("Version: {}".format(VERSION),6)
         self.txt.show()
 
 #    def display_simple(self):
