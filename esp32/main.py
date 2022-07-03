@@ -12,7 +12,7 @@ import LED
 import textout
 import savestate
 
-VERSION=0.3
+VERSION=0.4
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
@@ -59,6 +59,9 @@ class mainloop:
         except:
             self.start_epoch = time.time()
 
+        # for debugging
+        #self.start_epoch = time.time() + 3*86400
+
         # Rebuild the state with current values
         # Creates a clean file for the future
         self.writeStateFile()
@@ -94,22 +97,22 @@ class mainloop:
 
     def current_target(self):
         day,hour,min,second = self.run_time()
-        target_value = self.profile[0]
+        self.target = self.profile[0]
 
-        for key_day, value_day in self.profile.items():
+        sorted_keys = sorted(self.profile)
+        #print("Sorted keys {}".format(sorted_keys))
+        for key_day in sorted_keys:
             if key_day > day:
                 break;
-            target_value = value_day
-        self.target = target_value
+            self.target = self.profile[key_day]
         print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
 
 
-    def sorted_numeric_dict(self,rawdict):
+    def numeric_dict(self,rawdict):
         numeric_dict = {}
         for k,v in rawdict.items():
             numeric_dict[int(k)] = float(v)
-        sorted_dict = dict(sorted(numeric_dict.items()))
-        return(sorted_dict)
+        return(numeric_dict)
 
 
     def get_mqttdata(self):
@@ -122,7 +125,7 @@ class mainloop:
         except:
             try:
                 rawdict = json.loads(targetstring)
-                self.profile = self.sorted_numeric_dict(rawdict)
+                self.profile = self.numeric_dict(rawdict)
                 self.writeStateFile()
             except:
                 self.set_command(targetstring)
