@@ -10,10 +10,9 @@ import relay
 import mqttgcloud
 import LED
 import textout
-import bignumber
 import savestate
 
-VERSION=0.3
+VERSION=0.4
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
@@ -38,6 +37,7 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
+        self.profile = {0:0}
 
 
 
@@ -47,6 +47,10 @@ class mainloop:
         except:
             self.target = 0.0
         try:
+            self.profile = self.state['profile']
+        except:
+            self.profile = {0:0}
+        try:
             self.cmd = self.state['cmd']
         except:
             self.cmd = 'stop'
@@ -54,6 +58,9 @@ class mainloop:
             self.start_epoch = self.state['start_epoch']
         except:
             self.start_epoch = time.time()
+
+        # for debugging
+        #self.start_epoch = time.time() + 3*86400
 
         # Rebuild the state with current values
         # Creates a clean file for the future
@@ -68,11 +75,13 @@ class mainloop:
         self.state['target'] = self.target
         self.state['cmd'] = self.cmd
         self.state['start_epoch'] = self.start_epoch
+        self.state['profile'] = self.profile
         savestate.writeState(self.state)
 
 
     def thermostat(self):
-        self.get_target()
+        self.get_mqttdata()
+        self.current_target()
         self.get_temp()
         if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
@@ -86,16 +95,43 @@ class mainloop:
         else:
             pass
 
+    def current_target(self):
+        day,hour,min,second = self.run_time()
+        self.target = self.profile[0]
 
-    def get_target(self):
+        sorted_keys = sorted(self.profile)
+        #print("Sorted keys {}".format(sorted_keys))
+        for key_day in sorted_keys:
+            if key_day > day:
+                break;
+            self.target = self.profile[key_day]
+        #print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
+
+
+    def numeric_dict(self,rawdict):
+        numeric_dict = {}
+        for k,v in rawdict.items():
+            numeric_dict[int(k)] = float(v)
+        return(numeric_dict)
+
+
+    def get_mqttdata(self):
         targetstring = self.m.last_msg()
         try:
-            self.target = float(targetstring)
+            target = float(targetstring)
+            self.profile = { 0: target}
             self.writeStateFile()
             self.set_command('run')
         except:
-            self.set_command(targetstring)
-        return(self.target)
+            try:
+                rawdict = json.loads(targetstring)
+                self.profile = self.numeric_dict(rawdict)
+                self.writeStateFile()
+            except:
+                self.set_command(targetstring)
+
+        return()
+
 
     def set_command(self, cmd):
         if cmd in AVAILABLE_COMMANDS:
@@ -119,8 +155,9 @@ class mainloop:
 
     def display_detail(self):
         day,hour,min,second = self.run_time()
-        time_str = "T {}:{}:{}:{}".format(day,hour,min,second)
+        time_str = "Day {}".format(day)
         self.txt.clear()
+        #self.txt.centerline(self.profile,1)
         self.txt.centerline(time_str,3)
 
         self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
@@ -128,16 +165,17 @@ class mainloop:
             self.txt.centerline("Target: {}".format(self.target),5)
         else:
             self.txt.centerline("{}".format(self.cmd),5)
-        self.txt.centerline("Version: {}".format(VERSION),6)
+        #self.txt.centerline("Version: {}".format(VERSION),6)
         self.txt.show()
 
-    def display_simple(self):
-        self.txt.clear()
-        day,hour,min,second = self.run_time()
-        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
-        self.txt.leftline("Day:{}".format(day),1)
-        self.txt.rightline("Tgt:{}".format(self.target),1)
-        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
+#    def display_simple(self):
+#        self.txt.clear()
+#        day,hour,min,second = self.run_time()
+#        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
+#        self.txt.leftline("Day:{}".format(day),1)
+#        self.txt.rightline("Tgt:{}".format(self.target),1)
+#        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
+#
 
     def run(self):
         old_second = 99
@@ -145,7 +183,7 @@ class mainloop:
         while True:
 
             #self.display_detail()
-            self.display_simple()
+            self.display_detail()
 
             day,hour,min,second = self.run_time()
 
