@@ -37,7 +37,7 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
-        self.profile = {0:0}
+        self.profile = {'0':0}
 
 
 
@@ -49,7 +49,7 @@ class mainloop:
         try:
             self.profile = self.state['profile']
         except:
-            self.profile = {0:0}
+            self.profile = {'0':0}
         try:
             self.cmd = self.state['cmd']
         except:
@@ -95,31 +95,24 @@ class mainloop:
         else:
             pass
 
+
     def current_target(self):
         day,hour,min,second = self.run_time()
-        self.target = self.profile[0]
+        self.target = self.profile['0']
 
-        sorted_keys = sorted(self.profile)
+        sorted_keys = sorted(self.profile, key=int)
         #print("Sorted keys {}".format(sorted_keys))
         for key_day in sorted_keys:
-            if key_day > day:
+            if int(key_day) > day:
                 break;
-            self.target = self.profile[key_day]
-        #print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
-
-
-    def numeric_dict(self,rawdict):
-        numeric_dict = {}
-        for k,v in rawdict.items():
-            numeric_dict[int(k)] = float(v)
-        return(numeric_dict)
+            self.target = float(self.profile[key_day])
+        print("Today {}, using  temp {} in profile {}".format(day,self.target,self.profile))
 
 
     def get_mqttdata(self):
         targetstring = self.m.last_msg()
         try:
-            rawdict = json.loads(targetstring)
-            self.profile = self.numeric_dict(rawdict)
+            self.profile = json.loads(targetstring)
             self.writeStateFile()
         except:
             self.set_command(targetstring)
@@ -138,6 +131,7 @@ class mainloop:
     def get_temp(self):
         self.temp = self.tempDevice.get_temp()
         return(self.temp)
+
 
     def run_time(self):
         current_secs = time.time() - self.start_epoch
