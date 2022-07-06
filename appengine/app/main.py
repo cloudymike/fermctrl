@@ -69,8 +69,10 @@ def setTarget():
         client = iot_v1.DeviceManagerClient()
         device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
-        command = str(form.targetTemp.data)
-        data = command.encode("utf-8")
+        profile = { 0: form.targetTemp.data}
+        profileJSON = json.dumps(profile)
+        print("Sending: {}".format(profileJSON))
+        data = profileJSON.encode("utf-8")
 
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 

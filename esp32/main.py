@@ -118,17 +118,11 @@ class mainloop:
     def get_mqttdata(self):
         targetstring = self.m.last_msg()
         try:
-            target = float(targetstring)
-            self.profile = { 0: target}
+            rawdict = json.loads(targetstring)
+            self.profile = self.numeric_dict(rawdict)
             self.writeStateFile()
-            self.set_command('run')
         except:
-            try:
-                rawdict = json.loads(targetstring)
-                self.profile = self.numeric_dict(rawdict)
-                self.writeStateFile()
-            except:
-                self.set_command(targetstring)
+            self.set_command(targetstring)
 
         return()
 
