@@ -97,11 +97,11 @@ def setProfile():
         client = iot_v1.DeviceManagerClient()
         device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
-        profile[str(form.targetDay0.data)] = str(form.targetTemp0.data)
+        profile[str(form.targetDay0.data)] = form.targetTemp0.data
         if form.targetDay1.data and form.targetTemp1.data:
-            profile[str(form.targetDay1.data)] = str(form.targetTemp1.data)
+            profile[str(form.targetDay1.data)] = form.targetTemp1.data
         if form.targetDay2.data and form.targetTemp2.data:
-            profile[str(form.targetDay2.data)] = str(form.targetTemp2.data)
+            profile[str(form.targetDay2.data)] = form.targetTemp2.data
 
         profileJSON = json.dumps(profile)
         print("Sending: {}".format(profileJSON))
