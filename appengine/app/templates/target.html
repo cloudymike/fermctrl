@@ -3,7 +3,7 @@
 {% block content %}
 <form method="POST" action="/target">
     {{ form.hidden_tag() }}
-    Target {{ form.targetTemp(size=3) }}
+    Target {{ form.targetTemp(size=3, value=target) }}
     {{ form.submit() }}
 </form>
 

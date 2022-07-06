@@ -56,9 +56,11 @@ def index():
     """Return a friendly HTTP greeting."""
     return render_template('index.html', title='Home page')
 
+
 @app.route('/target', methods=['GET', 'POST'])
 def setTarget():
     print("In setTarget")
+    TEMPERATURE,TARGET = getStatus()
     form = targetForm()
     if form.validate_on_submit():
         print('Got temperature {}'.format(form.targetTemp.data))
@@ -76,7 +78,7 @@ def setTarget():
 
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 
-    return render_template('target.html', title='Target temp', form=form)
+    return render_template('target.html', title='Target temp', form=form, target=TARGET)
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
@@ -127,8 +129,7 @@ def setCmd():
 
     return render_template('cmd.html', title='Command', form=form)
 
-@app.route('/displaytemp')
-def displayTemp():
+def getStatus():
 
     # TODO(developer)
     project_id = config.google_cloud_config['project_id']
@@ -167,8 +168,13 @@ def displayTemp():
             outstr = streaming_pull_future.result(timeout=timeout)
         except TimeoutError:
             streaming_pull_future.cancel()
+    return(TEMPERATURE, TARGET)
+
+@app.route('/displaytemp')
+def displayTemp():
+
+    TEMPERATURE,TARGET = getStatus()
     return render_template('displaytemp.html', title='Current', temperature=TEMPERATURE, target=TARGET)
-    #return(TEMPERATURE)
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
