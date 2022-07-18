@@ -186,7 +186,15 @@ class mainloop:
 
             if min != old_min:
                 old_min = min
-                self.m.publish("{\"temperature\":" + str(self.temp) + ", \"target\":" + str(self.target) +"}")
+                #publish_json_str = "{\"temperature\":" + str(self.temp) + ", \"target\":" + str(self.target) +"}"
+                publish_json = {}
+                publish_json["temperature"] = self.temp
+                publish_json["target"] = self.target
+                publish_json["day"] = day
+                publish_json["profile"] = self.profile
+                publish_json_str = json.dumps(publish_json)
+                print("Publishing: {}".format(publish_json_str))
+                self.m.publish(publish_json_str)
                 # Write state file once a minute just in case
                 # We should be able to remove this.
                 self.writeStateFile()

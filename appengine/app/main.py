@@ -27,6 +27,8 @@ from google.cloud import pubsub_v1, iot_v1
 
 TEMPERATURE='? '
 TARGET='? '
+DAY='? '
+PROFILE=[]
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -60,7 +62,7 @@ def index():
 @app.route('/target', methods=['GET', 'POST'])
 def setTarget():
     print("In setTarget")
-    TEMPERATURE,TARGET = getStatus()
+    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
     form = targetForm()
     if form.validate_on_submit():
         print('Got temperature {}'.format(form.targetTemp.data))
@@ -82,8 +84,8 @@ def setTarget():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
-    profile = {}
     print("In setProfile")
+    profile = {}
     form = profileForm()
     print(form)
     if form.is_submitted():
@@ -147,14 +149,30 @@ def getStatus():
     def callback(message):
         global TEMPERATURE
         global TARGET
+        global DAY
+        global PROFILE
         print(f"Received {message}.")
         TEMPERATURE=str(json.loads(message.data)['temperature'])
         try:
             TARGET=str(json.loads(message.data)['target'])
         except:
             TARGET = '?'
+        try:
+            DAY=str(json.loads(message.data)['day'])
+        except:
+            DAY = '?'
+        try:
+            PF=str(json.loads(message.data)['profile'])
+        except:
+            PF = {}
+        PF_STR = PF.replace("\'", "\"")
+        PROFILE = json.loads(PF_STR)
+        print(PF)
+        print(PROFILE)
         print(f"Temperature {TEMPERATURE}.")
         print(f"Target {TARGET}.")
+        print(f"Day {DAY}.")
+        print(f"Profile {PROFILE}.")
         message.ack()
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
@@ -168,13 +186,22 @@ def getStatus():
             outstr = streaming_pull_future.result(timeout=timeout)
         except TimeoutError:
             streaming_pull_future.cancel()
-    return(TEMPERATURE, TARGET)
+    return(TEMPERATURE, TARGET,DAY,PROFILE)
 
 @app.route('/displaytemp')
 def displayTemp():
 
-    TEMPERATURE,TARGET = getStatus()
-    return render_template('displaytemp.html', title='Current', temperature=TEMPERATURE, target=TARGET)
+    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
+
+    SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
+    #print("Sorted keys {}".format(sorted_keys))
+
+    return render_template('displaytemp.html', title='Current',
+        temperature=TEMPERATURE,
+        target=TARGET,
+        day=DAY,
+        sorted_profile_days=SORTED_PROFILE_DAYS,
+        profile=PROFILE)
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

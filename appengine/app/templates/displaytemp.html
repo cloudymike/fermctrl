@@ -4,4 +4,37 @@
 
 <p>Temperature: {{ temperature }}F </p>
 <p>Target: {{ target }}F </p>
+<p>Today is day: {{ day }} </p>
+
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 5px;
+}
+table.fixed {table-layout:fixed; width:170px;}/*Setting the table width is important!*/
+table.fixed td {overflow:hidden;}/*Hide text outside the cell.*/
+table.fixed td:nth-of-type(1) {width:40%;}/*Setting the width of column 1.*/
+table.fixed td:nth-of-type(2) {width:60%;}/*Setting the width of column 2.*/
+table.fixed {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.fixed{font-family: Helvetica; text-align: center; font-size: 2rem;}
+</style>
+<table class="fixed">
+<tr>
+  <td>Day</td>
+  <td>Target</td>
+</tr>
+<META HTTP-EQUIV="REFRESH" CONTENT="10">
+{% for profile_day in sorted_profile_days %}
+        <tr>
+          <td>{{ profile_day }}</td>
+          <td>{{ profile[profile_day] }}</td>
+        </tr>
+
+{% endfor %}
+</table>
+
 {% endblock %}
