@@ -1,5 +1,8 @@
 # Basic flask app on app engine.
 
+You may have to login to your google account
+`gcloud auth login`
+
 This is the google tutorial:
 https://cloud.google.com/appengine/docs/standard/python3/quickstart
 
