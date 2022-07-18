@@ -167,8 +167,6 @@ def getStatus():
             PF = {}
         PF_STR = PF.replace("\'", "\"")
         PROFILE = json.loads(PF_STR)
-        print(PF)
-        print(PROFILE)
         print(f"Temperature {TEMPERATURE}.")
         print(f"Target {TARGET}.")
         print(f"Day {DAY}.")
@@ -194,7 +192,6 @@ def displayTemp():
     TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
-    #print("Sorted keys {}".format(sorted_keys))
 
     return render_template('displaytemp.html', title='Current',
         temperature=TEMPERATURE,
