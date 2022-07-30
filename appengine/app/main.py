@@ -14,7 +14,7 @@
 
 # [START gae_python38_app]
 # [START gae_python3_app]
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, SubmitField, RadioField
 from wtforms.validators import DataRequired,Optional
@@ -200,10 +200,29 @@ def displayTemp():
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE)
 
+@app.route('/metrics')
+def metrics():
+    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
+
+    metric_string="""# HELP Actual Temperature
+# TYPE actual_temperature gauge
+actual_temperature {}
+# HELP Target Temperature
+# TYPE target_temperature gauge
+target_temperature {}
+# HELP Day in fermentation
+# TYPE fermentation_day counter
+fermentation_day {}
+""".format(TEMPERATURE, TARGET, DAY)
+
+    return Response(metric_string, mimetype='text/plain')
+
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    # Host 0.0.0.0 makes it available on the network, may not be a safe thing
+    #    change to 127.0.0.1 to be truly local
+    app.run(host='0.0.0.0', port=8080, debug=True)
 # [END gae_python3_app]
 # [END gae_python38_app]
