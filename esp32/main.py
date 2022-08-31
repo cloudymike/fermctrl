@@ -33,7 +33,7 @@ class mainloop:
             #Use old time
 
         self.unit='F'
-        self.temprange=0.5   # Range to hold the temperature in
+        self.temprange=0.1   # Range to hold the temperature in, +/-
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
