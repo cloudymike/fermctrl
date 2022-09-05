@@ -36,7 +36,7 @@ jwt_config = {
     # Use utiles/decode_rsa.py to decode private pem to pkcs1.
     'private_key':
 EOF
-python decode_rsa.py >> config.py
+python3 decode_rsa.py >> config.py
 echo '}' >> config.py
 
 # Create subscription
