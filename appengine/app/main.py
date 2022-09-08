@@ -44,8 +44,12 @@ class profileForm(FlaskForm):
     targetTemp0 = IntegerField('targetTemp0', validators=[Optional()])
     targetDay1 = IntegerField('targetDay1', validators=[Optional()])
     targetTemp1 = IntegerField('targetTemp1', validators=[Optional()])
-    targetDay2 = IntegerField('targetDay1', validators=[Optional()])
+    targetDay2 = IntegerField('targetDay2', validators=[Optional()])
     targetTemp2 = IntegerField('targetTemp2', validators=[Optional()])
+    targetDay3 = IntegerField('targetDay3', validators=[Optional()])
+    targetTemp3 = IntegerField('targetTemp3', validators=[Optional()])
+    targetDay4 = IntegerField('targetDay4', validators=[Optional()])
+    targetTemp4 = IntegerField('targetTemp4', validators=[Optional()])
     submit = SubmitField('Set')
 
 class cmdForm(FlaskForm):
@@ -104,6 +108,10 @@ def setProfile():
             profile[str(form.targetDay1.data)] = form.targetTemp1.data
         if form.targetDay2.data and form.targetTemp2.data:
             profile[str(form.targetDay2.data)] = form.targetTemp2.data
+        if form.targetDay3.data and form.targetTemp3.data:
+            profile[str(form.targetDay3.data)] = form.targetTemp3.data
+        if form.targetDay4.data and form.targetTemp4.data:
+            profile[str(form.targetDay4.data)] = form.targetTemp4.data
 
         profileJSON = json.dumps(profile)
         print("Sending: {}".format(profileJSON))
