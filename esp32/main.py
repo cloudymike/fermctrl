@@ -11,8 +11,9 @@ import mqttgcloud
 import LED
 import textout
 import savestate
+import config
 
-VERSION=0.4
+VERSION=0.5
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
@@ -201,7 +202,7 @@ class mainloop:
 
 
 if __name__ == "__main__":
-    wlan.do_connect()
+    wlan.do_connect(config.google_cloud_config['project_id'])
     LED.LED.value(1)
     m = mainloop()
     LED.LED.value(0)
