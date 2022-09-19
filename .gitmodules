@@ -4,3 +4,6 @@
 [submodule "micropythonexamples"]
 	path = micropythonexamples
 	url = https://github.com/cloudymike/micropythonexamples.git
+[submodule "3dprint/scadexamples"]
+	path = 3dprint/scadexamples
+	url = git@github.com:cloudymike/scadexamples
