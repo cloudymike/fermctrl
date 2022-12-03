@@ -11,7 +11,7 @@ loadfile () {
   then
     if [ "$IP" == "" ]
     then
-      sudo ampy --port $PORT put $1
+      ampy --port $PORT put $1
     else
       ../webrepl/webrepl_cli.py -p $WEBREPLPASS $1 $IP:/
     fi
@@ -95,5 +95,5 @@ touch lastbuild
 
 if [ "$IP" == "" ]
 then
-  sudo timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+  timeout 2  ampy --port /dev/ttyUSB0 run reset.py
 fi
