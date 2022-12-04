@@ -6,6 +6,7 @@ import ntptime
 import json
 import wlan
 import tempreader
+import internaltempreader
 import relay
 import mqttgcloud
 import LED
@@ -38,6 +39,10 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.tempDevice = tempreader.tempreader(self.unit)
+        try:
+            dummy=self.tempDevice.get_temp()
+        except:
+            self.tempDevice = internaltempreader.internaltempreader(self.unit)
         self.profile = {'0':0}
 
 

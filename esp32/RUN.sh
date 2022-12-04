@@ -86,6 +86,7 @@ loadfile ${UPYEX}/oled/gfx.py
 loadfile ${UPYEX}/oled/bignumber.py
 loadfile ${UPYEX}/textout/textout.py
 loadfile ${UPYEX}/save_state/savestate.py
+loadfile ${UPYEX}/internaltemp/internaltempreader.py
 
 loadfile relay.py
 loadfile tempreader.py
