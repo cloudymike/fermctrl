@@ -24,6 +24,7 @@ import json
 
 from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1, iot_v1
+import paho.mqtt.client as mqtt
 
 TEMPERATURE='? '
 TARGET='? '
@@ -34,6 +35,21 @@ PROFILE=[]
 # called `app` in `main.py`.
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
+
+def send_data(data):
+    if config.use_google:
+        project_id = config.google_cloud_config['project_id']
+        cloud_region = config.google_cloud_config['cloud_region']
+        registry_id = config.google_cloud_config['registry_id']
+        device_id = config.google_cloud_config['device_id']
+        client = iot_v1.DeviceManagerClient()
+        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
+        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+    else:
+        client = mqtt.Client("P1")
+        client.connect(config.hostname)
+        client.publish("house/bulbs/bulb1","OFF")
+
 
 class targetForm(FlaskForm):
     targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
@@ -70,19 +86,13 @@ def setTarget():
     form = targetForm()
     if form.validate_on_submit():
         print('Got temperature {}'.format(form.targetTemp.data))
-        project_id = config.google_cloud_config['project_id']
-        cloud_region = config.google_cloud_config['cloud_region']
-        registry_id = config.google_cloud_config['registry_id']
-        device_id = config.google_cloud_config['device_id']
-        client = iot_v1.DeviceManagerClient()
-        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
         profile = { 0: form.targetTemp.data}
         profileJSON = json.dumps(profile)
         print("Sending: {}".format(profileJSON))
         data = profileJSON.encode("utf-8")
+        send_data(data)
 
-        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
 
     return render_template('target.html', title='Target temp', form=form, target=TARGET)
 
@@ -96,12 +106,6 @@ def setProfile():
     #if form.validate_on_submit():
     #if True:
         print('Day0 {}'.format(form.targetDay0.data))
-        project_id = config.google_cloud_config['project_id']
-        cloud_region = config.google_cloud_config['cloud_region']
-        registry_id = config.google_cloud_config['registry_id']
-        device_id = config.google_cloud_config['device_id']
-        client = iot_v1.DeviceManagerClient()
-        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
         profile[str(form.targetDay0.data)] = form.targetTemp0.data
         if form.targetDay1.data and form.targetTemp1.data:
@@ -116,7 +120,7 @@ def setProfile():
         profileJSON = json.dumps(profile)
         print("Sending: {}".format(profileJSON))
         data = profileJSON.encode("utf-8")
-        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+        send_data(data)
 
     return render_template('profile.html', title='Set Profile', form=form)
 
@@ -125,17 +129,10 @@ def setCmd():
     form = cmdForm()
     if form.validate_on_submit():
         print('Got command {}'.format(form.cmd.data))
-        project_id = config.google_cloud_config['project_id']
-        cloud_region = config.google_cloud_config['cloud_region']
-        registry_id = config.google_cloud_config['registry_id']
-        device_id = config.google_cloud_config['device_id']
-        client = iot_v1.DeviceManagerClient()
-        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
         command = str(form.cmd.data)
         data = command.encode("utf-8")
-
-        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
+        send_data(data)
 
     return render_template('cmd.html', title='Command', form=form)
 
