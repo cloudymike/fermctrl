@@ -11,7 +11,7 @@ source env/bin/activate
 pip install  -r requirements.txt
 pip freeze
 
-cp ../../gcloudconfig/config.py .
+cp config_local.py config.py
 # Run app locally
 # http://localhost:8080
 python main.py

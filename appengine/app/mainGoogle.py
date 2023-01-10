@@ -36,48 +36,6 @@ PROFILE=[]
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 
-############
-def on_message(client, userdata, message):
-    global TEMPERATURE
-    global TARGET
-    global DAY
-    global PROFILE
-    topic = message.topic
-    data = str(message.payload.decode("utf-8"))
-    print("message received ", data)
-    print("message topic=", topic)
-    print("message qos=",message.qos)
-    print("message retain flag=",message.retain)
-    TEMPERATURE=str(json.loads(data)['temperature'])
-    print(f"Temperature {TEMPERATURE}.")
-########################################
-
-def old_message(client, userdata, message):
-    global TEMPERATURE
-    global TARGET
-    global DAY
-    global PROFILE
-    TEMPERATURE=str(json.loads(message.data)['temperature'])
-    try:
-        TARGET=str(json.loads(message.data)['target'])
-    except:
-        TARGET = '?'
-    try:
-        DAY=str(json.loads(message.data)['day'])
-    except:
-        DAY = '?'
-    try:
-        PF=str(json.loads(message.data)['profile'])
-    except:
-        PF = {}
-    PF_STR = PF.replace("\'", "\"")
-    PROFILE = json.loads(PF_STR)
-    print(f"Temperature {TEMPERATURE}.")
-    print(f"Target {TARGET}.")
-    print(f"Day {DAY}.")
-    print(f"Profile {PROFILE}.")
-########################################
-
 def send_data(data):
     if config.use_google:
         project_id = config.google_cloud_config['project_id']
@@ -221,7 +179,7 @@ def getStatus():
         message.ack()
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    print(f"Listening for messages on {subscriptionhouse_path}..\n")
+    print(f"Listening for messages on {subscription_path}..\n")
 
     # Wrap subscriber in a 'with' block to automatically call close() when done.
     with subscriber:
@@ -237,7 +195,6 @@ def getStatus():
 def displayTemp():
 
     TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
-    #client.on_message=on_message #attach function to callback
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
@@ -265,22 +222,12 @@ fermentation_day {}
 
     return Response(metric_string, mimetype='text/plain')
 
-# This is used when running locally only. When deploying to Google App
-# Engine, a webserver process such as Gunicorn will serve the app. This
-# can be configured by adding an `entrypoint` to app.yaml.
-# Host 0.0.0.0 makes it available on the network, may not be a safe thing
-#    change to 127.0.0.1 to be truly local
-
-broker_address="127.0.0.1"
-#broker_address="iot.eclipse.org"
-print("creating new instance")
-client = mqtt.Client("P1") #create new instance
-client.on_message=on_message #attach function to callback
-print("connecting to broker on {}".format(broker_address))
-client.connect(broker_address) #connect to broker
-client.loop_start() #start the loop
-print("Subscribing to topic",config.topic)
-client.subscribe(config.topic)
-
-
-app.run(host='0.0.0.0', port=8080)
+if __name__ == '__main__':
+    # This is used when running locally only. When deploying to Google App
+    # Engine, a webserver process such as Gunicorn will serve the app. This
+    # can be configured by adding an `entrypoint` to app.yaml.
+    # Host 0.0.0.0 makes it available on the network, may not be a safe thing
+    #    change to 127.0.0.1 to be truly local
+    app.run(host='0.0.0.0', port=8080, debug=True)
+# [END gae_python3_app]
+# [END gae_python38_app]
