@@ -49,7 +49,24 @@ def on_message(client, userdata, message):
     print("message qos=",message.qos)
     print("message retain flag=",message.retain)
     TEMPERATURE=str(json.loads(data)['temperature'])
+    try:
+        TARGET=str(json.loads(data)['target'])
+    except:
+        TARGET = '?'
+    try:
+        DAY=str(json.loads(data)['day'])
+    except:
+        DAY = '?'
+    try:
+        PF=str(json.loads(data)['profile'])
+    except:
+        PF = str({})
+    PF_STR = PF.replace("\'", "\"")
+    PROFILE = json.loads(PF_STR)
     print(f"Temperature {TEMPERATURE}.")
+    print(f"Target {TARGET}.")
+    print(f"Day {DAY}.")
+    print(f"Profile {PROFILE}.")
 ########################################
 
 def old_message(client, userdata, message):
@@ -90,7 +107,7 @@ def send_data(data):
     else:
         client = mqtt.Client("P1")
         client.connect(config.hostname)
-        client.publish("house/bulbs/bulb1","OFF")
+        client.publish("house/bulbs/bulb1",data)
 
 
 class targetForm(FlaskForm):
@@ -179,58 +196,6 @@ def setCmd():
     return render_template('cmd.html', title='Command', form=form)
 
 def getStatus():
-
-    # TODO(developer)
-    project_id = config.google_cloud_config['project_id']
-
-    # This one is not currently in the config file
-    subscription_id = config.google_cloud_config['topic']
-    # Number of seconds the subscriber should listen for messages
-    timeout = 5.0
-
-    subscriber = pubsub_v1.SubscriberClient()
-    # The `subscription_path` method creates a fully qualified identifier
-    # in the form `projects/{project_id}/subscriptions/{subscription_id}`
-    subscription_path = subscriber.subscription_path(project_id, subscription_id)
-
-    def callback(message):
-        global TEMPERATURE
-        global TARGET
-        global DAY
-        global PROFILE
-        print(f"Received {message}.")
-        TEMPERATURE=str(json.loads(message.data)['temperature'])
-        try:
-            TARGET=str(json.loads(message.data)['target'])
-        except:
-            TARGET = '?'
-        try:
-            DAY=str(json.loads(message.data)['day'])
-        except:
-            DAY = '?'
-        try:
-            PF=str(json.loads(message.data)['profile'])
-        except:
-            PF = {}
-        PF_STR = PF.replace("\'", "\"")
-        PROFILE = json.loads(PF_STR)
-        print(f"Temperature {TEMPERATURE}.")
-        print(f"Target {TARGET}.")
-        print(f"Day {DAY}.")
-        print(f"Profile {PROFILE}.")
-        message.ack()
-
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    print(f"Listening for messages on {subscriptionhouse_path}..\n")
-
-    # Wrap subscriber in a 'with' block to automatically call close() when done.
-    with subscriber:
-        try:
-            # When `timeout` is not set, result() will block indefinitely,
-            # unless an exception is encountered first.
-            outstr = streaming_pull_future.result(timeout=timeout)
-        except TimeoutError:
-            streaming_pull_future.cancel()
     return(TEMPERATURE, TARGET,DAY,PROFILE)
 
 @app.route('/displaytemp')
