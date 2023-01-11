@@ -14,4 +14,4 @@ pip freeze
 cp config_local.py config.py
 # Run app locally
 # http://localhost:8080
-python main.py
+python mainlocal.py
