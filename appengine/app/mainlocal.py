@@ -69,33 +69,8 @@ def on_message(client, userdata, message):
     print(f"Profile {PROFILE}.")
 ########################################
 
-def old_message(client, userdata, message):
-    global TEMPERATURE
-    global TARGET
-    global DAY
-    global PROFILE
-    TEMPERATURE=str(json.loads(message.data)['temperature'])
-    try:
-        TARGET=str(json.loads(message.data)['target'])
-    except:
-        TARGET = '?'
-    try:
-        DAY=str(json.loads(message.data)['day'])
-    except:
-        DAY = '?'
-    try:
-        PF=str(json.loads(message.data)['profile'])
-    except:
-        PF = {}
-    PF_STR = PF.replace("\'", "\"")
-    PROFILE = json.loads(PF_STR)
-    print(f"Temperature {TEMPERATURE}.")
-    print(f"Target {TARGET}.")
-    print(f"Day {DAY}.")
-    print(f"Profile {PROFILE}.")
-########################################
-
 def send_data(data):
+    global client
     if config.use_google:
         project_id = config.google_cloud_config['project_id']
         cloud_region = config.google_cloud_config['cloud_region']
@@ -105,9 +80,9 @@ def send_data(data):
         device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
     else:
-        client = mqtt.Client("P1")
-        client.connect(config.hostname)
-        client.publish("house/bulbs/bulb1",data)
+        #client = mqtt.Client("P1")
+        #client.connect(config.hostname)
+        client.publish(config.app_topic,data)
 
 
 class targetForm(FlaskForm):
@@ -160,7 +135,7 @@ def setProfile():
     print("In setProfile")
     profile = {}
     form = profileForm()
-    print(form)
+    #print(form)
     if form.is_submitted():
     #if form.validate_on_submit():
     #if True:
@@ -244,8 +219,8 @@ client.on_message=on_message #attach function to callback
 print("connecting to broker on {}".format(broker_address))
 client.connect(broker_address) #connect to broker
 client.loop_start() #start the loop
-print("Subscribing to topic",config.topic)
-client.subscribe(config.topic)
+print("Subscribing to topic",config.device_topic)
+client.subscribe(config.device_topic)
 
 
 app.run(host='0.0.0.0', port=8080)
