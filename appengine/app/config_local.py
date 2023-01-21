@@ -7,7 +7,7 @@ device_data = "esp32data"
 app_data = "settings"
 device_topic = "{}/{}/{}".format(project,device_name,device_data)
 app_topic = "{}/{}/{}".format(project,device_name,app_data)
-hostname = '127.0.0.1'
+hostname = '192.168.62.241'
 
 google_cloud_config = {
     'project_id':'tempctrlproj',

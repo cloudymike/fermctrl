@@ -219,4 +219,4 @@ print("Subscribing to topic",config.device_topic)
 client.subscribe(config.device_topic)
 
 
-app.run(host='0.0.0.0', port=8080)
+app.run(host='0.0.0.0', port=8081)

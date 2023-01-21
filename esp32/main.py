@@ -11,6 +11,7 @@ import relay
 import mqtt_local
 import LED
 import textout
+import bignumber
 import savestate
 import config
 import esp32
@@ -165,21 +166,21 @@ class mainloop:
         #self.txt.centerline("Version: {}".format(VERSION),6)
         self.txt.show()
 
-#    def display_simple(self):
-#        self.txt.clear()
-#        day,hour,min,second = self.run_time()
-#        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
-#        self.txt.leftline("Day:{}".format(day),1)
-#        self.txt.rightline("Tgt:{}".format(self.target),1)
-#        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
-#
+    def display_simple(self):
+        self.txt.clear()
+        day,hour,min,second = self.run_time()
+        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
+        self.txt.leftline("Day:{}".format(day),1)
+        self.txt.rightline("Tgt:{}".format(self.target),1)
+        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
+
 
     def run(self):
         old_second = 99
         old_min = 99
         while True:
 
-            #self.display_simple()
+            self.display_simple()
             #self.display_detail()
 
             day,hour,min,second = self.run_time()
