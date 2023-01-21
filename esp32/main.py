@@ -118,16 +118,12 @@ class mainloop:
 
     def get_mqttdata(self):
         targetstring = self.m.last_msg()
-        print("Incoming message: {}".format(targetstring))
         if targetstring != self.lastmessage:
-            print("Last: {}".format(self.lastmessage))
-            print("New: {}".format(targetstring))
+            self.lastmessage=targetstring
         try:
             self.profile = json.loads(targetstring)
             self.writeStateFile()
-            print("jsonstuff")
         except:
-            print("commandstuff")
             self.set_command(targetstring)
 
         return()
@@ -190,7 +186,6 @@ class mainloop:
 
             # Cycle over x time
             if second != old_second:
-                print(second)
                 old_second = second
                 LED.LED.value(abs(LED.LED.value()-1))
                 wdt.feed()
@@ -198,8 +193,8 @@ class mainloop:
                 self.m.check_msg()
                 self.thermostat()
 
-            if min != old_min:
-                old_min = min
+#            if min != old_min:
+#                old_min = min
                 publish_json = {}
                 publish_json["temperature"] = self.temp
                 publish_json["target"] = self.target

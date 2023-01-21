@@ -46,7 +46,6 @@ class MQTTlocal:
     self.client.disconnect()
 
   def check_msg(self):
-    print("Check messages")
     self.client.check_msg()
 
   def last_msg(self):
