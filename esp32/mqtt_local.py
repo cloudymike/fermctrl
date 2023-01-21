@@ -8,8 +8,12 @@ MESSAGE = b''
 
 def sub_cb(topic, msg):
     global MESSAGE
-    MESSAGE = msg
-    print((topic,msg))
+    print((topic, msg))
+    MESSAGE=msg
+    if msg == b'on':
+        LED.LED.on()
+    if msg == b'off':
+        LED.LED.off()
 
 
 class MQTTlocal:
@@ -29,14 +33,9 @@ class MQTTlocal:
     self.client.connect()
     print("Connection successful")
 
-  def on_next(self, x):
+  def publish(self, x):
     data = bytes(json.dumps(x), 'utf-8')
     self.client.publish(bytes(self.pub_topic, 'utf-8'), data)
-
-  # Wrapper
-  def publish(self, message):
-    topic = '/devices/{}/{}'.format(config.google_cloud_config['device_id'], 'events')
-    self.client.publish(self.pub_topic('utf-8'), message.encode('utf-8'))
 
   def on_completed(self):
     print("mqtt_completed, disconnecting")
@@ -51,4 +50,5 @@ class MQTTlocal:
     self.client.check_msg()
 
   def last_msg(self):
+    global MESSAGE
     return(str(MESSAGE, 'utf-8'))

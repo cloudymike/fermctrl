@@ -43,24 +43,20 @@ def on_message(client, userdata, message):
     global DAY
     global PROFILE
     topic = message.topic
-    data = str(message.payload.decode("utf-8"))
+    try:
+        data = json.loads(json.loads(message.payload))
+    except:
+        data = {}
     print("message received ", data)
     print("message topic=", topic)
     print("message qos=",message.qos)
     print("message retain flag=",message.retain)
-    TEMPERATURE=str(json.loads(data)['temperature'])
-    try:
-        TARGET=str(json.loads(data)['target'])
-    except:
-        TARGET = '?'
-    try:
-        DAY=str(json.loads(data)['day'])
-    except:
-        DAY = '?'
-    try:
-        PF=str(json.loads(data)['profile'])
-    except:
-        PF = str({})
+    print(type(data))
+    print("Data dictionary {}".format(data))
+    TEMPERATURE=str(data.get('temperature','?'))
+    TARGET=str(data.get('target','?'))
+    DAY=str(data.get('day','?'))
+    PF=str(data.get('profile',str({})))
     PF_STR = PF.replace("\'", "\"")
     PROFILE = json.loads(PF_STR)
     print(f"Temperature {TEMPERATURE}.")
@@ -190,7 +186,7 @@ def displayTemp():
 
 @app.route('/metrics')
 def metrics():
-    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
+    TEMPERATURE,TARGET,DAY,PROFILE = geself.lastmessagetStatus()
 
     metric_string="""# HELP Actual Temperature
 # TYPE actual_temperature gauge
@@ -211,7 +207,7 @@ fermentation_day {}
 # Host 0.0.0.0 makes it available on the network, may not be a safe thing
 #    change to 127.0.0.1 to be truly local
 
-broker_address="127.0.0.1"
+broker_address=config.hostname
 #broker_address="iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client("P1") #create new instance

@@ -13,6 +13,7 @@ import LED
 import textout
 import savestate
 import config
+import esp32
 
 VERSION=0.5
 
@@ -44,6 +45,7 @@ class mainloop:
         except:
             self.tempDevice = internaltempreader.internaltempreader(self.unit)
         self.profile = {'0':0}
+        self.lastmessage = ""
 
 
 
@@ -73,7 +75,7 @@ class mainloop:
         self.writeStateFile()
 
 
-        self.m = mqtt_local.MQTTlocal()
+        self.m = mqtt_local.MQTTlocal('esp8266', config.hostname, 1883, config.device_topic, config.app_topic)
 
     # Create a proper dict and save as a json file
     def writeStateFile(self):
@@ -116,10 +118,16 @@ class mainloop:
 
     def get_mqttdata(self):
         targetstring = self.m.last_msg()
+        print("Incoming message: {}".format(targetstring))
+        if targetstring != self.lastmessage:
+            print("Last: {}".format(self.lastmessage))
+            print("New: {}".format(targetstring))
         try:
             self.profile = json.loads(targetstring)
             self.writeStateFile()
+            print("jsonstuff")
         except:
+            print("commandstuff")
             self.set_command(targetstring)
 
         return()
@@ -175,13 +183,14 @@ class mainloop:
         old_min = 99
         while True:
 
+            #self.display_simple()
             #self.display_detail()
-            self.display_detail()
 
             day,hour,min,second = self.run_time()
 
             # Cycle over x time
             if second != old_second:
+                print(second)
                 old_second = second
                 LED.LED.value(abs(LED.LED.value()-1))
                 wdt.feed()
@@ -199,6 +208,9 @@ class mainloop:
                 publish_json_str = json.dumps(publish_json)
                 print("Publishing: {}".format(publish_json_str))
                 self.m.publish(publish_json_str)
+                #magneto=esp32.hall_sensor()
+                #print(magneto)
+                #self.m.publish(magneto)
                 # Write state file once a minute just in case
                 # We should be able to remove this.
                 self.writeStateFile()
@@ -208,7 +220,9 @@ class mainloop:
 
 if __name__ == "__main__":
     wlan.do_connect(config.google_cloud_config['project_id'])
+    print("Connected to WIFI")
     LED.LED.value(1)
+    print("Starting mainloop")
     m = mainloop()
     LED.LED.value(0)
     m.run()
