@@ -215,7 +215,7 @@ class mainloop:
 
 
 if __name__ == "__main__":
-    wlan.do_connect(config.google_cloud_config['project_id'])
+    wlan.do_connect(config.device_name)
     print("Connected to WIFI")
     LED.LED.value(1)
     print("Starting mainloop")

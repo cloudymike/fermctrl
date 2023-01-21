@@ -11,7 +11,7 @@ source venv/bin/activate
 pip install  -r requirements.txt
 pip freeze
 
-cp config_local.py config.py
+cp ../../config/config.py .
 # Run app locally
 # http://localhost:8080
 python mainlocal.py

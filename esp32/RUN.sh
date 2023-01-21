@@ -70,7 +70,7 @@ then
 echo "Loading certs, keys and configs"
 loadfile ${WLAN_CONFIG_PATH}
 #loadfile ${TOPDIR}/gcloudconfig/config.py
-loadfile ${TOPDIR}/appengine/app/config.py
+loadfile ${TOPDIR}/config/config.py
 
 #echo "Loading gcloud mqtt"
 #pushd ${UPYEX}/gcloud-pub
