@@ -8,7 +8,7 @@ import wlan
 import tempreader
 import internaltempreader
 import relay
-import mqttgcloud
+import mqtt_local
 import LED
 import textout
 import savestate
@@ -32,7 +32,7 @@ class mainloop:
             ntptime.settime()
         except:
             pass
-            #Use old time
+            #Use old timegcloud
 
         self.unit='F'
         self.temprange=0.1   # Range to hold the temperature in, +/-
@@ -73,7 +73,7 @@ class mainloop:
         self.writeStateFile()
 
 
-        self.m = mqttgcloud.MQTTgcloud()
+        self.m = mqtt_local.MQTTlocal()
 
     # Create a proper dict and save as a json file
     def writeStateFile(self):

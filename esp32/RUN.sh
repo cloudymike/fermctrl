@@ -69,18 +69,19 @@ if [ $FASTBUILD != 1 ]
 then
 echo "Loading certs, keys and configs"
 loadfile ${WLAN_CONFIG_PATH}
-loadfile ${TOPDIR}/gcloudconfig/config.py
+#loadfile ${TOPDIR}/gcloudconfig/config.py
+loadfile ${TOPDIR}/appengine/app/config.py
 
-echo "Loading gcloud mqtt"
-pushd ${UPYEX}/gcloud-pub
-loadfile third_party
-popd
+#echo "Loading gcloud mqtt"
+#pushd ${UPYEX}/gcloud-pub
+#loadfile third_party
+#popd
 fi
 
-echo "Loading programs"
+echo "Loading micropythonexample code"
 loadfile ${UPYEX}/wlan/wlan.py
 loadfile ${UPYEX}/LED/LED.py
-loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
+#loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
 loadfile ${UPYEX}/oled/ssd1306.py
 loadfile ${UPYEX}/oled/gfx.py
 loadfile ${UPYEX}/oled/bignumber.py
@@ -88,8 +89,10 @@ loadfile ${UPYEX}/textout/textout.py
 loadfile ${UPYEX}/save_state/savestate.py
 loadfile ${UPYEX}/internaltemp/internaltempreader.py
 
+echo "Loading local python code"
 loadfile relay.py
 loadfile tempreader.py
+loadfile mqtt_local.py
 loadfile main.py
 
 touch lastbuild
