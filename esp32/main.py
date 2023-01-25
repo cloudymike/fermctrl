@@ -201,9 +201,8 @@ class mainloop:
                 publish_json["target"] = self.target
                 publish_json["day"] = day
                 publish_json["profile"] = self.profile
-                publish_json_str = json.dumps(publish_json)
-                print("Publishing: {}".format(publish_json_str))
-                self.m.publish(publish_json_str)
+                print("Publishing: {}".format(publish_json))
+                self.m.publish(publish_json)
                 #magneto=esp32.hall_sensor()
                 #print(magneto)
                 #self.m.publish(magneto)

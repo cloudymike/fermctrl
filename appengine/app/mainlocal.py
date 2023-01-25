@@ -43,8 +43,11 @@ def on_message(client, userdata, message):
     global DAY
     global PROFILE
     topic = message.topic
+    #print("Raw message: {}".format(message.payload))
+    #j1 = json.loads(message.payload)
+    #print("j1 type: {}      message: {}".format(type(j1),j1))
     try:
-        data = json.loads(json.loads(message.payload))
+        data = json.loads(message.payload)
     except:
         data = {}
     print("message received ", data)
