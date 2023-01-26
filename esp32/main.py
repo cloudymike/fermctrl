@@ -188,7 +188,8 @@ class mainloop:
             # Cycle over x time
             if second != old_second:
                 old_second = second
-                LED.LED.value(abs(LED.LED.value()-1))
+                if self.cmd == 'run':
+                    LED.LED.value(abs(LED.LED.value()-1))
                 wdt.feed()
 
                 self.m.check_msg()
