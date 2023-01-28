@@ -83,8 +83,7 @@ loadfile ${UPYEX}/wlan/wlan.py
 loadfile ${UPYEX}/LED/LED.py
 #loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
 loadfile ${UPYEX}/oled/ssd1306.py
-loadfile ${UPYEX}/oled/gfx.py
-loadfile ${UPYEX}/oled/bignumber.py
+loadfile ${UPYEX}/bignumber/bignumber.py
 loadfile ${UPYEX}/textout/textout.py
 loadfile ${UPYEX}/save_state/savestate.py
 loadfile ${UPYEX}/internaltemp/internaltempreader.py
