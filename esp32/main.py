@@ -76,7 +76,7 @@ class mainloop:
         self.writeStateFile()
 
 
-        self.m = mqtt_local.MQTTlocal('esp8266', config.hostname, 1883, config.device_topic, config.app_topic)
+        self.m = mqtt_local.MQTTlocal(config.device_name, config.hostname, 1883, config.device_topic, config.app_topic)
 
     # Create a proper dict and save as a json file
     def writeStateFile(self):

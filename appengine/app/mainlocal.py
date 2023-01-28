@@ -213,7 +213,7 @@ fermentation_day {}
 broker_address=config.hostname
 #broker_address="iot.eclipse.org"
 print("creating new instance")
-client = mqtt.Client("P1") #create new instance
+client = mqtt.Client("fermctrlwebserver") #create new instance
 client.on_message=on_message #attach function to callback
 print("connecting to broker on {}".format(broker_address))
 client.connect(broker_address) #connect to broker

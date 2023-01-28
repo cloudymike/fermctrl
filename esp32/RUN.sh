@@ -28,17 +28,31 @@ usage ()
   exit 0
 }
 
+reset ()
+{
+  if [ "$IP" == "" ]
+  then
+    timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+  fi
+  exit 0
+}
+
+
 IP=""
 PORT='/dev/ttyUSB0'
 WEBREPLPASS="MyPass"
 FASTBUILD=0
+CONFIGONLY=0
 
 CURDIR=$(pwd)
 TOPDIR=${CURDIR%/*}
 UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
 
-while getopts "fi:hp:P:" arg; do
+while getopts "cfi:hp:P:" arg; do
   case $arg in
+    c)
+      CONFIGONLY=1
+      ;;
     f)
       FASTBUILD=1
       ;;
@@ -71,11 +85,12 @@ echo "Loading certs, keys and configs"
 loadfile ${WLAN_CONFIG_PATH}
 #loadfile ${TOPDIR}/gcloudconfig/config.py
 loadfile ${TOPDIR}/config/config.py
+fi
 
-#echo "Loading gcloud mqtt"
-#pushd ${UPYEX}/gcloud-pub
-#loadfile third_party
-#popd
+if [ $CONFIGONLY == 1 ]
+then
+  echo Only loading configs
+  reset
 fi
 
 echo "Loading micropythonexample code"
@@ -98,5 +113,5 @@ touch lastbuild
 
 if [ "$IP" == "" ]
 then
-  timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+  reset
 fi
