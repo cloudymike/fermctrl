@@ -22,7 +22,6 @@ VERSION=0.5
 # Keep a long timeout so you can reload software before timeout
 wdt = machine.WDT(timeout=300000)
 
-AVAILABLE_COMMANDS = ['stop','run','pause']
 class mainloop:
     def __init__(self):
         self.rtc = machine.RTC()
@@ -60,10 +59,6 @@ class mainloop:
         except:
             self.profile = {'0':0}
         try:
-            self.cmd = self.state['cmd']
-        except:
-            self.cmd = 'stop'
-        try:
             self.start_epoch = self.state['start_epoch']
         except:
             self.start_epoch = time.time()
@@ -82,7 +77,6 @@ class mainloop:
     def writeStateFile(self):
         self.state = {}
         self.state['target'] = self.target
-        self.state['cmd'] = self.cmd
         self.state['start_epoch'] = self.start_epoch
         self.state['profile'] = self.profile
         savestate.writeState(self.state)
@@ -122,20 +116,17 @@ class mainloop:
         if targetstring != self.lastmessage:
             self.lastmessage=targetstring
         try:
-            self.profile = json.loads(targetstring)
-            self.writeStateFile()
+            new_profile = json.loads(targetstring)
+            print('Got new target:{}'.format(new_profile))
+            print('Old target:{}'.format(self.profile))
+            if new_profile != self.profile:
+                self.profile = new_profile
+                self.start_epoch = time.time()
+                self.writeStateFile()
         except:
-            self.set_command(targetstring)
+            print("Recieved unrecognized mqttdata")
 
         return()
-
-
-    def set_command(self, cmd):
-        if cmd in AVAILABLE_COMMANDS:
-            if cmd == 'run' and self.cmd != 'run':
-                self.start_epoch = time.time()
-            self.cmd = cmd
-            self.writeStateFile()
 
 
     def get_temp(self):
@@ -159,11 +150,7 @@ class mainloop:
         self.txt.centerline(time_str,3)
 
         self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
-        if self.cmd == 'run':
-            self.txt.centerline("Target: {}".format(self.target),5)
-        else:
-            self.txt.centerline("{}".format(self.cmd),5)
-        #self.txt.centerline("Version: {}".format(VERSION),6)
+        self.txt.centerline("Target: {}".format(self.target),5)
         self.txt.show()
 
     def display_simple(self):
@@ -180,16 +167,15 @@ class mainloop:
         old_min = 99
         while True:
 
-            self.display_simple()
             #self.display_detail()
 
             day,hour,min,second = self.run_time()
 
             # Cycle over x time
             if second != old_second:
+                self.display_simple()
                 old_second = second
-                if self.cmd == 'run':
-                    LED.LED.value(abs(LED.LED.value()-1))
+                LED.LED.value(abs(LED.LED.value()-1))
                 wdt.feed()
 
                 self.m.check_msg()
