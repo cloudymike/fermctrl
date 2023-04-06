@@ -8,11 +8,13 @@ import wlan
 import tempreader
 import internaltempreader
 import relay
-import mqttgcloud
+import mqtt_local
 import LED
 import textout
+import bignumber
 import savestate
 import config
+import esp32
 
 VERSION=0.5
 
@@ -20,7 +22,6 @@ VERSION=0.5
 # Keep a long timeout so you can reload software before timeout
 wdt = machine.WDT(timeout=300000)
 
-AVAILABLE_COMMANDS = ['stop','run','pause']
 class mainloop:
     def __init__(self):
         self.rtc = machine.RTC()
@@ -32,7 +33,7 @@ class mainloop:
             ntptime.settime()
         except:
             pass
-            #Use old time
+            #Use old timegcloud
 
         self.unit='F'
         self.temprange=0.1   # Range to hold the temperature in, +/-
@@ -44,6 +45,7 @@ class mainloop:
         except:
             self.tempDevice = internaltempreader.internaltempreader(self.unit)
         self.profile = {'0':0}
+        self.lastmessage = ""
 
 
 
@@ -57,10 +59,6 @@ class mainloop:
         except:
             self.profile = {'0':0}
         try:
-            self.cmd = self.state['cmd']
-        except:
-            self.cmd = 'stop'
-        try:
             self.start_epoch = self.state['start_epoch']
         except:
             self.start_epoch = time.time()
@@ -73,13 +71,12 @@ class mainloop:
         self.writeStateFile()
 
 
-        self.m = mqttgcloud.MQTTgcloud()
+        self.m = mqtt_local.MQTTlocal(config.device_name, config.hostname, 1883, config.device_topic, config.app_topic)
 
     # Create a proper dict and save as a json file
     def writeStateFile(self):
         self.state = {}
         self.state['target'] = self.target
-        self.state['cmd'] = self.cmd
         self.state['start_epoch'] = self.start_epoch
         self.state['profile'] = self.profile
         savestate.writeState(self.state)
@@ -116,21 +113,20 @@ class mainloop:
 
     def get_mqttdata(self):
         targetstring = self.m.last_msg()
+        if targetstring != self.lastmessage:
+            self.lastmessage=targetstring
         try:
-            self.profile = json.loads(targetstring)
-            self.writeStateFile()
+            new_profile = json.loads(targetstring)
+            print('Got new target:{}'.format(new_profile))
+            print('Old target:{}'.format(self.profile))
+            if new_profile != self.profile:
+                self.profile = new_profile
+                self.start_epoch = time.time()
+                self.writeStateFile()
         except:
-            self.set_command(targetstring)
+            print("Recieved unrecognized mqttdata")
 
         return()
-
-
-    def set_command(self, cmd):
-        if cmd in AVAILABLE_COMMANDS:
-            if cmd == 'run' and self.cmd != 'run':
-                self.start_epoch = time.time()
-            self.cmd = cmd
-            self.writeStateFile()
 
 
     def get_temp(self):
@@ -154,21 +150,17 @@ class mainloop:
         self.txt.centerline(time_str,3)
 
         self.txt.centerline("Temp: {:.1f}{}".format(self.temp,self.unit),4)
-        if self.cmd == 'run':
-            self.txt.centerline("Target: {}".format(self.target),5)
-        else:
-            self.txt.centerline("{}".format(self.cmd),5)
-        #self.txt.centerline("Version: {}".format(VERSION),6)
+        self.txt.centerline("Target: {}".format(self.target),5)
         self.txt.show()
 
-#    def display_simple(self):
-#        self.txt.clear()
-#        day,hour,min,second = self.run_time()
-#        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
-#        self.txt.leftline("Day:{}".format(day),1)
-#        self.txt.rightline("Tgt:{}".format(self.target),1)
-#        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
-#
+    def display_simple(self):
+        self.txt.clear()
+        day,hour,min,second = self.run_time()
+        #self.txt.centerline("Day:{}      Tgt:{}".format(day,self.target),1)
+        self.txt.leftline("Day:{}".format(day),1)
+        self.txt.rightline("Tgt:{}".format(self.target),1)
+        bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
+
 
     def run(self):
         old_second = 99
@@ -176,12 +168,12 @@ class mainloop:
         while True:
 
             #self.display_detail()
-            self.display_detail()
 
             day,hour,min,second = self.run_time()
 
             # Cycle over x time
             if second != old_second:
+                self.display_simple()
                 old_second = second
                 LED.LED.value(abs(LED.LED.value()-1))
                 wdt.feed()
@@ -189,16 +181,18 @@ class mainloop:
                 self.m.check_msg()
                 self.thermostat()
 
-            if min != old_min:
-                old_min = min
+#            if min != old_min:
+#                old_min = min
                 publish_json = {}
                 publish_json["temperature"] = self.temp
                 publish_json["target"] = self.target
                 publish_json["day"] = day
                 publish_json["profile"] = self.profile
-                publish_json_str = json.dumps(publish_json)
-                print("Publishing: {}".format(publish_json_str))
-                self.m.publish(publish_json_str)
+                print("Publishing: {}".format(publish_json))
+                self.m.publish(publish_json)
+                #magneto=esp32.hall_sensor()
+                #print(magneto)
+                #self.m.publish(magneto)
                 # Write state file once a minute just in case
                 # We should be able to remove this.
                 self.writeStateFile()
@@ -207,8 +201,10 @@ class mainloop:
 
 
 if __name__ == "__main__":
-    wlan.do_connect(config.google_cloud_config['project_id'])
+    wlan.do_connect(config.device_name)
+    print("Connected to WIFI")
     LED.LED.value(1)
+    print("Starting mainloop")
     m = mainloop()
     LED.LED.value(0)
     m.run()
