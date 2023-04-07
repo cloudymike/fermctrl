@@ -8,7 +8,7 @@ then
 else
 	echo Installing prometheus version ${PROMETHEUSVERSION}
     wget https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUSVERSION}/${PROMETHEUSDIR}.tar.gz
-    tar xvzf${PROMETHEUSDIR}
+    tar xvzf ${PROMETHEUSDIR}.tar.gz
 fi
 
 
