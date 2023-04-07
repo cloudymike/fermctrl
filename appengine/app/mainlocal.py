@@ -189,7 +189,7 @@ def displayTemp():
 
 @app.route('/metrics')
 def metrics():
-    TEMPERATURE,TARGET,DAY,PROFILE = geself.lastmessagetStatus()
+    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
 
     metric_string="""# HELP Actual Temperature
 # TYPE actual_temperature gauge
