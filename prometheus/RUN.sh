@@ -6,6 +6,8 @@ source venv/bin/activate
 pip install  -r requirements.txt
 python buildPrometheus.py 
 
+
+
 PROMETHEUSVERSION=2.37.6
 PROMETHEUSDIR=prometheus-${PROMETHEUSVERSION}.linux-amd64
 if [ -d "${PROMETHEUSDIR}" ]
