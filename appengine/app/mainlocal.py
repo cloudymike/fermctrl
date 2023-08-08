@@ -89,6 +89,7 @@ class targetForm(FlaskForm):
     submit = SubmitField('Set')
 
 class profileForm(FlaskForm):
+
     targetDay0 = IntegerField('targetDay0', validators=[DataRequired()])
     targetTemp0 = IntegerField('targetTemp0', validators=[Optional()])
     targetDay1 = IntegerField('targetDay1', validators=[Optional()])
@@ -131,6 +132,7 @@ def setTarget():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
+    global PROFILE
     print("In setProfile")
     profile = {}
     form = profileForm()
@@ -154,8 +156,18 @@ def setProfile():
         print("Sending: {}".format(profileJSON))
         data = profileJSON.encode("utf-8")
         send_data(data)
+        # cache the update until next read to not make if confusing
+        PROFILE = json.loads(data)
 
-    return render_template('profile.html', title='Set Profile', form=form)
+    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
+    SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
+
+    return render_template('profile.html', 
+        title='Set Profile', 
+        form=form, 
+        sorted_profile_days=SORTED_PROFILE_DAYS,
+        profile=PROFILE
+        )
 
 @app.route('/cmd', methods=['GET', 'POST'])
 def setCmd():
