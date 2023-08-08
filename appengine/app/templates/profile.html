@@ -3,16 +3,16 @@
 {% block content %}
 <form method="POST" action="/profile">
   {{ form.hidden_tag() }}
-  Day {{ form.targetDay0(size=3, value="0") }}
-  Temp {{ form.targetTemp0(size=3, value=profile['0']) }}<br>
-  Day {{ form.targetDay1(size=3, value=" ") }}
-  Temp {{ form.targetTemp1(size=3, value=" ") }}<br>
-  Day {{ form.targetDay2(size=3, value=" ") }}
-  Temp {{ form.targetTemp2(size=3, value=" ") }}<br>
-  Day {{ form.targetDay3(size=3, value=" ") }}
-  Temp {{ form.targetTemp3(size=3, value=" ") }}<br>
-  Day {{ form.targetDay4(size=3, value=" ") }}
-  Temp {{ form.targetTemp4(size=3, value=" ") }}<br>
+  Day {{ form.targetDay0(size=3, value=sorted_profile_days[0]) }}
+  Temp {{ form.targetTemp0(size=3, value=profile[sorted_profile_days[0]]) }}<br>
+  Day {{ form.targetDay1(size=3, value=sorted_profile_days[1] if sorted_profile_days|length > 1 else ' ' ) }}
+  Temp {{ form.targetTemp1(size=3, value=profile[sorted_profile_days[1]] if sorted_profile_days|length > 1 else ' ' )}}<br>
+  Day {{ form.targetDay2(size=3, value=sorted_profile_days[2] if sorted_profile_days|length > 2 else ' ' ) }}
+  Temp {{ form.targetTemp2(size=3, value=profile[sorted_profile_days[2]] if sorted_profile_days|length > 2 else ' ' ) }}<br>
+  Day {{ form.targetDay3(size=3, value=sorted_profile_days[3] if sorted_profile_days|length > 3 else ' ') }}
+  Temp {{ form.targetTemp3(size=3, value=profile[sorted_profile_days[3]] if sorted_profile_days|length > 3 else ' ' ) }}<br>
+  Day {{ form.targetDay4(size=3, value=sorted_profile_days[4] if sorted_profile_days|length > 4 else ' ') }}
+  Temp {{ form.targetTemp4(size=3, value=profile[sorted_profile_days[4]] if sorted_profile_days|length > 4 else ' ' ) }}<br>
   {{ form.submit() }}
 </form>
 

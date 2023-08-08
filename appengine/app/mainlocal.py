@@ -132,6 +132,7 @@ def setTarget():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
+    global PROFILE
     print("In setProfile")
     profile = {}
     form = profileForm()
@@ -155,6 +156,8 @@ def setProfile():
         print("Sending: {}".format(profileJSON))
         data = profileJSON.encode("utf-8")
         send_data(data)
+        # cache the update until next read to not make if confusing
+        PROFILE = json.loads(data)
 
     TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
