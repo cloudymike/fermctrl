@@ -23,7 +23,6 @@ import config
 import json
 
 from concurrent.futures import TimeoutError
-#from google.cloud import pubsub_v1, iot_v1
 import paho.mqtt.client as mqtt
 
 TEMPERATURE='? '
