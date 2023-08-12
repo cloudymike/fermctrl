@@ -25,22 +25,26 @@ import json
 from concurrent.futures import TimeoutError
 import paho.mqtt.client as mqtt
 
-TEMPERATURE='? '
-TARGET='? '
-DAY='? '
+import redis
+
 PROFILE=[]
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
+datastore = redis.Redis(host='redis', port=6379)
+
+# REMOVEME?
 app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 
 ############
 def on_message(client, userdata, message):
-    global TEMPERATURE
-    global TARGET
-    global DAY
     global PROFILE
+
+    TEMPERATURE='? '
+    TARGET='? '
+    DAY='? '
+
     topic = message.topic
     #print("Raw message: {}".format(message.payload))
     #j1 = json.loads(message.payload)
@@ -56,8 +60,11 @@ def on_message(client, userdata, message):
     print(type(data))
     print("Data dictionary {}".format(data))
     TEMPERATURE=str(data.get('temperature','?'))
+    datastore.set('TEMPERATURE', TEMPERATURE)
     TARGET=str(data.get('target','?'))
+    datastore.set('TARGET', TARGET)
     DAY=str(data.get('day','?'))
+    datastore.set('DAY', DAY)
     PF=str(data.get('profile',str({})))
     PF_STR = PF.replace("\'", "\"")
     PROFILE = json.loads(PF_STR)
@@ -82,6 +89,13 @@ def send_data(data):
         #client.connect(config.hostname)
         client.publish(config.app_topic,data)
 
+
+def getStatus():
+    return(
+        datastore.get('TEMPERATURE').decode("utf-8"), 
+        datastore.get('TARGET').decode("utf-8"),
+        datastore.get('DAY').decode("utf-8"),
+        PROFILE)
 
 class targetForm(FlaskForm):
     targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
@@ -179,9 +193,6 @@ def setCmd():
         send_data(data)
 
     return render_template('cmd.html', title='Command', form=form)
-
-def getStatus():
-    return(TEMPERATURE, TARGET,DAY,PROFILE)
 
 @app.route('/displaytemp')
 def displayTemp():
