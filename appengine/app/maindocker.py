@@ -32,7 +32,7 @@ PROFILE=[]
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
-datastore = redis.Redis(host='redis', port=6379)
+datastore = redis.Redis(host='redis', port=6379, decode_responses=True)
 
 # REMOVEME?
 app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
@@ -92,9 +92,9 @@ def send_data(data):
 
 def getStatus():
     return(
-        datastore.get('TEMPERATURE').decode("utf-8"), 
-        datastore.get('TARGET').decode("utf-8"),
-        datastore.get('DAY').decode("utf-8"),
+        datastore.get('TEMPERATURE'), 
+        datastore.get('TARGET'),
+        datastore.get('DAY'),
         PROFILE)
 
 class targetForm(FlaskForm):
