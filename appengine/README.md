@@ -1,4 +1,12 @@
+# Run with flask and mqtt app separate
+You need to start both scripts:
+* runnomqtt.sh (the flask app)
+* runmqtt.sh (the mqtt reader and writer)
+
+
+
 # Basic flask app on app engine.
+This is obsolete as GOOGLE stopped their IOT mqtt offering
 
 You may have to login to your google account
 `gcloud auth login`
