@@ -12,7 +12,8 @@ import paho.mqtt.client as mqtt
 TEMPERATURE='? '
 TARGET='? '
 DAY='? '
-PROFILE=[]
+PROFILE={}
+PROFILEnew={}
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -60,9 +61,9 @@ def on_message(client, userdata, message):
     PF=str(data.get('profile',str({})))
     PF_STR = PF.replace("\'", "\"")
     PROFILE = json.loads(PF_STR)
-    print(f"Temperature {TEMPERATURE}.")
-    print(f"Target {TARGET}.")
-    print(f"Day {DAY}.")
+    print("Temperature:{}   Target:{}   Day:{}".format(TEMPERATURE,TARGET,DAY))
+    #print(f"Target {TARGET}.")
+    #print(f"Day {DAY}.")
     print(f"Profile {PROFILE}.")
 
 def send_data(data):
@@ -92,7 +93,10 @@ def index():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
-    global PROFILE
+    global PROFILEnew
+    if len(PROFILEnew) == 0:
+        PROFILEnew={"0": 0}
+
     print("In setProfile")
     profile = {}
     form = profileForm()
@@ -114,16 +118,15 @@ def setProfile():
         data = profileJSON.encode("utf-8")
         send_data(data)
         # cache the update until next read to not make if confusing
-        PROFILE = json.loads(data)
+        PROFILEnew = json.loads(data)
 
-    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
-    SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
+    SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
     return render_template('profile.html', 
         title='Set Profile', 
         form=form, 
-        sorted_profile_days=SORTED_PROFILE_DAYS,
-        profile=PROFILE
+        sorted_profile_days=SORTED_PROFILE_DAYSnew,
+        profile=PROFILEnew
         )
 
 @app.route('/displaytemp')
