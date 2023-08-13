@@ -11,7 +11,6 @@ import paho.mqtt.client as mqtt
 
 import redis
 
-PROFILEnew={}
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -102,9 +101,13 @@ def index():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
-    global PROFILEnew
+    PROFILEnew=datastore.hgetall('PROFILEnew')
+
+    print("PROFILEnew:{}.".format(PROFILEnew))
+
     if len(PROFILEnew) == 0:
         PROFILEnew={"0": 0}
+    print("PROFILEnew updated:{}.".format(PROFILEnew))
 
     print("In setProfile")
     profile = {}
@@ -127,6 +130,8 @@ def setProfile():
         send_data(data)
         # cache the update until next read to not make if confusing
         PROFILEnew = json.loads(data)
+        datastore.delete('PROFILEnew')
+        datastore.hset('PROFILEnew', mapping=PROFILE)
 
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
