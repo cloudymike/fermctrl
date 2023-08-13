@@ -1,19 +1,3 @@
-# Copyright 2018 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# [START gae_python38_app]
-# [START gae_python3_app]
 from flask import Flask, render_template, Response
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, SubmitField, RadioField
@@ -23,7 +7,6 @@ import config
 import json
 
 from concurrent.futures import TimeoutError
-#from google.cloud import pubsub_v1, iot_v1
 import paho.mqtt.client as mqtt
 
 TEMPERATURE='? '
@@ -34,18 +17,33 @@ PROFILE=[]
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
+# Required for forms
 app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 
-############
+# Form to create profile
+# Should be a loop but could not figure out how.
+class profileForm(FlaskForm):
+    targetDay0 = IntegerField('targetDay0', validators=[DataRequired()])
+    targetTemp0 = IntegerField('targetTemp0', validators=[Optional()])
+    targetDay1 = IntegerField('targetDay1', validators=[Optional()])
+    targetTemp1 = IntegerField('targetTemp1', validators=[Optional()])
+    targetDay2 = IntegerField('targetDay2', validators=[Optional()])
+    targetTemp2 = IntegerField('targetTemp2', validators=[Optional()])
+    targetDay3 = IntegerField('targetDay3', validators=[Optional()])
+    targetTemp3 = IntegerField('targetTemp3', validators=[Optional()])
+    targetDay4 = IntegerField('targetDay4', validators=[Optional()])
+    targetTemp4 = IntegerField('targetTemp4', validators=[Optional()])
+    submit = SubmitField('Set')
+
+################### mqtt section ###################
+# Should be run in different loop / container
+# Remove printstatement when finished. For now it is good debugging
 def on_message(client, userdata, message):
     global TEMPERATURE
     global TARGET
     global DAY
     global PROFILE
     topic = message.topic
-    #print("Raw message: {}".format(message.payload))
-    #j1 = json.loads(message.payload)
-    #print("j1 type: {}      message: {}".format(type(j1),j1))
     try:
         data = json.loads(message.payload)
     except:
@@ -66,7 +64,6 @@ def on_message(client, userdata, message):
     print(f"Target {TARGET}.")
     print(f"Day {DAY}.")
     print(f"Profile {PROFILE}.")
-########################################
 
 def send_data(data):
     global client
@@ -79,33 +76,13 @@ def send_data(data):
         device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
         result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
     else:
-        #client = mqtt.Client("P1")
-        #client.connect(config.hostname)
         client.publish(config.app_topic,data)
+################### mqtt section end ###################
 
+def getStatus():
+    return(TEMPERATURE, TARGET,DAY,PROFILE)
 
-class targetForm(FlaskForm):
-    targetTemp = IntegerField('targetTemp', validators=[DataRequired()])
-    submit = SubmitField('Set')
-
-class profileForm(FlaskForm):
-
-    targetDay0 = IntegerField('targetDay0', validators=[DataRequired()])
-    targetTemp0 = IntegerField('targetTemp0', validators=[Optional()])
-    targetDay1 = IntegerField('targetDay1', validators=[Optional()])
-    targetTemp1 = IntegerField('targetTemp1', validators=[Optional()])
-    targetDay2 = IntegerField('targetDay2', validators=[Optional()])
-    targetTemp2 = IntegerField('targetTemp2', validators=[Optional()])
-    targetDay3 = IntegerField('targetDay3', validators=[Optional()])
-    targetTemp3 = IntegerField('targetTemp3', validators=[Optional()])
-    targetDay4 = IntegerField('targetDay4', validators=[Optional()])
-    targetTemp4 = IntegerField('targetTemp4', validators=[Optional()])
-    submit = SubmitField('Set')
-
-class cmdForm(FlaskForm):
-    cmd = RadioField('Command', choices=[('stop','stop'),('run','run'),('pause','pause')])
-    submit = SubmitField('Execute')
-
+################### routes ###################
 @app.route('/')
 @app.route('/index')
 def index():
@@ -113,33 +90,13 @@ def index():
     return render_template('index.html', title='Home page')
 
 
-@app.route('/target', methods=['GET', 'POST'])
-def setTarget():
-    print("In setTarget")
-    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
-    form = targetForm()
-    if form.validate_on_submit():
-        print('Got temperature {}'.format(form.targetTemp.data))
-
-        profile = { 0: form.targetTemp.data}
-        profileJSON = json.dumps(profile)
-        print("Sending: {}".format(profileJSON))
-        data = profileJSON.encode("utf-8")
-        send_data(data)
-
-
-    return render_template('target.html', title='Target temp', form=form, target=TARGET)
-
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
     global PROFILE
     print("In setProfile")
     profile = {}
     form = profileForm()
-    #print(form)
     if form.is_submitted():
-    #if form.validate_on_submit():
-    #if True:
         print('Day0 {}'.format(form.targetDay0.data))
 
         profile[str(form.targetDay0.data)] = form.targetTemp0.data
@@ -169,26 +126,10 @@ def setProfile():
         profile=PROFILE
         )
 
-@app.route('/cmd', methods=['GET', 'POST'])
-def setCmd():
-    form = cmdForm()
-    if form.validate_on_submit():
-        print('Got command {}'.format(form.cmd.data))
-
-        command = str(form.cmd.data)
-        data = command.encode("utf-8")
-        send_data(data)
-
-    return render_template('cmd.html', title='Command', form=form)
-
-def getStatus():
-    return(TEMPERATURE, TARGET,DAY,PROFILE)
-
 @app.route('/displaytemp')
 def displayTemp():
 
     TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
-    #client.on_message=on_message #attach function to callback
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
@@ -216,14 +157,11 @@ fermentation_day {}
 
     return Response(metric_string, mimetype='text/plain')
 
-# This is used when running locally only. When deploying to Google App
-# Engine, a webserver process such as Gunicorn will serve the app. This
-# can be configured by adding an `entrypoint` to app.yaml.
+
+# Main section. Should probably be broken out as main but wait until mqtt removed
 # Host 0.0.0.0 makes it available on the network, may not be a safe thing
 #    change to 127.0.0.1 to be truly local
-
 broker_address=config.hostname
-#broker_address="iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client("fermctrlwebserver") #create new instance
 client.on_message=on_message #attach function to callback
