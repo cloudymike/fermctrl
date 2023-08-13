@@ -131,7 +131,7 @@ def setProfile():
         # cache the update until next read to not make if confusing
         PROFILEnew = json.loads(data)
         datastore.delete('PROFILEnew')
-        datastore.hset('PROFILEnew', mapping=PROFILE)
+        datastore.hset('PROFILEnew', mapping=PROFILEnew)
 
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
