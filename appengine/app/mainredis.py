@@ -11,7 +11,6 @@ import paho.mqtt.client as mqtt
 
 import redis
 
-PROFILE={}
 PROFILEnew={}
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -41,8 +40,7 @@ class profileForm(FlaskForm):
 # Should be run in different loop / container
 # Remove printstatement when finished. For now it is good debugging
 def on_message(client, userdata, message):
-    global PROFILE
-
+    PROFILE = {}
     TEMPERATURE='? '
     TARGET='? '
     DAY='? '
@@ -67,9 +65,9 @@ def on_message(client, userdata, message):
     PF=str(data.get('profile',str({})))
     PF_STR = PF.replace("\'", "\"")
     PROFILE = json.loads(PF_STR)
+    datastore.delete('PROFILE')
+    datastore.hset('PROFILE', mapping=PROFILE)
     print("Temperature:{}   Target:{}   Day:{}".format(TEMPERATURE,TARGET,DAY))
-    #print(f"Target {TARGET}.")
-    #print(f"Day {DAY}.")
     print(f"Profile {PROFILE}.")
 
 def send_data(data):
@@ -91,7 +89,7 @@ def getStatus():
         datastore.get('TEMPERATURE'), 
         datastore.get('TARGET'),
         datastore.get('DAY'),
-        PROFILE
+        datastore.hgetall('PROFILE')
         )
 
 ################### routes ###################
@@ -113,7 +111,6 @@ def setProfile():
     form = profileForm()
     if form.is_submitted():
         print('Day0 {}'.format(form.targetDay0.data))
-
         profile[str(form.targetDay0.data)] = form.targetTemp0.data
         if form.targetDay1.data and form.targetTemp1.data:
             profile[str(form.targetDay1.data)] = form.targetTemp1.data
