@@ -11,7 +11,7 @@ import redis
 
 
 
-datastore = redis.Redis(host='127.0.0.1', port=6379, decode_responses=True)
+datastore = redis.Redis(host='redis', port=6379, decode_responses=True)
 ################### mqtt section ###################
 # Should be run in different loop / container
 # Remove printstatement when finished. For now it is good debugging
