@@ -1,6 +1,17 @@
 version: '3'
 services:
   web:
-    build: app
+    build: 
+        context: ./app
     ports:
-      - "8000:5000"
+      - "8081:5000"
+    volumes:
+      - ./app:/code
+    environment:
+      FLASK_DEBUG: "true"
+  redis:
+    image: "redis:alpine"
+  mqtrw:
+    build: 
+        context: ./mqttrw
+ 
