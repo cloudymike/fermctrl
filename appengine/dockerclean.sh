@@ -2,6 +2,7 @@
 
 docker rm $(docker ps -aq)
 
-KEEPERIMAGES=$(docker images --filter=reference='python:*' -q)
+KEEPpython=$(docker images --filter=reference='python:*' -q)
+KEEPredis=$(docker images --filter=reference='redis:*' -q)
 
-docker image rm  $(docker images -q | grep -v $KEEPERIMAGES)
+docker image rm  $(docker images -q | grep -v $KEEPpython | grep -v KEEPredis)
