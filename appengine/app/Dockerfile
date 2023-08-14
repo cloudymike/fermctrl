@@ -3,6 +3,7 @@ FROM python:3.7-alpine
 WORKDIR /code
 ENV FLASK_APP=maindocker.py
 ENV FLASK_RUN_HOST=0.0.0.0
+ENV REDIS_SERVER='redis'
 RUN apk add --no-cache gcc musl-dev linux-headers
 RUN apk add libffi-dev
 RUN pip install --upgrade pip
