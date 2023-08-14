@@ -1,5 +1,6 @@
 
 import sys
+import os
 import config
 import json
 import time
@@ -9,9 +10,9 @@ import paho.mqtt.client as mqtt
 
 import redis
 
+REDIS_SERVER=os.getenv('REDIS_SERVER', 'localhost')
 
-
-datastore = redis.Redis(host='redis', port=6379, decode_responses=True)
+datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
 ################### mqtt section ###################
 # Should be run in different loop / container
 # Remove printstatement when finished. For now it is good debugging

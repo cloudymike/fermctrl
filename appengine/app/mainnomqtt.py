@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, SubmitField, RadioField
 from wtforms.validators import DataRequired,Optional
 import sys
+import os
 import config
 import json
 
@@ -17,7 +18,8 @@ app = Flask(__name__)
 # Required for forms
 app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 
-datastore = redis.Redis(host='127.0.0.1', port=6379, decode_responses=True)
+REDIS_SERVER=os.getenv('REDIS_SERVER', 'localhost')
+datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
 
 # Form to create profile
 # Should be a loop but could not figure out how.
