@@ -2,11 +2,11 @@ version: '3'
 services:
   web:
     build: 
-        context: ./app
+        context: ./web
     ports:
       - "8081:5000"
     volumes:
-      - ./app:/code
+      - ./web:/code
     environment:
       FLASK_DEBUG: "true"
   redis:
