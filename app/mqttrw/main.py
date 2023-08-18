@@ -47,25 +47,17 @@ def on_message(client, userdata, message):
     print("Temperature:{}   Target:{}   Day:{}".format(TEMPERATURE,TARGET,DAY))
     print(f"Profile {PROFILE}.")
 
-def send_data(data):
+def send_data(data,device_name):
     global client
-    if config.use_google:
-        project_id = config.google_cloud_config['project_id']
-        cloud_region = config.google_cloud_config['cloud_region']
-        registry_id = config.google_cloud_config['registry_id']
-        device_id = config.google_cloud_config['device_id']
-        client = iot_v1.DeviceManagerClient()
-        device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
-        result = client.send_command_to_device(request={"name": device_path, "binary_data": data})
-    else:
-        client.publish(config.app_topic,data)
+    app_topic = "{}/{}/{}".format(config.project,device_name,config.app_data)
+    client.publish(config.app_topic,data)
 
 # Main section. Should probably be broken out as main but wait until mqtt removed
 # Host 0.0.0.0 makes it available on the network, may not be a safe thing
 #    change to 127.0.0.1 to be truly local
 
 
-# Set default current device
+# Set default current device list
 datastore.ltrim('DeviceList',-1,-1)
 datastore.lpush('DeviceList',config.device_name)
 
@@ -96,6 +88,6 @@ while(1):
                 profileJSON = json.dumps(PROFILEnew)
                 data = profileJSON.encode("utf-8")
                 print("Sending: {}".format(data))
-                send_data(data)
+                send_data(data,deviceName)
 
     time.sleep(1)
