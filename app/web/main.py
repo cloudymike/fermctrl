@@ -78,14 +78,8 @@ def setProfile():
         if form.targetDay4.data and form.targetTemp4.data:
             profile[str(form.targetDay4.data)] = form.targetTemp4.data
 
-        profileJSON = json.dumps(profile)
-        print("Sending: {}".format(profileJSON))
-        data = profileJSON.encode("utf-8")
-        #send_data(data)
-        # cache the update until next read to not make if confusing
-        PROFILEnew = json.loads(data)
         datastore.delete('PROFILEnew')
-        datastore.hset('PROFILEnew', mapping=PROFILEnew)
+        datastore.hset('PROFILEnew', mapping=profile)
 
         datastore.set('UpdateProfile', 'TRUE')
 
