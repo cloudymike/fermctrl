@@ -13,6 +13,13 @@ import redis
 REDIS_SERVER=os.getenv('REDIS_SERVER', 'localhost')
 
 datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
+
+# Set default current device list
+datastore.ltrim('DeviceList',-1,-2)
+for device_name in config.device_list:
+    datastore.lpush('DeviceList',device_name)
+
+
 ################### mqtt section ###################
 # Should be run in different loop / container
 # Remove printstatement when finished. For now it is good debugging
@@ -61,10 +68,6 @@ def send_data(data,device_name):
 #    change to 127.0.0.1 to be truly local
 
 
-# Set default current device list
-datastore.ltrim('DeviceList',-1,-1)
-datastore.lpush('DeviceList',config.device_name)
-
 
 broker_address=config.hostname
 print("creating new instance")
@@ -74,12 +77,11 @@ print("connecting to broker on {}".format(broker_address))
 client.connect(broker_address) #connect to broker
 client.loop_start() #start the loop
 
-deviceList = datastore.lrange('DeviceList',-1,-1)
+deviceList = datastore.lrange('DeviceList',0,999)
 for deviceName in deviceList:
     deviceTopic = "{}/{}/{}".format(config.project,deviceName,config.device_data)
     print("Subscribing to topic",deviceTopic)
     client.subscribe(config.device_topic)
-
 
 print('Staring loop')
 while(1):
