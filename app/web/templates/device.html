@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Run Command</h1>
-    <style>
-      html{text-align: left;}
-    </style>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-{% for subfield in form.cmd %}
+
+
+<form action="" method="post" novalidate >
+    {{ form.hidden_tag() }}
+    <p>
+<div class="l">
+{% for subfield in form.device %}
         {{ subfield }}
         {{ subfield.label }}<br>
 {% endfor %}
+</div>
 
-            {% for error in form.cmd.errors %}
+            {% for error in form.device.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
 
         </p>
         <p>{{ form.submit() }}</p>
     </form>
+
 {% endblock %}

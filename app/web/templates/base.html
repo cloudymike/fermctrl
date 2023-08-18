@@ -5,9 +5,21 @@
       {% else %}
       <title>Welcome to the Fermentation Controller</title>
       {% endif %}
-      <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center;}
+
+-      <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center;}
+-        p{font-size: 4rem;}
+-        a{font-size: 2rem;}
+-        form{font-size: 4rem;}
+-        input, select, textarea {font-size: 4rem;}
+
+
+
+    <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center; }
         p{font-size: 4rem;}
         a{font-size: 2rem;}
+
+        div.l {text-align: left;font-size: 2rem;}
+
         form{font-size: 4rem;}
         input, select, textarea {font-size: 4rem;}
         input[type=radio] {
@@ -21,9 +33,13 @@
     </head>
     <body>
         <div>
-            <a href="index">Home</a><a> </a><a> </a>
-            <a href="profile">Set Profile</a><a> </a><a> </a>
-            <a href="displaytemp">Status</a>
+            <a href="index">Home</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="profile">Set Profile</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="displaytemp">Status</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="device">Set Device</a>
+        </div>
+        <div class="l">
+        <br><b>{{device_name}}</b>
         </div>
         <hr>
         {% block content %}{% endblock %}
