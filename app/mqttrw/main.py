@@ -63,6 +63,13 @@ def send_data(data):
 # Main section. Should probably be broken out as main but wait until mqtt removed
 # Host 0.0.0.0 makes it available on the network, may not be a safe thing
 #    change to 127.0.0.1 to be truly local
+
+
+# Set default current device
+datastore.ltrim('DeviceList',-1,-1)
+datastore.lpush('DeviceList',config.device_name)
+
+
 broker_address=config.hostname
 print("creating new instance")
 client = mqtt.Client("fermctrlwebserver") #create new instance
@@ -73,23 +80,22 @@ client.loop_start() #start the loop
 print("Subscribing to topic",config.device_topic)
 client.subscribe(config.device_topic)
 
-# Initiate UpdateProfile
-datastore.set('UpdateProfile', 'FALSE')
 
 print('Staring loop')
 while(1):
-    if datastore.get('UpdateProfile') == 'TRUE':
-        print("Sending profile data")
-        datastore.set('UpdateProfile', 'FALSE')
-        PROFILEnew=datastore.hgetall('PROFILEnew')
+    deviceList = datastore.lrange('DeviceList',-1,-1)
+    for deviceName in deviceList:
+        print('Checking to update {}'.format(deviceName))
+        if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
+            print("Sending profile data")
+            datastore.set('{}:UpdateProfile'.format(deviceName), 'FALSE')
+            PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
-        print("PROFILEnew:{}.".format(PROFILEnew))
-
-        # Do not send empty data, conroller will not like it
-        if len(PROFILEnew) != 0:
-            profileJSON = json.dumps(PROFILEnew)
-            data = profileJSON.encode("utf-8")
-            print("Sending: {}".format(data))
-            send_data(data)
+            # Do not send empty data, conroller will not like it
+            if len(PROFILEnew) != 0:
+                profileJSON = json.dumps(PROFILEnew)
+                data = profileJSON.encode("utf-8")
+                print("Sending: {}".format(data))
+                send_data(data)
 
     time.sleep(1)
