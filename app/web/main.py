@@ -40,11 +40,13 @@ class profileForm(FlaskForm):
 
 
 def getStatus():
+    deviceName = datastore.get('CurrentDevice')
+
     return(
-        datastore.get('TEMPERATURE'), 
-        datastore.get('TARGET'),
-        datastore.get('DAY'),
-        datastore.hgetall('PROFILE')
+        datastore.get('{}:TEMPERATURE'.format(deviceName)), 
+        datastore.get('{}:TARGET'.format(deviceName)),
+        datastore.get('{}:DAY'.format(deviceName)),
+        datastore.hgetall('{}:PROFILE'.format(deviceName))
         )
 
 ################### routes ###################

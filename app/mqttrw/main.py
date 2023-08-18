@@ -27,23 +27,27 @@ def on_message(client, userdata, message):
         data = json.loads(message.payload)
     except:
         data = {}
-    print("message received ", data)
+    #print("message received ", data)
     print("message topic=", topic)
-    print("message qos=",message.qos)
-    print("message retain flag=",message.retain)
-    print(type(data))
+    #print("message qos=",message.qos)
+    #print("message retain flag=",message.retain)
+    #print(type(data))
     print("Data dictionary {}".format(data))
+
+    deviceName = topic.split('/')[1]
+    print('Device Name: {}'.format(deviceName))
+
     TEMPERATURE=str(data.get('temperature','?'))
-    datastore.set('TEMPERATURE', TEMPERATURE)
+    datastore.set('{}:TEMPERATURE'.format(deviceName), TEMPERATURE)
     TARGET=str(data.get('target','?'))
-    datastore.set('TARGET', TARGET)
+    datastore.set('{}:TARGET'.format(deviceName), TARGET)
     DAY=str(data.get('day','?'))
-    datastore.set('DAY', DAY)
+    datastore.set('{}:DAY'.format(deviceName), DAY)
     PF=str(data.get('profile',str({})))
     PF_STR = PF.replace("\'", "\"")
     PROFILE = json.loads(PF_STR)
-    datastore.delete('PROFILE')
-    datastore.hset('PROFILE', mapping=PROFILE)
+    datastore.delete('{}:PROFILE'.format(deviceName))
+    datastore.hset('{}:PROFILE'.format(deviceName), mapping=PROFILE)
     print("Temperature:{}   Target:{}   Day:{}".format(TEMPERATURE,TARGET,DAY))
     print(f"Profile {PROFILE}.")
 
@@ -69,8 +73,12 @@ client.on_message=on_message #attach function to callback
 print("connecting to broker on {}".format(broker_address))
 client.connect(broker_address) #connect to broker
 client.loop_start() #start the loop
-print("Subscribing to topic",config.device_topic)
-client.subscribe(config.device_topic)
+
+deviceList = datastore.lrange('DeviceList',-1,-1)
+for deviceName in deviceList:
+    deviceTopic = "{}/{}/{}".format(config.project,deviceName,config.device_data)
+    print("Subscribing to topic",deviceTopic)
+    client.subscribe(config.device_topic)
 
 
 print('Staring loop')
@@ -79,7 +87,6 @@ while(1):
     for deviceName in deviceList:
         print('Checking to update {}'.format(deviceName))
         if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
-            print("Sending profile data")
             datastore.set('{}:UpdateProfile'.format(deviceName), 'FALSE')
             PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
