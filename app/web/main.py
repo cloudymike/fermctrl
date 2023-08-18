@@ -21,6 +21,8 @@ app.config['SECRET_KEY'] = 'cEumZnHA5QvxVDNXfazEDs7e6Eg368yD'
 REDIS_SERVER = os.getenv('REDIS_SERVER', 'localhost')
 datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
 
+datastore.set('CurrentDevice',config.device_name)
+
 # Form to create profile
 # Should be a loop but could not figure out how.
 class profileForm(FlaskForm):
@@ -38,11 +40,13 @@ class profileForm(FlaskForm):
 
 
 def getStatus():
+    deviceName = datastore.get('CurrentDevice')
+
     return(
-        datastore.get('TEMPERATURE'), 
-        datastore.get('TARGET'),
-        datastore.get('DAY'),
-        datastore.hgetall('PROFILE')
+        datastore.get('{}:TEMPERATURE'.format(deviceName)), 
+        datastore.get('{}:TARGET'.format(deviceName)),
+        datastore.get('{}:DAY'.format(deviceName)),
+        datastore.hgetall('{}:PROFILE'.format(deviceName))
         )
 
 ################### routes ###################
@@ -55,12 +59,15 @@ def index():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
-    PROFILEnew=datastore.hgetall('PROFILEnew')
 
-    print("PROFILEnew:{}.".format(PROFILEnew))
+    deviceName = datastore.get('CurrentDevice')
+    PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+
+    print("PROFILEnew {}.".format(PROFILEnew))
 
     if len(PROFILEnew) == 0:
         PROFILEnew={"0": 0}
+
     print("PROFILEnew updated:{}.".format(PROFILEnew))
 
     print("In setProfile")
@@ -78,10 +85,10 @@ def setProfile():
         if form.targetDay4.data and form.targetTemp4.data:
             profile[str(form.targetDay4.data)] = form.targetTemp4.data
 
-        datastore.delete('PROFILEnew')
-        datastore.hset('PROFILEnew', mapping=profile)
+        datastore.delete('{}:PROFILEnew'.format(deviceName))
+        datastore.hset('{}:PROFILEnew'.format(deviceName), mapping=profile)
 
-        datastore.set('UpdateProfile', 'TRUE')
+        datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
 
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
