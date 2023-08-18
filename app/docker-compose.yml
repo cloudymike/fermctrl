@@ -14,4 +14,8 @@ services:
   mqtrw:
     build: 
         context: ./mqttrw
- 
+  prometheus:
+    build:
+        context: ./prometheus
+    ports:
+      - "9090:9090"
