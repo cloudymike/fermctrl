@@ -73,6 +73,10 @@ client.loop_start() #start the loop
 print("Subscribing to topic",config.device_topic)
 client.subscribe(config.device_topic)
 
+# Initiate UpdateProfile
+datastore.set('UpdateProfile', 'FALSE')
+
+print('Staring loop')
 while(1):
     if datastore.get('UpdateProfile') == 'TRUE':
         print("Sending profile data")
