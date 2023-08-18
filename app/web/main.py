@@ -38,6 +38,17 @@ class profileForm(FlaskForm):
     targetTemp4 = IntegerField('targetTemp4', validators=[Optional()])
     submit = SubmitField('Set')
 
+# Form to set the device
+class deviceForm(FlaskForm):
+
+    deviceList = datastore.lrange('DeviceList',0,999)
+
+    choicesList = []
+    for deviceName in deviceList:
+        choicesList.append((deviceName,deviceName))
+
+    device = RadioField('Command', choices=choicesList)
+    submit = SubmitField('Select')
 
 def getStatus():
     deviceName = datastore.get('CurrentDevice')
@@ -54,7 +65,7 @@ def getStatus():
 @app.route('/index')
 def index():
     """Return a friendly HTTP greeting."""
-    return render_template('index.html', title='Home page')
+    return render_template('index.html', title='Home page',device_name=datastore.get('CurrentDevice'))
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -96,7 +107,8 @@ def setProfile():
         title='Set Profile', 
         form=form, 
         sorted_profile_days=SORTED_PROFILE_DAYSnew,
-        profile=PROFILEnew
+        profile=PROFILEnew,
+        device_name=datastore.get('CurrentDevice')
         )
 
 @app.route('/displaytemp')
@@ -111,7 +123,9 @@ def displayTemp():
         target=TARGET,
         day=DAY,
         sorted_profile_days=SORTED_PROFILE_DAYS,
-        profile=PROFILE)
+        profile=PROFILE,
+        device_name=datastore.get('CurrentDevice')
+        )
 
 @app.route('/metrics')
 def metrics():
@@ -129,6 +143,23 @@ fermentation_day {}
 """.format(TEMPERATURE, TARGET, DAY)
 
     return Response(metric_string, mimetype='text/plain')
+
+@app.route('/device', methods=['GET', 'POST'])
+def setDevice():
+    form = deviceForm()
+    if form.validate_on_submit():
+        print('Got device {}'.format(form.device.data))
+
+        device = str(form.device.data)
+        datastore.set('CurrentDevice',  device.encode("utf-8"))
+
+    return render_template(
+        'device.html', 
+        title='Device', 
+        form=form,
+        device_name=datastore.get('CurrentDevice')
+        )
+
 
 
 # Main section. 
