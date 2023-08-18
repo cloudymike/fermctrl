@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cp ../config/config.py .
+cd prometheus
+
+cp ../../config/config.py .
 python3 -m venv venv
 source venv/bin/activate
 pip install  -r requirements.txt
