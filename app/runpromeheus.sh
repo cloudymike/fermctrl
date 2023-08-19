@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cp ../config/config.py .
+cd prometheus
+
+cp ../../config/config.py .
 python3 -m venv venv
 source venv/bin/activate
 pip install  -r requirements.txt
@@ -20,5 +22,5 @@ else
 fi
 
 
-${PROMETHEUSDIR}/prometheus --config.file=./prometheus.yml
+${PROMETHEUSDIR}/prometheus --config.file=./prometheus_local.yml
 

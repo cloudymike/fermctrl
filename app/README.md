@@ -4,6 +4,7 @@
 You need to start both scripts:
 * runweb.sh (the flask app)
 * runmqtt.sh (the mqtt reader and writer)
+* runprometheus.sh (Prometheus colector)
 
 In addition a redis server and a mosquitto server needs to run on localhost
 
@@ -16,6 +17,11 @@ Bring up docker environment with a rebuild. Note that you may need to remove ima
 clean rebuild
 `docker-compose up --build`
 
+## Ports
+* web server -> 8081 Internal 5000
+* prometheus -> 9090
+* redis -> Internal  6379
+* mosquitto -> 1883
 
 ## Basic flask app on app engine.
 This is obsolete as GOOGLE stopped their IOT mqtt offering
