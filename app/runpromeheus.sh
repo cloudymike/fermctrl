@@ -22,5 +22,5 @@ else
 fi
 
 
-${PROMETHEUSDIR}/prometheus --config.file=./prometheus.yml
+${PROMETHEUSDIR}/prometheus --config.file=./prometheus_local.yml
 
