@@ -11,6 +11,10 @@ from concurrent.futures import TimeoutError
 
 import redis
 
+from prometheus_client import Gauge, generate_latest
+
+import prometheus_client
+
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -22,6 +26,24 @@ REDIS_SERVER = os.getenv('REDIS_SERVER', 'localhost')
 datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
 
 datastore.set('CurrentDevice',config.device_name)
+
+# Initialize prometheus
+prometheus_client.REGISTRY.unregister(prometheus_client.GC_COLLECTOR)
+prometheus_client.REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
+prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
+
+actual_temperature=Gauge('actual_temperature','Actual Temperature',['device_name'])
+target_temperature=Gauge('target_temperature','Target Temperature',['device_name'])
+current_day=Gauge('current_day','Day in fermentation',['device_name'])
+#actual_temperature=Gauge('actual_temperature','Actual Temperature')
+# Initialize labels
+datastore.ltrim('DeviceList',-1,-2)
+for device_name in config.device_list:
+    actual_temperature.labels(device_name=device_name)
+    target_temperature.labels(device_name=device_name)
+    current_day.labels(device_name=device_name)
+
+
 
 # Form to create profile
 # Should be a loop but could not figure out how.
@@ -50,6 +72,7 @@ class deviceForm(FlaskForm):
     device = RadioField('Device', choices=choicesList)
     submit = SubmitField('Select')
 
+# Helper functions
 def getStatus():
     deviceName = datastore.get('CurrentDevice')
 
@@ -59,6 +82,12 @@ def getStatus():
         datastore.get('{}:DAY'.format(deviceName)),
         datastore.hgetall('{}:PROFILE'.format(deviceName))
         )
+
+def getStatusValue(status,device_name):
+    value=datastore.get('{}:{}'.format(device_name,status))
+    if value is None:
+        value = 0
+    return(value)
 
 ################### routes ###################
 @app.route('/')
@@ -127,22 +156,6 @@ def displayTemp():
         device_name=datastore.get('CurrentDevice')
         )
 
-@app.route('/metrics')
-def metrics():
-    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
-
-    metric_string="""# HELP Actual Temperature
-# TYPE actual_temperature gauge
-actual_temperature {}
-# HELP Target Temperature
-# TYPE target_temperature gauge
-target_temperature {}
-# HELP Day in fermentation
-# TYPE fermentation_day counter
-fermentation_day {}
-""".format(TEMPERATURE, TARGET, DAY)
-
-    return Response(metric_string, mimetype='text/plain')
 
 @app.route('/device', methods=['GET', 'POST'])
 def setDevice():
@@ -159,6 +172,17 @@ def setDevice():
         form=form
         )
 
+
+@app.route('/metrics')
+def clientmetrics():
+    datastore.ltrim('DeviceList',-1,-2)
+    for device_name in config.device_list:
+        actual_temperature.labels(device_name=device_name).set( getStatusValue('TEMPERATURE',device_name))
+        target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
+        current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
+
+
+    return generate_latest()
 
 
 # Main section. 
