@@ -44,7 +44,7 @@ for device_name in config.device_list:
     current_day.labels(device_name=device_name)
 
 
-
+################### Form classes ###################
 # Form to create profile
 # Should be a loop but could not figure out how.
 class profileForm(FlaskForm):
@@ -72,7 +72,7 @@ class deviceForm(FlaskForm):
     device = RadioField('Device', choices=choicesList)
     submit = SubmitField('Select')
 
-# Helper functions
+#################### Helper functions ###################
 def getStatus():
     deviceName = datastore.get('CurrentDevice')
 
