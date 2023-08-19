@@ -1,3 +1,2 @@
 FROM prom/prometheus
-ADD prometheus.yml /etc/prometheus/
-EXPOSE 5000
+ADD prometheus_docker.yml /etc/prometheus/prometheus.yml

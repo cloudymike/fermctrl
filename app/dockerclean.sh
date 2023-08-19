@@ -9,5 +9,4 @@ KEEPprometheus=$(docker images --filter=reference='prom/prometheus:*' -q)
 IMAGED2REMOVE=$(docker images -q | grep -v $KEEPpython | grep -v $KEEPredis| grep -v $KEEPprometheus)
 echo Images to remove $IMAGED2REMOVE
 
-exit 1
 docker image rm $IMAGED2REMOVE
