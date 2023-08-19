@@ -47,7 +47,7 @@ class deviceForm(FlaskForm):
     for deviceName in deviceList:
         choicesList.append((deviceName,deviceName))
 
-    device = RadioField('Command', choices=choicesList)
+    device = RadioField('Device', choices=choicesList)
     submit = SubmitField('Select')
 
 def getStatus():
@@ -146,7 +146,7 @@ fermentation_day {}
 
 @app.route('/device', methods=['GET', 'POST'])
 def setDevice():
-    form = deviceForm()
+    form = deviceForm(device=datastore.get('CurrentDevice'))
     if form.validate_on_submit():
         print('Got device {}'.format(form.device.data))
 
@@ -156,8 +156,7 @@ def setDevice():
     return render_template(
         'device.html', 
         title='Device', 
-        form=form,
-        device_name=datastore.get('CurrentDevice')
+        form=form
         )
 
 
