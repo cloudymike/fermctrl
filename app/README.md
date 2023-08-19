@@ -23,6 +23,13 @@ clean rebuild
 * redis -> Internal  6379
 * mosquitto -> 1883
 
+## Prometheus expressions
+
+Find all metrics for a device:
+`{device_name=~"testcooler"}   `
+
+Find a metric (actual_temperature) for all devices:
+`actual_temperature`
 ## Basic flask app on app engine.
 This is obsolete as GOOGLE stopped their IOT mqtt offering
 

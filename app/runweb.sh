@@ -8,6 +8,9 @@ pip install  -r requirements.txt
 pip freeze
 
 cp ../../config/config.py .
-# Run app locally
-# http://localhost:8081
-python main.py
+
+export FLASK_ENV=development
+export FLASK_APP=main.py
+export FLASK_RUN_PORT=8081
+export FLASK_RUN_HOST="127.0.0.1"
+flask run
