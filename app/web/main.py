@@ -185,8 +185,9 @@ def clientmetrics():
     return generate_latest()
 
 
-# Main section. 
+#################### Main section. ###################
 # Host 0.0.0.0 makes it available on the network, may not be a safe thing
 #    change to 127.0.0.1 to be truly local
+# Note,this is now handled in flask command in docker-compose and runweb.sh
 
 app.run(host='0.0.0.0', port=8081)
