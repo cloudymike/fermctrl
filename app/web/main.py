@@ -36,8 +36,9 @@ actual_temperature=Gauge('actual_temperature','Actual Temperature',['device_name
 target_temperature=Gauge('target_temperature','Target Temperature',['device_name'])
 current_day=Gauge('current_day','Day in fermentation',['device_name'])
 #actual_temperature=Gauge('actual_temperature','Actual Temperature')
+
 # Initialize labels
-datastore.ltrim('DeviceList',-1,-2)
+# Use devices i config to avoid raceconditions
 for device_name in config.device_list:
     actual_temperature.labels(device_name=device_name)
     target_temperature.labels(device_name=device_name)
@@ -64,11 +65,10 @@ class profileForm(FlaskForm):
 class deviceForm(FlaskForm):
 
     deviceList = datastore.lrange('DeviceList',0,999)
-
+    print('deviceList in deviceForm{}'.format(deviceList))
     choicesList = []
     for deviceName in deviceList:
         choicesList.append((deviceName,deviceName))
-
     device = RadioField('Device', choices=choicesList)
     submit = SubmitField('Select')
 
@@ -169,14 +169,15 @@ def setDevice():
     return render_template(
         'device.html', 
         title='Device', 
-        form=form
+        form=form,
+        device_name=datastore.get('CurrentDevice')
         )
 
 
 @app.route('/metrics')
 def clientmetrics():
-    datastore.ltrim('DeviceList',-1,-2)
-    for device_name in config.device_list:
+    deviceList = datastore.lrange('DeviceList',0,999)
+    for device_name in deviceList:
         actual_temperature.labels(device_name=device_name).set( getStatusValue('TEMPERATURE',device_name))
         target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))

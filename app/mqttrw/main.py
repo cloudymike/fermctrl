@@ -18,6 +18,7 @@ datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
 datastore.ltrim('DeviceList',-1,-2)
 for device_name in config.device_list:
     datastore.lpush('DeviceList',device_name)
+    print('adding device {}'.format(device_name))
 
 
 ################### mqtt section ###################
