@@ -25,3 +25,9 @@ services:
       - "9090:9090"
     depends_on:
       - web
+#  mosquitto:
+#    build: 
+#        context: ./mosquitto
+#    ports:
+#      - 1883:1883
+#      - 9001:9001   

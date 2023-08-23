@@ -17,6 +17,12 @@ Bring up docker environment with a rebuild. Note that you may need to remove ima
 clean rebuild
 `docker-compose up --build`
 
+## Run in testing mode
+runtesting.sh
+
+This mode includes a local mosquitto that allows a self contained environment for testing
+May be useful as real environment, but some more testing needed.
+
 ## Ports
 * web server -> 8081 Internal 5000
 * prometheus -> 9090
