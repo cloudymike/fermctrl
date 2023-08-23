@@ -9,13 +9,19 @@ services:
       - ./web:/code
     environment:
       FLASK_DEBUG: "true"
+    depends_on:
+      - redis
   redis:
     image: "redis:alpine"
   mqtrw:
     build: 
         context: ./mqttrw
+    depends_on:
+      - redis
   prometheus:
     build:
         context: ./prometheus
     ports:
       - "9090:9090"
+    depends_on:
+      - web
