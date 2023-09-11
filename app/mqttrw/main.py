@@ -86,7 +86,7 @@ for deviceName in deviceList:
 
 print('Staring loop')
 while(1):
-    deviceList = datastore.lrange('DeviceList',-1,-1)
+    deviceList = datastore.lrange('DeviceList',0,999)
     for deviceName in deviceList:
         print('Checking to update {}'.format(deviceName))
         if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
