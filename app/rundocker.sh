@@ -2,7 +2,7 @@
 
 # Note that newer version it is docker compose, older docker-compose
 which docker-compose
-if $?==0
+if [ "$?" == "0" ]
 then
 	DOCKERCOMPOSE='docker-compose'
 else
