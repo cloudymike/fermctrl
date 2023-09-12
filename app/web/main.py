@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 from flask_wtf import FlaskForm
 from wtforms import IntegerField, SubmitField, RadioField
 from wtforms.validators import DataRequired,Optional
@@ -95,6 +95,13 @@ def getStatusValue(status,device_name):
 def index():
     """Return a friendly HTTP greeting."""
     return render_template('index.html', title='Home page',device_name=datastore.get('CurrentDevice'))
+
+@app.route('/graph')
+def graph():
+    prom_url = "http://{}:9090/graph?g0.expr=%7Bdevice_name%3D~%22{}%22%7D%20%20%20&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=12h".format(request.remote_addr, datastore.get('CurrentDevice'))
+    print(prom_url)
+ 
+    return render_template('graph.html', title='Graph',device_name=datastore.get('CurrentDevice'), frame_url=prom_url)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
