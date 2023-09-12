@@ -36,6 +36,12 @@ Find all metrics for a device:
 
 Find a metric (actual_temperature) for all devices:
 `actual_temperature`
+
+Show just temperatures (actual and target) for one device
+`{__name__=~"(actual|target)_temperature", device_name=~"alecooler"} `
+
+We are starting to get into hacks here, and a better solution may be to use grafana
+
 ## Basic flask app on app engine.
 This is obsolete as GOOGLE stopped their IOT mqtt offering
 
