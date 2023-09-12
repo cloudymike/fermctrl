@@ -62,7 +62,7 @@ def on_message(client, userdata, message):
 def send_data(data,device_name):
     global client
     app_topic = "{}/{}/{}".format(config.project,device_name,config.app_data)
-    client.publish(config.app_topic,data)
+    client.publish(app_topic,data)
 
 # Main section. Should probably be broken out as main but wait until mqtt removed
 # Host 0.0.0.0 makes it available on the network, may not be a safe thing
@@ -82,7 +82,7 @@ deviceList = datastore.lrange('DeviceList',0,999)
 for deviceName in deviceList:
     deviceTopic = "{}/{}/{}".format(config.project,deviceName,config.device_data)
     print("Subscribing to topic",deviceTopic)
-    client.subscribe(config.device_topic)
+    client.subscribe(deviceTopic)
 
 print('Staring loop')
 while(1):
