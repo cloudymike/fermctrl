@@ -98,7 +98,7 @@ def index():
 
 @app.route('/graph')
 def graph():
-    prom_url = "http://{}:9090/graph?g0.expr=%7Bdevice_name%3D~%22{}%22%7D%20%20%20&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=12h".format(request.remote_addr, datastore.get('CurrentDevice'))
+    prom_url = "http://{}:9090/graph?g0.expr=%7Bdevice_name%3D~%22{}%22%7D%20%20%20&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=12h".format(config.hostname, datastore.get('CurrentDevice'))
     print(prom_url)
  
     return render_template('graph.html', title='Graph',device_name=datastore.get('CurrentDevice'), frame_url=prom_url)
