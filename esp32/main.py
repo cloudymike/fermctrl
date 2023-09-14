@@ -35,7 +35,9 @@ def bubble_interrupt(pin):
 
 def get_bubblecount():
     global BubbleCount
-    return(BubbleCount)
+    bubblecount = BubbleCount
+    BubbleCount = 0
+    return(bubblecount)
 
 
 pir = machine.Pin(4, machine.Pin.IN)
@@ -217,7 +219,6 @@ class mainloop:
             if min != old_min:
                 old_min = min
                 self.bubblecount = get_bubblecount()
-                BubbleCount = 0
 
 
 

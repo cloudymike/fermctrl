@@ -29,6 +29,7 @@ def on_message(client, userdata, message):
     TEMPERATURE='? '
     TARGET='? '
     DAY='? '
+    BUBBLECOUNT='? '
 
     topic = message.topic
     try:
@@ -47,6 +48,8 @@ def on_message(client, userdata, message):
 
     TEMPERATURE=str(data.get('temperature','?'))
     datastore.set('{}:TEMPERATURE'.format(deviceName), TEMPERATURE)
+    BUBBLECOUNT=str(data.get('bubblecount','?'))
+    datastore.set('{}:BUBBLECOUNT'.format(deviceName), BUBBLECOUNT)
     TARGET=str(data.get('target','?'))
     datastore.set('{}:TARGET'.format(deviceName), TARGET)
     DAY=str(data.get('day','?'))
@@ -56,7 +59,7 @@ def on_message(client, userdata, message):
     PROFILE = json.loads(PF_STR)
     datastore.delete('{}:PROFILE'.format(deviceName))
     datastore.hset('{}:PROFILE'.format(deviceName), mapping=PROFILE)
-    print("Temperature:{}   Target:{}   Day:{}".format(TEMPERATURE,TARGET,DAY))
+    print("Temperature:{}   BubbleCount:{}   Target:{}   Day:{}".format(TEMPERATURE,BUBBLECOUNT,TARGET,DAY))
     print(f"Profile {PROFILE}.")
 
 def send_data(data,device_name):
