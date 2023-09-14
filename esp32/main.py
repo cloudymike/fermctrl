@@ -22,6 +22,26 @@ VERSION=0.5
 # Keep a long timeout so you can reload software before timeout
 wdt = machine.WDT(timeout=300000)
 
+#===================== Bubble counter 
+BubbleCount = 0
+
+def bubble_interrupt(pin):
+    #time.sleep_ms(50)
+    global BubbleCount
+    BubbleCount = BubbleCount + 1
+    global interrupt_pin
+    interrupt_pin = pin 
+    print("There is a bubble....oooooOOOOO ")
+
+def get_bubblecount():
+    global BubbleCount
+    return(BubbleCount)
+
+
+pir = machine.Pin(4, machine.Pin.IN)
+pir.irq(trigger=machine.Pin.IRQ_RISING, handler=bubble_interrupt)
+#===================== Bubble counter end
+
 class mainloop:
     def __init__(self):
         self.rtc = machine.RTC()
@@ -39,6 +59,7 @@ class mainloop:
         self.temprange=0.1   # Range to hold the temperature in, +/-
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
+        self.bubblecount = 0
         self.tempDevice = tempreader.tempreader(self.unit)
         try:
             dummy=self.tempDevice.get_temp()
@@ -124,7 +145,8 @@ class mainloop:
                 self.start_epoch = time.time()
                 self.writeStateFile()
         except:
-            print("Recieved unrecognized mqttdata")
+            pass
+            #print("Recieved unrecognized mqttdata")
 
         return()
 
@@ -163,6 +185,7 @@ class mainloop:
 
 
     def run(self):
+
         old_second = 99
         old_min = 99
         while True:
@@ -181,21 +204,21 @@ class mainloop:
                 self.m.check_msg()
                 self.thermostat()
 
-#            if min != old_min:
-#                old_min = min
                 publish_json = {}
                 publish_json["temperature"] = self.temp
+                publish_json["bubblecount"] = self.bubblecount
                 publish_json["target"] = self.target
                 publish_json["day"] = day
                 publish_json["profile"] = self.profile
                 print("Publishing: {}".format(publish_json))
                 self.m.publish(publish_json)
-                #magneto=esp32.hall_sensor()
-                #print(magneto)
-                #self.m.publish(magneto)
-                # Write state file once a minute just in case
-                # We should be able to remove this.
                 self.writeStateFile()
+ 
+            if min != old_min:
+                old_min = min
+                self.bubblecount = get_bubblecount()
+                BubbleCount = 0
+
 
 
 
