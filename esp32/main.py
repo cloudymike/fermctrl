@@ -24,14 +24,22 @@ wdt = machine.WDT(timeout=300000)
 
 #===================== Bubble counter 
 BubbleCount = 0
+LastBubbleMs = 0
 
 def bubble_interrupt(pin):
-    #time.sleep_ms(50)
     global BubbleCount
-    BubbleCount = BubbleCount + 1
+    global LastBubbleMs
     global interrupt_pin
-    interrupt_pin = pin 
+    interrupt_pin = pin
+
+    BubbleCount = BubbleCount + 1
     print("There is a bubble....oooooOOOOO ")
+    
+#   currentms = time.ticks_ms()
+#   if time.ticks_diff(currentms, LastBubbleMs) > 100:
+#       BubbleCount = BubbleCount + 1
+#       print("There is a bubble....oooooOOOOO ")
+#   LastBubbleMs = currentms
 
 def get_bubblecount():
     global BubbleCount
