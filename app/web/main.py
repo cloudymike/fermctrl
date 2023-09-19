@@ -33,6 +33,7 @@ prometheus_client.REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
 prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
 
 actual_temperature=Gauge('actual_temperature','Actual Temperature',['device_name'])
+bubble_count=Gauge('bubble_count','Bubble Count per minute',['device_name'])
 target_temperature=Gauge('target_temperature','Target Temperature',['device_name'])
 current_day=Gauge('current_day','Day in fermentation',['device_name'])
 #actual_temperature=Gauge('actual_temperature','Actual Temperature')
@@ -78,6 +79,7 @@ def getStatus():
 
     return(
         datastore.get('{}:TEMPERATURE'.format(deviceName)), 
+        datastore.get('{}:BUBBLECOUNT'.format(deviceName)), 
         datastore.get('{}:TARGET'.format(deviceName)),
         datastore.get('{}:DAY'.format(deviceName)),
         datastore.hgetall('{}:PROFILE'.format(deviceName))
@@ -150,12 +152,13 @@ def setProfile():
 @app.route('/displaytemp')
 def displayTemp():
 
-    TEMPERATURE,TARGET,DAY,PROFILE = getStatus()
+    TEMPERATURE,BUBBLECOUNT,TARGET,DAY,PROFILE = getStatus()
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
     return render_template('displaytemp.html', title='Current',
         temperature=TEMPERATURE,
+        bubblecount=BUBBLECOUNT,
         target=TARGET,
         day=DAY,
         sorted_profile_days=SORTED_PROFILE_DAYS,
@@ -186,6 +189,7 @@ def clientmetrics():
     deviceList = datastore.lrange('DeviceList',0,999)
     for device_name in deviceList:
         actual_temperature.labels(device_name=device_name).set( getStatusValue('TEMPERATURE',device_name))
+        bubble_count.labels(device_name=device_name).set( getStatusValue('BUBBLECOUNT',device_name))
         target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
 
