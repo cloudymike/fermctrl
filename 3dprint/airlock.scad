@@ -1,7 +1,7 @@
 
-
 $fa = 1;
 $fs = 0.4;
+
 
 boxdepth = 10;
 boxwidth = 22.5;
@@ -13,9 +13,9 @@ tubediameter = 11;
 module lid() {
   difference () {
     cube([boxwidth-2*wallthickness,boxdepth-1*wallthickness,2],center=true);
-    translate([0,boxdepth/2-3.5,1]) cube([20.5,1.5,1],center=true);
+    translate([0,boxdepth/2-3.5,1]) cube([20.5,1.5,1],center=true); // slot
+    translate([0,-boxdepth/2,0]) cube([boxwidth-2*wallthickness,7*wallthickness,2],center=true); //space for bow
   }
-  //translate([0,-boxdepth/2,0]) cube([boxwidth-2*wallthickness,wallthickness,2],center=true);
 }
 
 module topbox(
@@ -109,5 +109,5 @@ module sensorbox(
 //topbox();  
 //cardslot(); 
 
-//sensorbox();
-translate ([40,0,0]) lid();
+sensorbox();
+translate ([40,0,0])  lid();
