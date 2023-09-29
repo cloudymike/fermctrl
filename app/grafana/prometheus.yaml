@@ -10,8 +10,7 @@ datasources:
       httpMethod: POST
       manageAlerts: true
       prometheusType: Prometheus
-      prometheusVersion: 2.44.0
-      cacheLevel: 'High'
+      prometheusVersion: 2.47.0
+      cacheLevel: 'Low'
       disableRecordingRules: false
       incrementalQueryOverlapWindow: 10m
-      exemplarTraceIdDestinations:
