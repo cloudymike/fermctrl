@@ -25,9 +25,15 @@ services:
       - "9090:9090"
     depends_on:
       - web
+  grafana:
+    build:
+      context: ./grafana
+    ports:
+     - '3000:3000'
 #  mosquitto:
 #    build: 
 #        context: ./mosquitto
 #    ports:
 #      - 1883:1883
 #      - 9001:9001   
+
