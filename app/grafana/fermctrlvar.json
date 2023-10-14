@@ -94,8 +94,6 @@
         "y": 0
       },
       "id": 2,
-      "interval": "5m",
-      "maxDataPoints": 100,
       "options": {
         "legend": {
           "calcs": [],
@@ -183,8 +181,6 @@
         "y": 0
       },
       "id": 4,
-      "interval": "1m",
-      "maxDataPoints": 100,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
@@ -321,12 +317,12 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "15m",
+  "refresh": "1m",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "time": {
-    "from": "now-6h",
+    "from": "now-1w",
     "to": "now"
   },
   "timepicker": {},
