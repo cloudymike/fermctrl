@@ -18,6 +18,7 @@ services:
         context: ./mqttrw
     depends_on:
       - redis
+      - mosquitto
   prometheus:
     build:
         context: ./prometheus

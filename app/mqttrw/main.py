@@ -11,6 +11,7 @@ import paho.mqtt.client as mqtt
 import redis
 
 REDIS_SERVER=os.getenv('REDIS_SERVER', 'localhost')
+MQTT_SERVER=os.getenv('MQTT_SERVER', 'localhost')
 
 datastore = redis.Redis(host=REDIS_SERVER, port=6379, decode_responses=True)
 
@@ -73,7 +74,8 @@ def send_data(data,device_name):
 
 
 
-broker_address=config.hostname
+#broker_address=config.hostname
+broker_address=MQTT_SERVER
 print("creating new instance")
 client = mqtt.Client("fermctrlwebserver") #create new instance
 client.on_message=on_message #attach function to callback
