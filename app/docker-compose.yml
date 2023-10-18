@@ -30,10 +30,10 @@ services:
       context: ./grafana
     ports:
      - '3000:3000'
-#  mosquitto:
-#    build: 
-#        context: ./mosquitto
-#    ports:
-#      - 1883:1883
-#      - 9001:9001   
+  mosquitto:
+    build: 
+        context: ./mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001   
 
