@@ -35,5 +35,4 @@ services:
         context: ./mosquitto
     ports:
       - 1883:1883
-      - 9001:9001   
 
