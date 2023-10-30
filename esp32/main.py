@@ -33,7 +33,7 @@ def bubble_interrupt(pin):
     interrupt_pin = pin
 
     BubbleCount = BubbleCount + 1
-    print("There is a bubble....oooooOOOOO ")
+    #print("There is a bubble....oooooOOOOO ")
     
 #   currentms = time.ticks_ms()
 #   if time.ticks_diff(currentms, LastBubbleMs) > 100:
@@ -70,7 +70,15 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.bubblecount = 0
+        self.dutyOff = 0
+        self.dutyCold = 0
+        self.dutyHot = 0
+        self.countOff = 0
+        self.countCold = 0
+        self.countHot = 0
+
         self.tempDevice = tempreader.tempreader(self.unit)
+
         try:
             dummy=self.tempDevice.get_temp()
         except:
@@ -120,12 +128,15 @@ class mainloop:
         if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
             relay.HOT.off()
+            self.countCold += 1
         elif self.temp < self.target - self.hysterisis - self.temprange:
             relay.HOT.on()
             relay.COLD.off()
+            self.countHot += 1
         elif self.temp < self.target + self.temprange and self.temp > self.target - self.temprange:
             relay.COLD.off()
             relay.HOT.off()
+            self.countOff += 1
         else:
             pass
 
@@ -217,6 +228,9 @@ class mainloop:
                 publish_json = {}
                 publish_json["temperature"] = self.temp
                 publish_json["bubblecount"] = self.bubblecount
+                publish_json["dutyCold"] = self.dutyCold
+                publish_json["dutyHot"] = self.dutyHot
+                publish_json["dutyOff"] = self.dutyOff
                 publish_json["target"] = self.target
                 publish_json["day"] = day
                 publish_json["profile"] = self.profile
@@ -227,6 +241,12 @@ class mainloop:
             if min != old_min:
                 old_min = min
                 self.bubblecount = get_bubblecount()
+                self.dutyCold = self.countCold
+                self.dutyHot = self.countHot
+                self.dutyOff = self.countOff
+                self.countCold = 0
+                self.countHot = 0
+                self.countOff = 0
 
 
 
