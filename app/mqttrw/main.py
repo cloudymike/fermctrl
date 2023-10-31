@@ -31,6 +31,8 @@ def on_message(client, userdata, message):
     TARGET='? '
     DAY='? '
     BUBBLECOUNT='? '
+    HEAT='? '
+    COOL='? '
 
     topic = message.topic
     try:
@@ -51,6 +53,10 @@ def on_message(client, userdata, message):
     datastore.set('{}:TEMPERATURE'.format(deviceName), TEMPERATURE)
     BUBBLECOUNT=str(data.get('bubblecount','?'))
     datastore.set('{}:BUBBLECOUNT'.format(deviceName), BUBBLECOUNT)
+    HEAT=str(data.get('heat','?'))
+    datastore.set('{}:HEAT'.format(deviceName), HEAT)
+    COOL=str(data.get('cool','?'))
+    datastore.set('{}:COOL'.format(deviceName), COOL)
     TARGET=str(data.get('target','?'))
     datastore.set('{}:TARGET'.format(deviceName), TARGET)
     DAY=str(data.get('day','?'))
