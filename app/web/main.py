@@ -34,6 +34,8 @@ prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
 
 actual_temperature=Gauge('actual_temperature','Actual Temperature',['device_name'])
 bubble_count=Gauge('bubble_count','Bubble Count per minute',['device_name'])
+heater_on=Gauge('heater_on','Heater is on (1)',['device_name'])
+cooler_on=Gauge('cooler_on','Cooler is on (1)',['device_name'])
 target_temperature=Gauge('target_temperature','Target Temperature',['device_name'])
 current_day=Gauge('current_day','Day in fermentation',['device_name'])
 #actual_temperature=Gauge('actual_temperature','Actual Temperature')
@@ -80,6 +82,8 @@ def getStatus():
     return(
         datastore.get('{}:TEMPERATURE'.format(deviceName)), 
         datastore.get('{}:BUBBLECOUNT'.format(deviceName)), 
+        datastore.get('{}:HEAT'.format(deviceName)), 
+        datastore.get('{}:COOL'.format(deviceName)), 
         datastore.get('{}:TARGET'.format(deviceName)),
         datastore.get('{}:DAY'.format(deviceName)),
         datastore.hgetall('{}:PROFILE'.format(deviceName))
@@ -100,7 +104,6 @@ def index():
 
 @app.route('/graph')
 def graph():
-    #prom_url = "http://{}:9090/graph?g0.expr=%7Bdevice_name%3D~%22{}%22%7D%20%20%20&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=12h".format(config.hostname, datastore.get('CurrentDevice'))
     prom_url = "http://{}:3000/d/FERMCTRLVAR/fermctrlvar?orgId=1&refresh=1m&var-device={}".format(config.hostname, datastore.get('CurrentDevice'))
     print(prom_url)
 
@@ -153,13 +156,15 @@ def setProfile():
 @app.route('/displaytemp')
 def displayTemp():
 
-    TEMPERATURE,BUBBLECOUNT,TARGET,DAY,PROFILE = getStatus()
+    TEMPERATURE,BUBBLECOUNT,HEAT,COOL,TARGET,DAY,PROFILE = getStatus()
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
     return render_template('displaytemp.html', title='Current',
         temperature=TEMPERATURE,
         bubblecount=BUBBLECOUNT,
+        heat=HEAT,
+        cool=COOL,
         target=TARGET,
         day=DAY,
         sorted_profile_days=SORTED_PROFILE_DAYS,
@@ -191,6 +196,8 @@ def clientmetrics():
     for device_name in deviceList:
         actual_temperature.labels(device_name=device_name).set( getStatusValue('TEMPERATURE',device_name))
         bubble_count.labels(device_name=device_name).set( getStatusValue('BUBBLECOUNT',device_name))
+        heater_on.labels(device_name=device_name).set( getStatusValue('HEAT',device_name))
+        cooler_on.labels(device_name=device_name).set( getStatusValue('COOL',device_name))
         target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
 

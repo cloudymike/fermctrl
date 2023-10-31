@@ -70,7 +70,11 @@ class mainloop:
         self.hysterisis=0.1 # On off difference, to avoid toggling
         self.temp=0.0
         self.bubblecount = 0
+        self.cool = 0
+        self.heat = 0
+
         self.tempDevice = tempreader.tempreader(self.unit)
+
         try:
             dummy=self.tempDevice.get_temp()
         except:
@@ -120,12 +124,18 @@ class mainloop:
         if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
             relay.HOT.off()
+            self.heat = 0
+            self.cool = 1
         elif self.temp < self.target - self.hysterisis - self.temprange:
             relay.HOT.on()
             relay.COLD.off()
+            self.heat = 1
+            self.cool = 0
         elif self.temp < self.target + self.temprange and self.temp > self.target - self.temprange:
             relay.COLD.off()
             relay.HOT.off()
+            self.heat = 0
+            self.cool = 0
         else:
             pass
 
@@ -217,6 +227,8 @@ class mainloop:
                 publish_json = {}
                 publish_json["temperature"] = self.temp
                 publish_json["bubblecount"] = self.bubblecount
+                publish_json["heat"] = self.heat
+                publish_json["cool"] = self.cool
                 publish_json["target"] = self.target
                 publish_json["day"] = day
                 publish_json["profile"] = self.profile

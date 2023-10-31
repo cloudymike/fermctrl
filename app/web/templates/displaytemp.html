@@ -2,7 +2,15 @@
 
 {% block content %}
 
-<p>Temperature: {{ temperature }}F </p>
+<p>Temperature: {{ temperature }}F 
+{% if cool == "1" %}
+<font color="blue">Cooling</font>
+{% elif heat == "1" %}
+<font color="red">Heating</font>
+{% endif %}
+</p>
+<p>Cool: {{ cool }}    Heat: {{ heat }}
+
 <p>Bubble count: {{ bubblecount }} /min </p>
 <p>Target: {{ target }}F </p>
 <p>Today is day: {{ day }} </p>

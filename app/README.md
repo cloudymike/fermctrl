@@ -40,7 +40,12 @@ Find a metric (actual_temperature) for all devices:
 Show just temperatures (actual and target) for one device
 `{__name__=~"(actual|target)_temperature", device_name=~"alecooler"} `
 
+To average over time use something like:
+`avg_over_time(heater_on{device_name="testcooler"}[10m])`
+
 We are starting to get into hacks here, and a better solution may be to use grafana
+
+
 
 ## Basic flask app on app engine.
 This is obsolete as GOOGLE stopped their IOT mqtt offering
