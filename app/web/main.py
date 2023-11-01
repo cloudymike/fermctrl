@@ -38,14 +38,18 @@ heater_on=Gauge('heater_on','Heater is on (1)',['device_name'])
 cooler_on=Gauge('cooler_on','Cooler is on (1)',['device_name'])
 target_temperature=Gauge('target_temperature','Target Temperature',['device_name'])
 current_day=Gauge('current_day','Day in fermentation',['device_name'])
-#actual_temperature=Gauge('actual_temperature','Actual Temperature')
+finish_day=Gauge('finish_day','Last day of program',['device_name'])
 
 # Initialize labels
 # Use devices i config to avoid raceconditions
 for device_name in config.device_list:
     actual_temperature.labels(device_name=device_name)
+    bubble_count.labels(device_name=device_name)
+    heater_on.labels(device_name=device_name)
+    cooler_on.labels(device_name=device_name)
     target_temperature.labels(device_name=device_name)
     current_day.labels(device_name=device_name)
+    finish_day.labels(device_name=device_name)
 
 
 ################### Form classes ###################
@@ -216,6 +220,7 @@ def clientmetrics():
         cooler_on.labels(device_name=device_name).set( getStatusValue('COOL',device_name))
         target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
+        finish_day.labels(device_name=device_name).set( getStatusValue('FinishDay',device_name))
 
 
     return generate_latest()
