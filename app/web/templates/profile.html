@@ -13,6 +13,10 @@
   Temp {{ form.targetTemp3(size=3, value=profile[sorted_profile_days[3]] if sorted_profile_days|length > 3 else ' ' ) }}<br>
   Day {{ form.targetDay4(size=3, value=sorted_profile_days[4] if sorted_profile_days|length > 4 else ' ') }}
   Temp {{ form.targetTemp4(size=3, value=profile[sorted_profile_days[4]] if sorted_profile_days|length > 4 else ' ' ) }}<br>
+  
+  <br>
+  Finish on day {{ form.finishDay(size=3, value=finishDay) }}<br>
+  <br>
   {{ form.submit() }}
 </form>
 

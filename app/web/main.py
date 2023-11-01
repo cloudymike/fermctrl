@@ -62,6 +62,9 @@ class profileForm(FlaskForm):
     targetTemp3 = IntegerField('targetTemp3', validators=[Optional()])
     targetDay4 = IntegerField('targetDay4', validators=[Optional()])
     targetTemp4 = IntegerField('targetTemp4', validators=[Optional()])
+
+    finishDay = IntegerField('finishDay', validators=[Optional()])
+
     submit = SubmitField('Set')
 
 # Form to set the device
@@ -114,6 +117,7 @@ def graph():
 def setProfile():
 
     deviceName = datastore.get('CurrentDevice')
+    finishDay = datastore.get('FinishDay')
     PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
     print("PROFILEnew {}.".format(PROFILEnew))
@@ -137,12 +141,18 @@ def setProfile():
             profile[str(form.targetDay3.data)] = form.targetTemp3.data
         if form.targetDay4.data and form.targetTemp4.data:
             profile[str(form.targetDay4.data)] = form.targetTemp4.data
-
+    
+        print(profile)
         datastore.delete('{}:PROFILEnew'.format(deviceName))
         datastore.hset('{}:PROFILEnew'.format(deviceName), mapping=profile)
 
         datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
 
+        if form.finishDay.data:
+            finishDay  = form.finishDay.data
+            datastore.set('FinishDay',  finishDay)
+
+    PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
     return render_template('profile.html', 
@@ -150,7 +160,8 @@ def setProfile():
         form=form, 
         sorted_profile_days=SORTED_PROFILE_DAYSnew,
         profile=PROFILEnew,
-        device_name=datastore.get('CurrentDevice')
+        device_name=datastore.get('CurrentDevice'),
+        finishDay=finishDay
         )
 
 @app.route('/displaytemp')
