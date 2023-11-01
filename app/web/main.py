@@ -182,6 +182,7 @@ def displayTemp():
         cool=COOL,
         target=TARGET,
         day=DAY,
+        finishDay=datastore.get('FinishDay'),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
         device_name=datastore.get('CurrentDevice')
