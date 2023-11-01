@@ -118,10 +118,13 @@ def setProfile():
 
     deviceName = datastore.get('CurrentDevice')
     finishDay = datastore.get('FinishDay')
-    PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
-    print("PROFILEnew {}.".format(PROFILEnew))
-
+    # Update with new profile if device is not updated, else use profile from device
+    if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
+        PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+    else:
+        PROFILEnew=datastore.hgetall('{}:PROFILE'.format(deviceName))
+    # If there is no profile, create an empty one
     if len(PROFILEnew) == 0:
         PROFILEnew={"0": 0}
 
@@ -152,6 +155,7 @@ def setProfile():
             finishDay  = form.finishDay.data
             datastore.set('FinishDay',  finishDay)
 
+    #PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
     PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
