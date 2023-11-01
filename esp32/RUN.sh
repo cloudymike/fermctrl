@@ -32,7 +32,7 @@ reset ()
 {
   if [ "$IP" == "" ]
   then
-    timeout 2  ampy --port /dev/ttyUSB0 run reset.py
+    timeout 2  ampy --port $PORT run reset.py
   fi
   exit 0
 }
