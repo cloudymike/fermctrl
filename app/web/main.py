@@ -114,7 +114,12 @@ def graph():
 def setProfile():
 
     deviceName = datastore.get('CurrentDevice')
-    PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+
+    # If it is just updated read from PROFILEnew, otherwise use PROFILE, read from device
+    if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
+        PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+    else:
+        PROFILEnew=datastore.hgetall('{}:PROFILE'.format(deviceName))
 
     print("PROFILEnew {}.".format(PROFILEnew))
 
@@ -143,7 +148,11 @@ def setProfile():
 
         datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
 
+        # Read back to get the new profile
+        PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
+    #SORTED_PROFILE_DAYSnew = sorted(profile, key=int)
 
     return render_template('profile.html', 
         title='Set Profile', 
