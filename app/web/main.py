@@ -126,6 +126,10 @@ def graph():
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
 
+    # Note that profile is stored on device
+    # FinishDay is only stored in REDIS
+    # As we add more non device data, we may want to break this out. Maybe.
+
     deviceName = datastore.get('CurrentDevice')
     finishDay = getStatusValue('FinishDay',deviceName)
 
