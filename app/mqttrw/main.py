@@ -95,6 +95,11 @@ for deviceName in deviceList:
     print("Subscribing to topic",deviceTopic)
     client.subscribe(deviceTopic)
 
+# Reasonable defaults at startup
+for deviceName in deviceList:
+    # Set all profile to be not updated, read from devices
+    datastore.set('{}:UpdateProfile'.format(deviceName), 'FALSE')
+
 print('Staring loop')
 while(1):
     deviceList = datastore.lrange('DeviceList',0,999)
