@@ -102,6 +102,12 @@ def getStatusValue(status,device_name):
         value = 0
     return(value)
 
+def getStatusValue(status,device_name):
+    value=datastore.get('{}:{}'.format(device_name,status))
+    if value is None:
+        value = 0
+    return(value)
+
 ################### routes ###################
 @app.route('/')
 @app.route('/index')
@@ -157,7 +163,7 @@ def setProfile():
 
         if form.finishDay.data:
             finishDay  = form.finishDay.data
-            datastore.set('FinishDay',  finishDay)
+            datastore.set('{}:FinishDay'.format(deviceName),  finishDay)
 
     #PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
     PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
@@ -179,6 +185,8 @@ def displayTemp():
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
+    device_name=datastore.get('CurrentDevice')
+
     return render_template('displaytemp.html', title='Current',
         temperature=TEMPERATURE,
         bubblecount=BUBBLECOUNT,
@@ -186,10 +194,10 @@ def displayTemp():
         cool=COOL,
         target=TARGET,
         day=DAY,
-        finishDay=datastore.get('FinishDay'),
+        finishDay=getStatusValue('FinishDay',device_name),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
-        device_name=datastore.get('CurrentDevice')
+        device_name=device_name
         )
 
 
