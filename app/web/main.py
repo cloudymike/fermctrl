@@ -127,13 +127,15 @@ def graph():
 def setProfile():
 
     deviceName = datastore.get('CurrentDevice')
-    finishDay = datastore.get('FinishDay')
+    finishDay = getStatusValue('FinishDay',deviceName)
 
-    # Update with new profile if device is not updated, else use profile from device
+    # If it is just updated read from PROFILEnew, otherwise use PROFILE, read from device
     if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
         PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
     else:
         PROFILEnew=datastore.hgetall('{}:PROFILE'.format(deviceName))
+
+    print("PROFILEnew {}.".format(PROFILEnew))
     # If there is no profile, create an empty one
     if len(PROFILEnew) == 0:
         PROFILEnew={"0": 0}
@@ -165,8 +167,9 @@ def setProfile():
             finishDay  = form.finishDay.data
             datastore.set('{}:FinishDay'.format(deviceName),  finishDay)
 
-    #PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
-    PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+        # Read back to get the new profile
+        PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
+
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
 
     return render_template('profile.html', 
