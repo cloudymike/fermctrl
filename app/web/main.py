@@ -38,14 +38,18 @@ heater_on=Gauge('heater_on','Heater is on (1)',['device_name'])
 cooler_on=Gauge('cooler_on','Cooler is on (1)',['device_name'])
 target_temperature=Gauge('target_temperature','Target Temperature',['device_name'])
 current_day=Gauge('current_day','Day in fermentation',['device_name'])
-#actual_temperature=Gauge('actual_temperature','Actual Temperature')
+finish_day=Gauge('finish_day','Last day of program',['device_name'])
 
 # Initialize labels
 # Use devices i config to avoid raceconditions
 for device_name in config.device_list:
     actual_temperature.labels(device_name=device_name)
+    bubble_count.labels(device_name=device_name)
+    heater_on.labels(device_name=device_name)
+    cooler_on.labels(device_name=device_name)
     target_temperature.labels(device_name=device_name)
     current_day.labels(device_name=device_name)
+    finish_day.labels(device_name=device_name)
 
 
 ################### Form classes ###################
@@ -62,6 +66,9 @@ class profileForm(FlaskForm):
     targetTemp3 = IntegerField('targetTemp3', validators=[Optional()])
     targetDay4 = IntegerField('targetDay4', validators=[Optional()])
     targetTemp4 = IntegerField('targetTemp4', validators=[Optional()])
+
+    finishDay = IntegerField('finishDay', validators=[Optional()])
+
     submit = SubmitField('Set')
 
 # Form to set the device
@@ -95,6 +102,12 @@ def getStatusValue(status,device_name):
         value = 0
     return(value)
 
+def getStatusValue(status,device_name):
+    value=datastore.get('{}:{}'.format(device_name,status))
+    if value is None:
+        value = 0
+    return(value)
+
 ################### routes ###################
 @app.route('/')
 @app.route('/index')
@@ -113,7 +126,12 @@ def graph():
 @app.route('/profile', methods=['GET', 'POST'])
 def setProfile():
 
+    # Note that profile is stored on device
+    # FinishDay is only stored in REDIS
+    # As we add more non device data, we may want to break this out. Maybe.
+
     deviceName = datastore.get('CurrentDevice')
+    finishDay = getStatusValue('FinishDay',deviceName)
 
     # If it is just updated read from PROFILEnew, otherwise use PROFILE, read from device
     if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
@@ -122,7 +140,7 @@ def setProfile():
         PROFILEnew=datastore.hgetall('{}:PROFILE'.format(deviceName))
 
     print("PROFILEnew {}.".format(PROFILEnew))
-
+    # If there is no profile, create an empty one
     if len(PROFILEnew) == 0:
         PROFILEnew={"0": 0}
 
@@ -142,24 +160,29 @@ def setProfile():
             profile[str(form.targetDay3.data)] = form.targetTemp3.data
         if form.targetDay4.data and form.targetTemp4.data:
             profile[str(form.targetDay4.data)] = form.targetTemp4.data
-
+    
+        print(profile)
         datastore.delete('{}:PROFILEnew'.format(deviceName))
         datastore.hset('{}:PROFILEnew'.format(deviceName), mapping=profile)
 
         datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
 
+        if form.finishDay.data:
+            finishDay  = form.finishDay.data
+            datastore.set('{}:FinishDay'.format(deviceName),  finishDay)
+
         # Read back to get the new profile
         PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
     SORTED_PROFILE_DAYSnew = sorted(PROFILEnew, key=int)
-    #SORTED_PROFILE_DAYSnew = sorted(profile, key=int)
 
     return render_template('profile.html', 
         title='Set Profile', 
         form=form, 
         sorted_profile_days=SORTED_PROFILE_DAYSnew,
         profile=PROFILEnew,
-        device_name=datastore.get('CurrentDevice')
+        device_name=datastore.get('CurrentDevice'),
+        finishDay=finishDay
         )
 
 @app.route('/displaytemp')
@@ -169,6 +192,8 @@ def displayTemp():
 
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
+    device_name=datastore.get('CurrentDevice')
+
     return render_template('displaytemp.html', title='Current',
         temperature=TEMPERATURE,
         bubblecount=BUBBLECOUNT,
@@ -176,9 +201,10 @@ def displayTemp():
         cool=COOL,
         target=TARGET,
         day=DAY,
+        finishDay=getStatusValue('FinishDay',device_name),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
-        device_name=datastore.get('CurrentDevice')
+        device_name=device_name
         )
 
 
@@ -209,6 +235,7 @@ def clientmetrics():
         cooler_on.labels(device_name=device_name).set( getStatusValue('COOL',device_name))
         target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
+        finish_day.labels(device_name=device_name).set( getStatusValue('FinishDay',device_name))
 
 
     return generate_latest()
