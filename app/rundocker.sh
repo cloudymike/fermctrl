@@ -12,6 +12,10 @@ fi
 cp ../config/config.py web
 cp ../config/config.py mqttrw
 
+# Create persistent directories
+sudo mkdir -f /var/tmp/prometheus
+sudo chown 65534:65534 /var/tmp/prometheus
+
 # Clean out old container images
 ./dockerclean.sh
 
