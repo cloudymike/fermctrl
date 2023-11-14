@@ -379,7 +379,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "bubble_count{device_name=\"$device\"}",
+          "expr": "avg_over_time(bubble_count{device_name=\"$device\"}[1h])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
