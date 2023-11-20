@@ -94,7 +94,7 @@ then
 fi
 
 echo "Loading micropythonexample code"
-loadfile ${UPYEX}/wlan/wlan.py
+#loadfile ${UPYEX}/wlan/wlan.py
 loadfile ${UPYEX}/LED/LED.py
 #loadfile ${UPYEX}/gcloud-pub/mqttgcloud.py
 loadfile ${UPYEX}/oled/ssd1306.py
@@ -104,9 +104,11 @@ loadfile ${UPYEX}/save_state/savestate.py
 loadfile ${UPYEX}/internaltemp/internaltempreader.py
 
 echo "Loading local python code"
+loadfile mqtt_as.py
 loadfile relay.py
 loadfile tempreader.py
-loadfile mqtt_local.py
+loadfile simple.py
+loadfile mainloop.py
 loadfile main.py
 
 touch lastbuild
