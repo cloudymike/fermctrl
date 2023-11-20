@@ -1,3 +1,6 @@
+# All the tasks and corutines are called here
+# Based on clean.py from mqtt client example 
+
 # clean.py Test of asynchronous mqtt client with clean session.
 # (C) Copyright Peter Hinch 2017-2019.
 # Released under the MIT licence.

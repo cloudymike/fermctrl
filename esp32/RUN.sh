@@ -107,7 +107,7 @@ echo "Loading local python code"
 loadfile mqtt_as.py
 loadfile relay.py
 loadfile tempreader.py
-loadfile simple.py
+loadfile alltasks.py
 loadfile mainloop.py
 loadfile main.py
 
