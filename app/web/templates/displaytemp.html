@@ -8,11 +8,11 @@
 {% elif heat == "1" %}
 <font color="red">Heating</font>
 {% endif %}
-</p>
+<br>
 
-<p>Bubble count: {{ bubblecount }} /min </p>
-<p>Target: {{ target }}F </p>
-<p>Today is day {{ day }} of {{ finishDay }} days</p>
+Target: {{ target }}F <br><br>
+Bubble count: {{ bubblecount }} /min <br>
+Today is day {{ day }} of {{ finishDay }} days</p>
 
 <style>
 table, th, td {
@@ -44,8 +44,17 @@ table.fixed{font-family: Helvetica; text-align: center; font-size: 2rem;}
 
 {% endfor %}
 </table>
+<br><br>
+{% if dryhop1 != "0"%}
+Dryhop to be to be added on day {{ dryhop1 }} <br>
+{% endif %}
+
+{% if dryhop2 != "0"%}
+Second dryhop to be added on day {{ dryhop2 }} <br>
+{% endif %}
+
 {% if clearingagent != "0"%}
-<p>Clearing agent to be added on day {{ clearingagent }} </p>
+Clearing agent to be added on day {{ clearingagent }} <br>
 {% endif %}
 
 {% endblock %}
