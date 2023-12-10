@@ -16,6 +16,13 @@
   
   <br>
   Finish on day {{ form.finishDay(size=3, value=finishDay) }}<br>
+  {% if clearingagent != "0" %}
+  Clearing agent on day {{ form.clearingagent(size=3, value=clearingagent) }}  
+  {% else %}
+  Clearing agent on day {{ form.clearingagent(size=3) }}  
+  {% endif %}
+ <br>
+
   <br>
   {{ form.submit() }}
 </form>
