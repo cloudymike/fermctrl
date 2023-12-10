@@ -15,7 +15,22 @@
   Temp {{ form.targetTemp4(size=3, value=profile[sorted_profile_days[4]] if sorted_profile_days|length > 4 else ' ' ) }}<br>
   
   <br>
-  Finish on day {{ form.finishDay(size=3, value=finishDay) }}<br>
+  Finish on day {{ form.finishDay(size=3, value=finishDay) }}<br><br>
+
+  {% if dryhop1 != "0" %}
+  Dry hop on day {{ form.dryhop1(size=3, value=dryhop1) }}  
+  {% else %}
+  Dry hop on day {{ form.dryhop1(size=3) }}  
+  {% endif %}
+ <br>
+
+  {% if dryhop2 != "0" %}
+  Second dryhop on day {{ form.dryhop2(size=3, value=dryhop2) }}  
+  {% else %}
+  Second dryhop on day {{ form.dryhop2(size=3) }}  
+  {% endif %}
+ <br>
+
   {% if clearingagent != "0" %}
   Clearing agent on day {{ form.clearingagent(size=3, value=clearingagent) }}  
   {% else %}
@@ -23,7 +38,7 @@
   {% endif %}
  <br>
 
-  <br>
+ <br>
   {{ form.submit() }}
 </form>
 

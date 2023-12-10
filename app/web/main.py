@@ -40,6 +40,8 @@ target_temperature=Gauge('target_temperature','Target Temperature',['device_name
 current_day=Gauge('current_day','Day in fermentation',['device_name'])
 finish_day=Gauge('finish_day','Last day of program',['device_name'])
 clearingagent=Gauge('clearingagent','Day to add clearing agent',['device_name'])
+dryhop1=Gauge('dryhop1','Day to add first dry hop',['device_name'])
+dryhop2=Gauge('dryhop2','Day to add second dry hop',['device_name'])
 
 # Initialize labels
 # Use devices i config to avoid raceconditions
@@ -52,6 +54,8 @@ for device_name in config.device_list:
     current_day.labels(device_name=device_name)
     finish_day.labels(device_name=device_name)
     clearingagent.labels(device_name=device_name)
+    dryhop1.labels(device_name=device_name)
+    dryhop2.labels(device_name=device_name)
 
 
 ################### Form classes ###################
@@ -71,6 +75,8 @@ class profileForm(FlaskForm):
 
     finishDay = IntegerField('finishDay', validators=[Optional()])
     clearingagent = IntegerField('clearingagent', validators=[Optional()])
+    dryhop1 = IntegerField('dryhop1', validators=[Optional()])
+    dryhop2 = IntegerField('dryhop2', validators=[Optional()])
 
     submit = SubmitField('Set')
 
@@ -136,6 +142,8 @@ def setProfile():
     deviceName = datastore.get('CurrentDevice')
     finishDay = getStatusValue('FinishDay',deviceName)
     clearingagent = getStatusValue('Clearingagent',deviceName)
+    dryhop1 = getStatusValue('Dryhop1',deviceName)
+    dryhop2 = getStatusValue('Dryhop2',deviceName)
 
     # If it is just updated read from PROFILEnew, otherwise use PROFILE, read from device
     if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
@@ -181,6 +189,18 @@ def setProfile():
                 clearingagent = 0
             datastore.set('{}:Clearingagent'.format(deviceName),  clearingagent)
 
+        if isinstance(form.dryhop1.data, int):
+            dryhop1  = form.dryhop1.data
+            if dryhop1 == "":
+                dryhop1 = 0
+            datastore.set('{}:Dryhop1'.format(deviceName),  dryhop1)
+
+        if isinstance(form.dryhop2.data, int):
+            dryhop2  = form.dryhop2.data
+            if dryhop2 == "":
+                dryhop2 = 0
+            datastore.set('{}:Dryhop2'.format(deviceName),  dryhop2)
+
         # Read back to get the new profile
         PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
@@ -193,7 +213,9 @@ def setProfile():
         profile=PROFILEnew,
         device_name=datastore.get('CurrentDevice'),
         finishDay=finishDay,
-        clearingagent=clearingagent
+        clearingagent=clearingagent,
+        dryhop1=dryhop1,
+        dryhop2=dryhop2
         )
 
 @app.route('/displaytemp')
@@ -214,6 +236,8 @@ def displayTemp():
         day=DAY,
         finishDay=getStatusValue('FinishDay',device_name),
         clearingagent=getStatusValue('Clearingagent',device_name),
+        dryhop1=getStatusValue('Dryhop1',device_name),
+        dryhop2=getStatusValue('Dryhop2',device_name),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
         device_name=device_name
@@ -249,6 +273,8 @@ def clientmetrics():
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
         finish_day.labels(device_name=device_name).set( getStatusValue('FinishDay',device_name))
         clearingagent.labels(device_name=device_name).set( getStatusValue('Clearingagent',device_name))
+        dryhop1.labels(device_name=device_name).set( getStatusValue('Dryhop1',device_name))
+        dryhop2.labels(device_name=device_name).set( getStatusValue('Dryhop2',device_name))
 
 
     return generate_latest()
