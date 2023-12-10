@@ -175,7 +175,7 @@ def setProfile():
             finishDay  = form.finishDay.data
             datastore.set('{}:FinishDay'.format(deviceName),  finishDay)
 
-        if form.clearingagent.data:
+        if isinstance(form.clearingagent.data, int):
             clearingagent  = form.clearingagent.data
             datastore.set('{}:Clearingagent'.format(deviceName),  clearingagent)
 
