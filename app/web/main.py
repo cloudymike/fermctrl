@@ -177,6 +177,8 @@ def setProfile():
 
         if isinstance(form.clearingagent.data, int):
             clearingagent  = form.clearingagent.data
+            if clearingagent == "":
+                clearingagent = 0
             datastore.set('{}:Clearingagent'.format(deviceName),  clearingagent)
 
         # Read back to get the new profile
