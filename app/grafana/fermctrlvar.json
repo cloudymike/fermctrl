@@ -106,7 +106,7 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "actual temperature",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -123,7 +123,7 @@
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "target temperature",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -347,7 +347,7 @@
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "bubbles per minute",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -355,6 +355,120 @@
       ],
       "title": "Bubble count for $device",
       "type": "timeseries"
+    },
+
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#3a485f",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 10,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },      
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PROMETHEUS"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "dryhop1{device_name=\"$device\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "dry hop 1",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PROMETHEUS"
+          },
+          "editorMode": "code",
+          "expr": "dryhop2{device_name=\"$device\"}",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "dry hop 2",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PROMETHEUS"
+          },
+          "editorMode": "code",
+          "expr": "clearingagent{device_name=\"$device\"}",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "clarifier",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Events",
+      "type": "state-timeline"
     }
   ],
   "refresh": "1m",
