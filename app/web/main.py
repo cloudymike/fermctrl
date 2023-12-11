@@ -272,12 +272,17 @@ def clientmetrics():
         target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
         current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
         finish_day.labels(device_name=device_name).set( getStatusValue('FinishDay',device_name))
-        clearingagent.labels(device_name=device_name).set( getStatusValue('Clearingagent',device_name))
-        dryhop1.labels(device_name=device_name).set( getStatusValue('Dryhop1',device_name))
-        dryhop2.labels(device_name=device_name).set( getStatusValue('Dryhop2',device_name))
+        caval= (int(getStatusValue('Clearingagent',device_name)) != 0) and (int(getStatusValue('Clearingagent',device_name)) <= int(getStatusValue('DAY',device_name)))
+        clearingagent.labels(device_name=device_name).set( caval)
+        dh1val =  (int(getStatusValue('Dryhop1',device_name)) != 0) and (int(getStatusValue('Dryhop1',device_name)) <= int(getStatusValue('DAY',device_name)))
+        dryhop1.labels(device_name=device_name).set( dh1val )
+        dh2val = (int(getStatusValue('Dryhop2',device_name)) != 0) and (int(getStatusValue('Dryhop2',device_name)) <= int(getStatusValue('DAY',device_name)))
+        dryhop2.labels(device_name=device_name).set( dh2val)
+        #dryhop2.labels(device_name=device_name).set( getStatusValue('Dryhop2',device_name))
 
 
     return generate_latest()
+
 
 # Access to prometheus for deep diving
 @app.route('/prometheus')
