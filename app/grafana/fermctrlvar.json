@@ -311,7 +311,7 @@
             }
           },
           "mappings": [],
-          "max": 200,
+          "max": 400,
           "min": 0
         },
         "overrides": []
