@@ -16,6 +16,9 @@ cp ../config/config.py mqttrw
 sudo mkdir -f /var/tmp/prometheus
 sudo chown 65534:65534 /var/tmp/prometheus
 
+sudo mkdir -f /var/tmp/redis
+sudo chown 65534:65534 /var/tmp/redis
+
 # Clean out old container images
 ./dockerclean.sh
 

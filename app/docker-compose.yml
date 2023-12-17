@@ -13,6 +13,8 @@ services:
       - redis
   redis:
     image: "redis:alpine"
+    volumes:
+      - /var/tmp/redis:/data
   mqtrw:
     build: 
         context: ./mqttrw
