@@ -118,11 +118,6 @@ def getStatusValue(status,device_name):
     return(value)
 
 ################### routes ###################
-@app.route('/')
-@app.route('/index')
-def index():
-    """Return a friendly HTTP greeting."""
-    return render_template('index.html', title='Home page',device_name=datastore.get('CurrentDevice'))
 
 @app.route('/graph')
 def graph():
@@ -218,6 +213,8 @@ def setProfile():
         dryhop2=dryhop2
         )
 
+@app.route('/')
+@app.route('/index')
 @app.route('/displaytemp')
 def displayTemp():
 
