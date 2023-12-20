@@ -224,7 +224,7 @@ def displayTemp():
 
     device_name=datastore.get('CurrentDevice')
 
-    return render_template('displaytemp.html', title='Current',
+    return render_template('displaytemp.html', title='Status',
         temperature=TEMPERATURE,
         bubblecount=BUBBLECOUNT,
         heat=HEAT,
