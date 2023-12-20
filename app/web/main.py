@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response, request
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, SubmitField, RadioField
+from wtforms import IntegerField, SubmitField, RadioField, SelectField
 from wtforms.validators import DataRequired,Optional
 import sys
 import os
@@ -88,7 +88,7 @@ class deviceForm(FlaskForm):
     choicesList = []
     for deviceName in deviceList:
         choicesList.append((deviceName,deviceName))
-    device = RadioField('Device', choices=choicesList)
+    device = SelectField('Device', choices=choicesList)
     submit = SubmitField('Select')
 
 #################### Helper functions ###################
