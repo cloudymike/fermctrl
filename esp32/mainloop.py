@@ -68,7 +68,7 @@ class mainloop:
 
         self.unit='F'
         self.temprange=0.1   # Range to hold the temperature in, +/-
-        self.hysterisis=0.1 # On off difference, to avoid toggling
+        self.hysterisis=0.2 # On off difference, to avoid toggling
         self.temp=0.0
         self.bubblecount = 0
         self.cool = 0
