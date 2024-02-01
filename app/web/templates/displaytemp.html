@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <p>Temperature: {{ temperature }}F 
 {% if cool == "1" %}
 <font color="blue">Cooling</font>
@@ -9,7 +8,6 @@
 <font color="red">Heating</font>
 {% endif %}
 <br>
-
 Target: {{ target }}F <br><br>
 Bubble count: {{ bubblecount }} /min <br>
 Today is day {{ day }} of {{ finishDay }} days</p>

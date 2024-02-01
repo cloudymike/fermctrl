@@ -1,6 +1,6 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, redirect
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, SubmitField, RadioField, SelectField
+from wtforms import IntegerField, SubmitField, RadioField, SelectField, StringField
 from wtforms.validators import DataRequired,Optional
 import sys
 import os
@@ -78,6 +78,8 @@ class profileForm(FlaskForm):
     dryhop1 = IntegerField('dryhop1', validators=[Optional()])
     dryhop2 = IntegerField('dryhop2', validators=[Optional()])
 
+    recipeName = StringField('recipeName', validators=[Optional()])
+
     submit = SubmitField('Set')
 
 # Form to set the device
@@ -109,12 +111,7 @@ def getStatusValue(status,device_name):
     value=datastore.get('{}:{}'.format(device_name,status))
     if value is None:
         value = 0
-    return(value)
-
-def getStatusValue(status,device_name):
-    value=datastore.get('{}:{}'.format(device_name,status))
-    if value is None:
-        value = 0
+    print(status,value)
     return(value)
 
 ################### routes ###################
@@ -124,7 +121,12 @@ def graph():
     prom_url = "http://{}:3000/d/FERMCTRLVAR/fermctrlvar?orgId=1&refresh=1m&var-device={}".format(config.hostname, datastore.get('CurrentDevice'))
     print(prom_url)
 
-    return render_template('graph.html', title='Graph',device_name=datastore.get('CurrentDevice'), frame_url=prom_url)
+    return render_template('graph.html', 
+        title='Graph',
+        device_name=datastore.get('CurrentDevice'), 
+        frame_url=prom_url,
+        recipeName=getStatusValue('RecipeName',datastore.get('CurrentDevice'))
+    )
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -139,6 +141,7 @@ def setProfile():
     clearingagent = getStatusValue('Clearingagent',deviceName)
     dryhop1 = getStatusValue('Dryhop1',deviceName)
     dryhop2 = getStatusValue('Dryhop2',deviceName)
+    recipeName = getStatusValue('RecipeName',deviceName)
 
     # If it is just updated read from PROFILEnew, otherwise use PROFILE, read from device
     if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
@@ -196,6 +199,10 @@ def setProfile():
                 dryhop2 = 0
             datastore.set('{}:Dryhop2'.format(deviceName),  dryhop2)
 
+        if form.recipeName.data:
+            recipeName = form.recipeName.data
+            datastore.set('{}:RecipeName'.format(deviceName),  recipeName)
+
         # Read back to get the new profile
         PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
@@ -210,7 +217,8 @@ def setProfile():
         finishDay=finishDay,
         clearingagent=clearingagent,
         dryhop1=dryhop1,
-        dryhop2=dryhop2
+        dryhop2=dryhop2,
+        recipeName=recipeName
         )
 
 @app.route('/')
@@ -237,7 +245,8 @@ def displayTemp():
         dryhop2=getStatusValue('Dryhop2',device_name),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
-        device_name=device_name
+        device_name=device_name,
+        recipeName=getStatusValue('RecipeName',device_name)
         )
 
 
@@ -249,6 +258,9 @@ def setDevice():
 
         device = str(form.device.data)
         datastore.set('CurrentDevice',  device.encode("utf-8"))
+
+        # WIP
+        #return( redirect('/graph'))
 
     return render_template(
         'device.html', 

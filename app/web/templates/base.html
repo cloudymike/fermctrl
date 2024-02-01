@@ -6,6 +6,8 @@
       <title>Welcome to the Fermentation Controller</title>
       {% endif %}
 
+
+
       <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center;}
         p{font-size: 4rem;}
         a{font-size: 2rem;}
@@ -19,6 +21,7 @@
         a{font-size: 2rem;}
 
         div.l {text-align: left;font-size: 2rem;}
+        div.s {text-align: left;font-size: 1rem;}
 
         form{font-size: 4rem;}
         input, select, textarea {font-size: 4rem;}
@@ -32,19 +35,23 @@
       </style>
     </head>
     <body>
+
         <div>
             <a href="displaytemp">Status</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="graph">Graph</a>&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="profile">Set Profile</a>&nbsp;&nbsp;&nbsp;&nbsp;
         </div>
-        <div class="l">
+
+       <div class="l">
         <br><b>{{device_name}}
         <button onclick="window.location.href='device';">
         Change
         </button>
-
         </b>
         </div>
+ 
+         <div class="s">{{ recipeName }}</div>
+
         <hr>
         {% block content %}{% endblock %}
     </body>
