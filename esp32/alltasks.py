@@ -39,12 +39,15 @@ async def conn_han(client):
 
 async def main(client,ml):
     print('Starting async main')
-    try:
-        await client.connect()
-    except OSError:
-        print('Connection failed.')
-        return
+    while True:
+        try:
+            await client.connect()
+            break
+        except OSError:
+            print('Connection failed.')
+            await asyncio.sleep(30)
     n = 0
+    print('Connection established')
     while True:
         await asyncio.sleep(5)
         # If WiFi is down the following will pause for the duration.

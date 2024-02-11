@@ -159,6 +159,7 @@ class mainloop:
 
     def get_mqttdata(self):
         targetstring = self.message
+        #print("Message:{}".format(self.message))
         if targetstring != self.lastmessage:
             self.lastmessage=targetstring
             try:
