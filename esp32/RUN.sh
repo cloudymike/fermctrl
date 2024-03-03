@@ -25,6 +25,8 @@ usage ()
   echo "-i     IP, implies used of webrepl"
   echo "-p     Password to use with webrepl, default: $WEBREPLPASS"
   echo "-P     Port to use for USB connection, default: $PORT"
+  echo "-s     Remove state file (state.json)"
+  echo "-c     Only update config"
   exit 0
 }
 
@@ -43,12 +45,13 @@ PORT='/dev/ttyUSB0'
 WEBREPLPASS="MyPass"
 FASTBUILD=0
 CONFIGONLY=0
+RMSTATEFILE=0
 
 CURDIR=$(pwd)
 TOPDIR=${CURDIR%/*}
 UPYEX=${TOPDIR}/micropythonexamples/DEVKITv1
 
-while getopts "cfi:hp:P:" arg; do
+while getopts "cfi:hp:sP:" arg; do
   case $arg in
     c)
       CONFIGONLY=1
@@ -68,6 +71,9 @@ while getopts "cfi:hp:P:" arg; do
     P)
       WEBREPLPASS=$OPTARG
       ;;
+    s)
+      RMSTATEFILE=1
+      ;;
     *) usage
     ;;
   esac
@@ -75,6 +81,8 @@ done
 
 
 if [ $FASTBUILD != 1 ]; then rm -f ${CURDIR}/lastbuild; fi
+if [ $RMSTATEFILE != 1 ]; then ampy --port $PORT rm '/state.json'; fi
+
 
 #Define some variables, change if needed
 WLAN_CONFIG_PATH=~/secrets/wlanconfig.py
