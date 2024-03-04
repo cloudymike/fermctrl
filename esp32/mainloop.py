@@ -82,6 +82,7 @@ class mainloop:
         except:
             self.tempDevice = internaltempreader.internaltempreader(self.unit)
         self.profile = {'0':0}
+        self.dryhop1 = 0
         self.lastmessage = ""
         self.message = ""
 
@@ -96,6 +97,10 @@ class mainloop:
             self.profile = self.state['profile']
         except:
             self.profile = {'0':0}
+        try:
+            self.dryhop1 = self.state['dryhop1']
+        except:
+            self.dryhop1 = 0
         try:
             self.start_epoch = self.state['start_epoch']
         except:
@@ -117,6 +122,7 @@ class mainloop:
         self.state['target'] = self.target
         self.state['start_epoch'] = self.start_epoch
         self.state['profile'] = self.profile
+        self.state['dryhop1'] = self.dryhop1
         savestate.writeState(self.state)
 
 
@@ -168,8 +174,14 @@ class mainloop:
                 temperatures_profile = full_profile['temperatures']
                 print('Got new target:{}'.format(full_profile))
                 print('Old target:{}'.format(self.profile))
+                update=False
+                if full_profile['dryhop1'] != self.dryhop1:
+                    update=True
+                    self.dryhop1 = full_profile['dryhop1']
                 if temperatures_profile != self.profile:
+                    update = True
                     self.profile = temperatures_profile
+                if update:
                     self.start_epoch = time.time()
                     self.writeStateFile()
             except:
@@ -242,6 +254,7 @@ class mainloop:
                 publish_json["cool"] = self.cool
                 publish_json["target"] = self.target
                 publish_json["day"] = day
+                publish_json["dryhop1"] = self.dryhop1
                 publish_json["profile"] = self.profile
                 #print("Publishing: {}".format(publish_json))
                 self.publish_json=publish_json

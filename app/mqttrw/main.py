@@ -117,7 +117,7 @@ while(1):
             PROFILEnew['temperatures'] = PROFILEtemperatures
 
             dryhop1 = datastore.get('{}:Dryhop1'.format(deviceName))
-            PROFILEnew['DRYHOP1']=dryhop1
+            PROFILEnew['dryhop1']=dryhop1
 
             profileJSON = json.dumps(PROFILEnew)
             data = profileJSON.encode("utf-8")
