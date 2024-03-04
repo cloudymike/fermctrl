@@ -144,6 +144,7 @@ class mainloop:
 
     def setMessage(self,message):
         self.message = message
+        print(message)
 
     def current_target(self):
         day,hour,min,second = self.run_time()
@@ -159,15 +160,16 @@ class mainloop:
 
     def get_mqttdata(self):
         targetstring = self.message
-        #print("Message:{}".format(self.message))
+        print("Message:{}".format(self.message))
         if targetstring != self.lastmessage:
             self.lastmessage=targetstring
             try:
-                new_profile = json.loads(targetstring)
-                print('Got new target:{}'.format(new_profile))
+                full_profile = json.loads(targetstring)
+                temperatures_profile = full_profile['temperatures']
+                print('Got new target:{}'.format(full_profile))
                 print('Old target:{}'.format(self.profile))
-                if new_profile != self.profile:
-                    self.profile = new_profile
+                if temperatures_profile != self.profile:
+                    self.profile = temperatures_profile
                     self.start_epoch = time.time()
                     self.writeStateFile()
             except:
