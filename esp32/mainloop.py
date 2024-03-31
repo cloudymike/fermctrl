@@ -17,7 +17,7 @@ import config
 import esp32
 import uasyncio as asyncio
 
-VERSION=0.6
+VERSION=0.7
 
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
@@ -35,12 +35,6 @@ def bubble_interrupt(pin):
 
     BubbleCount = BubbleCount + 1
     print("There is a bubble....oooooOOOOO ")
-    
-#   currentms = time.ticks_ms()
-#   if time.ticks_diff(currentms, LastBubbleMs) > 100:
-#       BubbleCount = BubbleCount + 1
-#       print("There is a bubble....oooooOOOOO ")
-#   LastBubbleMs = currentms
 
 def get_bubblecount():
     global BubbleCount
@@ -50,6 +44,7 @@ def get_bubblecount():
 
 
 pir = machine.Pin(4, machine.Pin.IN)
+
 pir.irq(trigger=machine.Pin.IRQ_RISING, handler=bubble_interrupt)
 #===================== Bubble counter end
 
@@ -82,6 +77,7 @@ class mainloop:
         except:
             self.tempDevice = internaltempreader.internaltempreader(self.unit)
         self.profile = {'0':0}
+        self.dryhop1 = 0
         self.lastmessage = ""
         self.message = ""
 
@@ -96,6 +92,10 @@ class mainloop:
             self.profile = self.state['profile']
         except:
             self.profile = {'0':0}
+        try:
+            self.dryhop1 = self.state['dryhop1']
+        except:
+            self.dryhop1 = 0
         try:
             self.start_epoch = self.state['start_epoch']
         except:
@@ -117,6 +117,7 @@ class mainloop:
         self.state['target'] = self.target
         self.state['start_epoch'] = self.start_epoch
         self.state['profile'] = self.profile
+        self.state['dryhop1'] = self.dryhop1
         savestate.writeState(self.state)
 
 
@@ -144,6 +145,7 @@ class mainloop:
 
     def setMessage(self,message):
         self.message = message
+        print(message)
 
     def current_target(self):
         day,hour,min,second = self.run_time()
@@ -159,15 +161,22 @@ class mainloop:
 
     def get_mqttdata(self):
         targetstring = self.message
-        #print("Message:{}".format(self.message))
+        print("Message:{}".format(self.message))
         if targetstring != self.lastmessage:
             self.lastmessage=targetstring
             try:
-                new_profile = json.loads(targetstring)
-                print('Got new target:{}'.format(new_profile))
+                full_profile = json.loads(targetstring)
+                temperatures_profile = full_profile['temperatures']
+                print('Got new target:{}'.format(full_profile))
                 print('Old target:{}'.format(self.profile))
-                if new_profile != self.profile:
-                    self.profile = new_profile
+                update=False
+                if full_profile['dryhop1'] != self.dryhop1:
+                    update=True
+                    self.dryhop1 = full_profile['dryhop1']
+                if temperatures_profile != self.profile:
+                    update = True
+                    self.profile = temperatures_profile
+                if update:
                     self.start_epoch = time.time()
                     self.writeStateFile()
             except:
@@ -213,15 +222,25 @@ class mainloop:
         data = bytes(json.dumps(self.publish_json), 'utf-8')
         return(data)
 
+    # Just check once a day for this
+    # Need to not dryhop for day 0. Leave this out for testing.
+    def dryhop1Action(self,day,hour,minute,second):
+        if (hour == 0 and minute == 0):
+            if second < 10 and day == int(self.dryhop1):
+            #if second < 10 and day == int(self.dryhop1) and day > 0:
+                relay.dryhop1.value(1)
+            else:
+                relay.dryhop1.value(0)
+
     async def run(self):
 
         old_second = 99
-        old_min = 99
+        old_minute = 99
         while True:
             await asyncio.sleep_ms(1000)
             #self.display_detail()
 
-            day,hour,min,second = self.run_time()
+            day,hour,minute,second = self.run_time()
 
             # Cycle over x time
             if second != old_second:
@@ -230,8 +249,8 @@ class mainloop:
                 LED.LED.value(abs(LED.LED.value()-1))
                 wdt.feed()
 
-                # self.m.check_msg()
                 self.thermostat()
+                self.dryhop1Action(day,hour,minute,second)
 
                 publish_json = {}
                 publish_json["temperature"] = self.temp
@@ -240,12 +259,15 @@ class mainloop:
                 publish_json["cool"] = self.cool
                 publish_json["target"] = self.target
                 publish_json["day"] = day
+                publish_json["dryhop1"] = self.dryhop1
                 publish_json["profile"] = self.profile
                 #print("Publishing: {}".format(publish_json))
                 self.publish_json=publish_json
                 self.writeStateFile()
+                print(day,hour,minute,second)
+                print(self.dryhop1)
  
-            if min != old_min:
-                old_min = min
+            if minute != old_minute:
+                old_minute = minute
                 self.bubblecount = get_bubblecount()
 

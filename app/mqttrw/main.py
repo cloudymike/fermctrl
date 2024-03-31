@@ -107,13 +107,21 @@ while(1):
         #print('Checking to update {}'.format(deviceName))
         if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
             datastore.set('{}:UpdateProfile'.format(deviceName), 'FALSE')
-            PROFILEnew=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
 
+            # Build up the profile json to send
+            PROFILEnew={}
+            PROFILEtemperatures=datastore.hgetall('{}:PROFILEnew'.format(deviceName))
             # Do not send empty data, conroller will not like it
-            if len(PROFILEnew) != 0:
-                profileJSON = json.dumps(PROFILEnew)
-                data = profileJSON.encode("utf-8")
-                print("Sending: {}".format(data))
-                send_data(data,deviceName)
+            if len(PROFILEtemperatures) == 0:
+                PROFILEtemperatures = {"0":"0"}
+            PROFILEnew['temperatures'] = PROFILEtemperatures
+
+            dryhop1 = datastore.get('{}:Dryhop1'.format(deviceName))
+            PROFILEnew['dryhop1']=dryhop1
+
+            profileJSON = json.dumps(PROFILEnew)
+            data = profileJSON.encode("utf-8")
+            print("Sending: {}".format(data))
+            send_data(data,deviceName)
 
     time.sleep(1)

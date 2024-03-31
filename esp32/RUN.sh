@@ -81,7 +81,7 @@ done
 
 
 if [ $FASTBUILD != 1 ]; then rm -f ${CURDIR}/lastbuild; fi
-if [ $RMSTATEFILE != 1 ]; then ampy --port $PORT rm '/state.json'; fi
+if [ $RMSTATEFILE == 1 ]; then ampy --port $PORT rm '/state.json'; fi
 
 
 #Define some variables, change if needed
