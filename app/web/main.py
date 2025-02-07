@@ -82,6 +82,12 @@ class profileForm(FlaskForm):
 
     submit = SubmitField('Set')
 
+def recipeNameListBeersmith():
+    recipeList = ["a","b"]
+    return(recipeList)
+
+
+#################### Forms ###################
 # Form to set the device
 class deviceForm(FlaskForm):
 
@@ -92,6 +98,16 @@ class deviceForm(FlaskForm):
         choicesList.append((deviceName,deviceName))
     device = SelectField('Device', choices=choicesList)
     submit = SubmitField('Select')
+
+class recipeForm(FlaskForm):
+
+    choicesList = []
+    recipeList=recipeNameListBeersmith()
+    for recipeName in recipeList:
+        choicesList.append((recipeName,recipeName))
+
+    recipe = RadioField('Recipe', choices=choicesList)
+    submit = SubmitField('Load Recipe')
 
 #################### Helper functions ###################
 def getStatus():
@@ -127,6 +143,8 @@ def graph():
         frame_url=prom_url,
         recipeName=getStatusValue('RecipeName',datastore.get('CurrentDevice'))
     )
+
+
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -268,6 +286,26 @@ def setDevice():
         form=form,
         device_name=datastore.get('CurrentDevice')
         )
+
+@app.route('/recipe', methods=['GET', 'POST'])
+def loadRecipe():
+    deviceName=datastore.get('CurrentDevice')
+    form = recipeForm(recipe=getStatusValue('RecipeName',deviceName))
+    if form.validate_on_submit():
+        print('Got recipe {}'.format(form.recipe.data))
+
+        recipe = str(form.recipe.data)
+        datastore.set('{}:RecipeName'.format(deviceName),  recipe)
+
+    return render_template(
+        'recipe.html', 
+        title='Recipe', 
+        form=form,
+        recipe=getStatusValue('RecipeName',deviceName)
+        )
+
+
+
 
 
 @app.route('/metrics')

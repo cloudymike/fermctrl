@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<p>Current recipe is {{recipe}}</p>
+	<p>Available recipes are {{recipeList}}</p>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+{% for subfield in form.recipe %}
+        {{ subfield }}
+        {{ subfield.label }}<br>
+{% endfor %}
+
+            {% for error in form.recipe.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+
+{% endblock %}
