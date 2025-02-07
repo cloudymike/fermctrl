@@ -15,6 +15,8 @@ from prometheus_client import Gauge, generate_latest
 
 import prometheus_client
 
+import fetchrecipe
+
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -82,8 +84,10 @@ class profileForm(FlaskForm):
 
     submit = SubmitField('Set')
 
+
 def recipeNameListBeersmith():
-    recipeList = ["a","b"]
+    XMLrecipelist=fetchrecipe.fetch_recipe_numbers()
+    recipeList=fetchrecipe.list_recipe_names(XMLrecipelist)
     return(recipeList)
 
 
@@ -108,6 +112,7 @@ class recipeForm(FlaskForm):
 
     recipe = RadioField('Recipe', choices=choicesList)
     submit = SubmitField('Load Recipe')
+
 
 #################### Helper functions ###################
 def getStatus():
