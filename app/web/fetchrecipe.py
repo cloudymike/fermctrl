@@ -52,6 +52,7 @@ def fetch_recipe_numbers():
 def get_recipe(recipe_number):
     base_url="https://beersmithrecipes.com/download.php?id="
     url = f"{base_url}{str(recipe_number)}"
+    print(url)
     try:
         response = requests.get(url)
         
@@ -81,9 +82,24 @@ def parse_xml(xml_content: str) -> dict:
     root = ET.fromstring(xml_content)
     
     result = {
-        "recipe_name": root.find("./Data/Recipe/F_R_NAME").text
-        #"fermentation_profile_name": root.find("./Data/Recipe/F_R_AGE/F_A_NAME").text,
+        "recipe_name" : root.find("./Data/Recipe/F_R_NAME").text,
+        "targetTemp0" : round(float(root.find("./Data/Recipe/F_R_AGE/F_A_PRIM_TEMP").text)),
+        "targetDuration0" : root.find("./Data/Recipe/F_R_AGE/F_A_PRIM_DAYS").text,
+        "targetTemp1" : round(float(root.find("./Data/Recipe/F_R_AGE/F_A_SEC_TEMP").text)),
+        "targetDuration1" : root.find("./Data/Recipe/F_R_AGE/F_A_SEC_DAYS").text,
+        "targetTemp2" : round(float(root.find("./Data/Recipe/F_R_AGE/F_A_TERT_TEMP").text)),
+        "targetDuration2" : root.find("./Data/Recipe/F_R_AGE/F_A_TERT_DAYS").text,
+        "targetTemp3" : round(float(root.find("./Data/Recipe/F_R_AGE/F_A_BULK_TEMP").text)),
+        "targetDuration3" : root.find("./Data/Recipe/F_R_AGE/F_A_BULK_DAYS").text,
+        "targetTemp4" : round(float(root.find("./Data/Recipe/F_R_AGE/F_A_AGE_TEMP").text)),
+        "targetDuration4" : root.find("./Data/Recipe/F_R_AGE/F_A_AGE").text
     }
+    result["targetDay0"] = 0
+    result["targetDay1"] = round(float(result["targetDuration0"]))
+    result["targetDay2"] = round(float(result["targetDuration1"]))+result["targetDay1"]
+    result["targetDay3"] = round(float(result["targetDuration2"]))+result["targetDay2"]
+    result["targetDay4"] = round(float(result["targetDuration3"]))+result["targetDay3"]
+
     
     return result
 
@@ -97,20 +113,20 @@ def list_recipe_names(recipe_list):
         name_list.append(recipe_name)
     return(name_list)
 
+def list_recipe_dicts(recipe_list):
+    dict_list=[]
+    for recipeID in recipe_list:
+        bsmx=get_recipe(recipeID)
+        bsmxStr = bsmx.replace('&', 'AMP')
+        recipe_dict=parse_xml(bsmxStr)
+        dict_list.append(recipe_dict)
+    return(dict_list)
+
 
 # Run the functions
 recipelist=fetch_recipe_numbers()
 
-name_list=list_recipe_names(recipelist)
-print(name_list)
+#name_list=list_recipe_names(recipelist)
+dict_list=list_recipe_dicts(recipelist)
 
-
-
-#print(recipelist[1])
-#bsmx1=get_recipe(recipelist[1])
-#print(bsmx1)
-#bsmxStr = bsmx1.replace('&', 'AMP')
-#recipe_dict=parse_xml(bsmxStr)
-#print(recipe_dict)
-#print(recipe_dict['recipe_name'])
-#print(recipe_dict['fermentation_profile_name'])
+print(dict_list)

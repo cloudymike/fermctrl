@@ -1,4 +1,6 @@
 #!/bin/bash
+# remove redis database
+sudo rm -rf /var/tmp/redis
 
 docker rm $(docker ps -aq)
 

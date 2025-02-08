@@ -90,6 +90,11 @@ def recipeNameListBeersmith():
     recipeList=fetchrecipe.list_recipe_names(XMLrecipelist)
     return(recipeList)
 
+def recipeDictListBeersmith():
+    XMLrecipelist=fetchrecipe.fetch_recipe_numbers()
+    recipeList=fetchrecipe.list_recipe_dicts(XMLrecipelist)
+    return(recipeList)
+
 
 #################### Forms ###################
 # Form to set the device
@@ -106,9 +111,12 @@ class deviceForm(FlaskForm):
 class recipeForm(FlaskForm):
 
     choicesList = []
-    recipeList=recipeNameListBeersmith()
-    for recipeName in recipeList:
-        choicesList.append((recipeName,recipeName))
+    recipeList=recipeDictListBeersmith()
+    print("Recipelist: {}".format(recipeList))
+    for recipeDict in recipeList:
+        recipeName=recipeDict["recipe_name"]
+        recipeJson=json.dumps(recipeDict)
+        choicesList.append((recipeJson,recipeName))
 
     recipe = RadioField('Recipe', choices=choicesList)
     submit = SubmitField('Load Recipe')
@@ -118,6 +126,7 @@ class recipeForm(FlaskForm):
 def getStatus():
     deviceName = datastore.get('CurrentDevice')
 
+    print("getStatus: {}".format(datastore.hgetall('{}:PROFILE'.format(deviceName))))
     return(
         datastore.get('{}:TEMPERATURE'.format(deviceName)), 
         datastore.get('{}:BUBBLECOUNT'.format(deviceName)), 
@@ -132,10 +141,53 @@ def getStatusValue(status,device_name):
     value=datastore.get('{}:{}'.format(device_name,status))
     if value is None:
         value = 0
-    print(status,value)
+    print("status: {}".format(status,value))
     return(value)
 
 ################### routes ###################
+
+
+@app.route('/recipe', methods=['GET', 'POST'])
+def loadRecipe():
+    deviceName=datastore.get('CurrentDevice')
+    form = recipeForm(recipe=getStatusValue('RecipeName',deviceName))
+    if form.validate_on_submit():
+        formRawData=form.recipe.data
+        recipeDict=json.loads(form.recipe.data)
+        print('Got recipe {}'.format(recipeDict))
+        print(recipeDict["targetDay1"])
+        print(str(recipeDict["targetDay1"]))
+
+        datastore.set('{}:RecipeName'.format(deviceName),  str(recipeDict["recipe_name"]))
+
+        profile = {}
+        profile[str(recipeDict["targetDay0"])] = str(recipeDict["targetTemp0"])
+        profile[str(recipeDict["targetDay1"])] = str(recipeDict["targetTemp1"])
+        profile[str(recipeDict["targetDay2"])] = str(recipeDict["targetTemp2"])
+        profile[str(recipeDict["targetDay3"])] = str(recipeDict["targetTemp3"])
+        profile[str(recipeDict["targetDay4"])] = str(recipeDict["targetTemp4"])
+        #datastore.set('{}:targetDay0'.format(deviceName),  int(recipeDict["targetDay0"]))
+        #datastore.set('{}:targetTemp0'.format(deviceName),  round(float(recipeDict["targetTemp0"])))
+        print("Profile in loadRecipe: {}".format(profile))
+        # Update the new profile and set new to TRUE to force upload to device
+        datastore.delete('{}:PROFILEnew'.format(deviceName))
+        datastore.hset('{}:PROFILEnew'.format(deviceName), mapping=profile)
+        datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
+
+        # Load profile in to main profile directly
+        # This is needed CHANGE as we load profile from device
+        # PROFILEnew-> DEVICE->PROFILE in mqttrw
+        #datastore.delete('{}:PROFILE'.format(deviceName))
+        #datastore.hset('{}:PROFILE'.format(deviceName), mapping=profile)
+
+    return render_template(
+        'recipe.html', 
+        title='Recipe', 
+        form=form,
+        recipe=getStatusValue('RecipeName',deviceName)
+        )
+
+
 
 @app.route('/graph')
 def graph():
@@ -250,7 +302,7 @@ def setProfile():
 def displayTemp():
 
     TEMPERATURE,BUBBLECOUNT,HEAT,COOL,TARGET,DAY,PROFILE = getStatus()
-
+    print("DisplayTemp: {}".format(PROFILE))
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
     device_name=datastore.get('CurrentDevice')
@@ -291,24 +343,6 @@ def setDevice():
         form=form,
         device_name=datastore.get('CurrentDevice')
         )
-
-@app.route('/recipe', methods=['GET', 'POST'])
-def loadRecipe():
-    deviceName=datastore.get('CurrentDevice')
-    form = recipeForm(recipe=getStatusValue('RecipeName',deviceName))
-    if form.validate_on_submit():
-        print('Got recipe {}'.format(form.recipe.data))
-
-        recipe = str(form.recipe.data)
-        datastore.set('{}:RecipeName'.format(deviceName),  recipe)
-
-    return render_template(
-        'recipe.html', 
-        title='Recipe', 
-        form=form,
-        recipe=getStatusValue('RecipeName',deviceName)
-        )
-
 
 
 
