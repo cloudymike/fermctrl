@@ -118,7 +118,7 @@ class recipeForm(FlaskForm):
         recipeJson=json.dumps(recipeDict)
         choicesList.append((recipeJson,recipeName))
 
-    recipe = RadioField('Recipe', choices=choicesList)
+    recipeName = RadioField('Recipe', choices=choicesList)
     submit = SubmitField('Load Recipe')
 
 
@@ -152,8 +152,8 @@ def loadRecipe():
     deviceName=datastore.get('CurrentDevice')
     form = recipeForm(recipe=getStatusValue('RecipeName',deviceName))
     if form.validate_on_submit():
-        formRawData=form.recipe.data
-        recipeDict=json.loads(form.recipe.data)
+        #formRawData=form.recipeName.data
+        recipeDict=json.loads(form.recipeName.data)
         print('Got recipe {}'.format(recipeDict))
         print(recipeDict["targetDay1"])
         print(str(recipeDict["targetDay1"]))
@@ -183,8 +183,9 @@ def loadRecipe():
     return render_template(
         'recipe.html', 
         title='Recipe', 
+        device_name=datastore.get('CurrentDevice'), 
         form=form,
-        recipe=getStatusValue('RecipeName',deviceName)
+        recipeName=getStatusValue('RecipeName',deviceName)
         )
 
 

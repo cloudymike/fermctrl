@@ -2,12 +2,12 @@
 
 {% block content %}
 
-	<p>Current recipe is {{recipe}}</p>
+	<p>Current recipe is {{recipeName}}</p>
 
 <form action="" method="post" novalidate >
     {{ form.hidden_tag() }}
     <p style="text-align: left;">
-{% for subfield in form.recipe %}
+{% for subfield in form.recipeName %}
         {{ subfield }}
         {{ subfield.label }}<br>
 {% endfor %}
