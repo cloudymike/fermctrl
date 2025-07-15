@@ -1,0 +1,6 @@
+awsiotconfig.py
+config.py
+*.pem
+env*/*
+screenlog*
+lastbuild
