@@ -296,7 +296,10 @@ def setProfile():
         clearingagent=clearingagent,
         dryhop1=dryhop1,
         dryhop2=dryhop2,
-        recipeName=recipeName
+        recipeName=recipeName,
+        current_device = deviceName,
+        device_list=config.device_list,
+        active_page='profile'
         )
 
 @app.route('/')
@@ -325,7 +328,9 @@ def displayTemp():
         profile=PROFILE,
         device_name=device_name,
         recipeName=getStatusValue('RecipeName',device_name),
-        device_list=config.device_list
+        device_list=config.device_list,
+        current_device = device_name,
+        active_page='displaytemp'
         )
 
 
@@ -353,7 +358,7 @@ def setDevice():
 @app.route('/set_current', methods=['POST'])
 def set_current():
     name = request.form.get('name')
-    datastore.set("current_device", name)
+    datastore.set("CurrentDevice", name)
     ref = request.referrer or url_for('index')
     return redirect(ref)
 

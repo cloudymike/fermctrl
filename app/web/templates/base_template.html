@@ -1,0 +1,72 @@
+# Base HTML with Bootstrap styling, active link highlighting, and dropdown selector
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+      <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center;}
+        p{font-size: 4rem;}
+        a{font-size: 2rem;}
+        form{font-size: 4rem;}
+        input, select, textarea {font-size: 4rem;}
+
+
+      </style>
+      <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center; }
+        p{font-size: 4rem;}
+        a{font-size: 2rem;}
+
+        div.l {text-align: left;font-size: 2rem;}
+        div.s {text-align: left;font-size: 1rem;}
+
+        form{font-size: 4rem;}
+        input, select, textarea {font-size: 4rem;}
+        input[type=radio] {
+            border: 1px;
+            width: 25%;
+            height: 2rem;
+            text-align: left;
+        }
+
+      </style>
+
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">FermCtrl</a>
+
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'profile' %}active{% endif %}" href="{{ url_for('setProfile') }}">Set Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'displaytemp' %}active{% endif %}" href="{{ url_for('displayTemp') }}">Status</a>
+                    </li>
+                </ul>
+                <form method="POST" action="{{ url_for('set_current') }}" class="d-flex">
+                    <select class="form-select me-2" name="name" onchange="this.form.submit()">
+                        {% for key in device_list %}
+                            <option value="{{ key }}" {% if key == current_device %}selected{% endif %}>{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {{ content|safe }}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        {% block content %}{% endblock %}
+</body>
+</html>
+
