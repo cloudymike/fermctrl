@@ -182,10 +182,14 @@ def loadRecipe():
         #datastore.delete('{}:PROFILE'.format(deviceName))
         #datastore.hset('{}:PROFILE'.format(deviceName), mapping=profile)
 
+    deviceName=datastore.get('CurrentDevice') 
     return render_template(
         'recipe.html', 
         title='Recipe', 
-        device_name=datastore.get('CurrentDevice'), 
+        device_name=deviceName, 
+        current_device=deviceName,
+        device_list=config.device_list,
+        active_page='recipe',
         form=form,
         recipeName=getStatusValue('RecipeName',deviceName)
         )
@@ -196,11 +200,16 @@ def loadRecipe():
 def graph():
     prom_url = "http://{}:3000/d/FERMCTRLVAR/fermctrlvar?orgId=1&refresh=1m&var-device={}".format(config.hostname, datastore.get('CurrentDevice'))
     print(prom_url)
+        
+    deviceName=datastore.get('CurrentDevice') 
 
     return render_template('graph.html', 
         title='Graph',
-        device_name=datastore.get('CurrentDevice'), 
         frame_url=prom_url,
+#        device_name=deviceName,
+        current_device = deviceName,
+        device_list=config.device_list,
+        active_page='graph',
         recipeName=getStatusValue('RecipeName',datastore.get('CurrentDevice'))
     )
 

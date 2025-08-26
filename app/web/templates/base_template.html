@@ -1,4 +1,3 @@
-# Base HTML with Bootstrap styling, active link highlighting, and dropdown selector
 <!doctype html>
 <html lang="en">
 <head>
@@ -44,10 +43,16 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                     <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'profile' %}active{% endif %}" href="{{ url_for('setProfile') }}">Set Profile</a>
+                        <a class="nav-link {% if active_page == 'displaytemp' %}active{% endif %}" href="{{ url_for('displayTemp') }}">Status</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'displaytemp' %}active{% endif %}" href="{{ url_for('displayTemp') }}">Status</a>
+                        <a class="nav-link {% if active_page == 'profile' %}active{% endif %}" href="{{ url_for('setProfile') }}">SetProfile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'recipe' %}active{% endif %}" href="{{ url_for('loadRecipe') }}">LoadRecipe</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'graph' %}active{% endif %}" href="{{ url_for('graph') }}">Graph</a>
                     </li>
                 </ul>
                 <form method="POST" action="{{ url_for('set_current') }}" class="d-flex">
