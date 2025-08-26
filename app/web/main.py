@@ -86,11 +86,13 @@ class profileForm(FlaskForm):
 
 
 def recipeNameListBeersmith():
+    return([])
     XMLrecipelist=fetchrecipe.fetch_recipe_numbers()
     recipeList=fetchrecipe.list_recipe_names(XMLrecipelist)
     return(recipeList)
 
 def recipeDictListBeersmith():
+    return([])
     XMLrecipelist=fetchrecipe.fetch_recipe_numbers()
     recipeList=fetchrecipe.list_recipe_dicts(XMLrecipelist)
     return(recipeList)
@@ -322,7 +324,8 @@ def displayTemp():
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
         device_name=device_name,
-        recipeName=getStatusValue('RecipeName',device_name)
+        recipeName=getStatusValue('RecipeName',device_name),
+        device_list=config.device_list
         )
 
 
@@ -346,6 +349,13 @@ def setDevice():
         )
 
 
+
+@app.route('/set_current', methods=['POST'])
+def set_current():
+    name = request.form.get('name')
+    datastore.set("current_device", name)
+    ref = request.referrer or url_for('index')
+    return redirect(ref)
 
 
 @app.route('/metrics')
