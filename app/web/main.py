@@ -99,16 +99,6 @@ def recipeDictListBeersmith():
 
 
 #################### Forms ###################
-# Form to set the device
-class deviceForm(FlaskForm):
-
-    deviceList = datastore.lrange('DeviceList',0,999)
-    print('deviceList in deviceForm{}'.format(deviceList))
-    choicesList = []
-    for deviceName in deviceList:
-        choicesList.append((deviceName,deviceName))
-    device = SelectField('Device', choices=choicesList)
-    submit = SubmitField('Select')
 
 class recipeForm(FlaskForm):
 
@@ -186,7 +176,6 @@ def loadRecipe():
     return render_template(
         'recipe.html', 
         title='Recipe', 
-        device_name=deviceName, 
         current_device=deviceName,
         device_list=config.device_list,
         active_page='recipe',
@@ -206,7 +195,6 @@ def graph():
     return render_template('graph.html', 
         title='Graph',
         frame_url=prom_url,
-#        device_name=deviceName,
         current_device = deviceName,
         device_list=config.device_list,
         active_page='graph',
@@ -300,7 +288,6 @@ def setProfile():
         form=form, 
         sorted_profile_days=SORTED_PROFILE_DAYSnew,
         profile=PROFILEnew,
-        device_name=datastore.get('CurrentDevice'),
         finishDay=finishDay,
         clearingagent=clearingagent,
         dryhop1=dryhop1,
@@ -335,33 +322,11 @@ def displayTemp():
         dryhop2=getStatusValue('Dryhop2',device_name),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
-        device_name=device_name,
         recipeName=getStatusValue('RecipeName',device_name),
         device_list=config.device_list,
         current_device = device_name,
         active_page='displaytemp'
         )
-
-
-@app.route('/device', methods=['GET', 'POST'])
-def setDevice():
-    form = deviceForm(device=datastore.get('CurrentDevice'))
-    if form.validate_on_submit():
-        print('Got device {}'.format(form.device.data))
-
-        device = str(form.device.data)
-        datastore.set('CurrentDevice',  device.encode("utf-8"))
-
-        # WIP
-        #return( redirect('/graph'))
-
-    return render_template(
-        'device.html', 
-        title='Device', 
-        form=form,
-        device_name=datastore.get('CurrentDevice')
-        )
-
 
 
 @app.route('/set_current', methods=['POST'])
