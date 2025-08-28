@@ -122,11 +122,11 @@ def list_recipe_dicts(recipe_list):
         dict_list.append(recipe_dict)
     return(dict_list)
 
+if __name__ == "__main__":
+    # Run the functions
+    recipelist=fetch_recipe_numbers()
 
-# Run the functions
-recipelist=fetch_recipe_numbers()
+    name_list=list_recipe_names(recipelist)
+    dict_list=list_recipe_dicts(recipelist)
 
-#name_list=list_recipe_names(recipelist)
-dict_list=list_recipe_dicts(recipelist)
-
-print(dict_list)
+    print(dict_list)

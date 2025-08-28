@@ -53,6 +53,15 @@
  
          <div class="s">{{ recipeName }}</div>
 
+                <form method="POST" action="{{ url_for('set_current') }}" class="d-flex">
+                    <select class="form-select me-2" name="name" onchange="this.form.submit()">
+                        {% for key in device_list %}
+                            <option value="{{ key }}" {% if key == current_device %}selected{% endif %}>{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+
         <hr>
         {% block content %}{% endblock %}
     </body>
