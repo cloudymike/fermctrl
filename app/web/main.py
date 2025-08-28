@@ -15,8 +15,9 @@ from prometheus_client import Gauge, generate_latest
 
 import prometheus_client
 
-import fetchrecipe
+from fetchrecipe import recipeDictListBeersmith
 
+from helpers import getStatus, getStatusValue
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -84,31 +85,7 @@ class profileForm(FlaskForm):
 
     submit = SubmitField('Set')
 
-
-def recipeNameListBeersmith():
-    return([])
-    XMLrecipelist=fetchrecipe.fetch_recipe_numbers()
-    recipeList=fetchrecipe.list_recipe_names(XMLrecipelist)
-    return(recipeList)
-
-def recipeDictListBeersmith():
-    return([])
-    XMLrecipelist=fetchrecipe.fetch_recipe_numbers()
-    recipeList=fetchrecipe.list_recipe_dicts(XMLrecipelist)
-    return(recipeList)
-
-
 #################### Forms ###################
-# Form to set the device
-class deviceForm(FlaskForm):
-
-    deviceList = datastore.lrange('DeviceList',0,999)
-    print('deviceList in deviceForm{}'.format(deviceList))
-    choicesList = []
-    for deviceName in deviceList:
-        choicesList.append((deviceName,deviceName))
-    device = SelectField('Device', choices=choicesList)
-    submit = SubmitField('Select')
 
 class recipeForm(FlaskForm):
 
@@ -124,27 +101,6 @@ class recipeForm(FlaskForm):
     submit = SubmitField('Load Recipe')
 
 
-#################### Helper functions ###################
-def getStatus():
-    deviceName = datastore.get('CurrentDevice')
-
-    print("getStatus: {}".format(datastore.hgetall('{}:PROFILE'.format(deviceName))))
-    return(
-        datastore.get('{}:TEMPERATURE'.format(deviceName)), 
-        datastore.get('{}:BUBBLECOUNT'.format(deviceName)), 
-        datastore.get('{}:HEAT'.format(deviceName)), 
-        datastore.get('{}:COOL'.format(deviceName)), 
-        datastore.get('{}:TARGET'.format(deviceName)),
-        datastore.get('{}:DAY'.format(deviceName)),
-        datastore.hgetall('{}:PROFILE'.format(deviceName))
-        )
-
-def getStatusValue(status,device_name):
-    value=datastore.get('{}:{}'.format(device_name,status))
-    if value is None:
-        value = 0
-    print("status: {}".format(status,value))
-    return(value)
 
 ################### routes ###################
 
@@ -152,7 +108,7 @@ def getStatusValue(status,device_name):
 @app.route('/recipe', methods=['GET', 'POST'])
 def loadRecipe():
     deviceName=datastore.get('CurrentDevice')
-    form = recipeForm(recipe=getStatusValue('RecipeName',deviceName))
+    form = recipeForm(recipe=getStatusValue(datastore,'RecipeName',deviceName))
     if form.validate_on_submit():
         #formRawData=form.recipeName.data
         recipeDict=json.loads(form.recipeName.data)
@@ -186,12 +142,11 @@ def loadRecipe():
     return render_template(
         'recipe.html', 
         title='Recipe', 
-        device_name=deviceName, 
         current_device=deviceName,
         device_list=config.device_list,
         active_page='recipe',
         form=form,
-        recipeName=getStatusValue('RecipeName',deviceName)
+        recipeName=getStatusValue(datastore,'RecipeName',deviceName)
         )
 
 
@@ -206,11 +161,10 @@ def graph():
     return render_template('graph.html', 
         title='Graph',
         frame_url=prom_url,
-#        device_name=deviceName,
         current_device = deviceName,
         device_list=config.device_list,
         active_page='graph',
-        recipeName=getStatusValue('RecipeName',datastore.get('CurrentDevice'))
+        recipeName=getStatusValue(datastore,'RecipeName',datastore.get('CurrentDevice'))
     )
 
 
@@ -224,11 +178,11 @@ def setProfile():
     # As we add more non device data, we may want to break this out. Maybe.
 
     deviceName = datastore.get('CurrentDevice')
-    finishDay = getStatusValue('FinishDay',deviceName)
-    clearingagent = getStatusValue('Clearingagent',deviceName)
-    dryhop1 = getStatusValue('Dryhop1',deviceName)
-    dryhop2 = getStatusValue('Dryhop2',deviceName)
-    recipeName = getStatusValue('RecipeName',deviceName)
+    finishDay = getStatusValue(datastore,'FinishDay',deviceName)
+    clearingagent = getStatusValue(datastore,'Clearingagent',deviceName)
+    dryhop1 = getStatusValue(datastore,'Dryhop1',deviceName)
+    dryhop2 = getStatusValue(datastore,'Dryhop2',deviceName)
+    recipeName = getStatusValue(datastore,'RecipeName',deviceName)
 
     # If it is just updated read from PROFILEnew, otherwise use PROFILE, read from device
     if datastore.get('{}:UpdateProfile'.format(deviceName)) == 'TRUE':
@@ -300,7 +254,6 @@ def setProfile():
         form=form, 
         sorted_profile_days=SORTED_PROFILE_DAYSnew,
         profile=PROFILEnew,
-        device_name=datastore.get('CurrentDevice'),
         finishDay=finishDay,
         clearingagent=clearingagent,
         dryhop1=dryhop1,
@@ -316,7 +269,7 @@ def setProfile():
 @app.route('/displaytemp')
 def displayTemp():
 
-    TEMPERATURE,BUBBLECOUNT,HEAT,COOL,TARGET,DAY,PROFILE = getStatus()
+    TEMPERATURE,BUBBLECOUNT,HEAT,COOL,TARGET,DAY,PROFILE = getStatus(datastore)
     print("DisplayTemp: {}".format(PROFILE))
     SORTED_PROFILE_DAYS = sorted(PROFILE, key=int)
 
@@ -329,39 +282,17 @@ def displayTemp():
         cool=COOL,
         target=TARGET,
         day=DAY,
-        finishDay=getStatusValue('FinishDay',device_name),
-        clearingagent=getStatusValue('Clearingagent',device_name),
-        dryhop1=getStatusValue('Dryhop1',device_name),
-        dryhop2=getStatusValue('Dryhop2',device_name),
+        finishDay=getStatusValue(datastore,'FinishDay',device_name),
+        clearingagent=getStatusValue(datastore,'Clearingagent',device_name),
+        dryhop1=getStatusValue(datastore,'Dryhop1',device_name),
+        dryhop2=getStatusValue(datastore,'Dryhop2',device_name),
         sorted_profile_days=SORTED_PROFILE_DAYS,
         profile=PROFILE,
-        device_name=device_name,
-        recipeName=getStatusValue('RecipeName',device_name),
+        recipeName=getStatusValue(datastore,'RecipeName',device_name),
         device_list=config.device_list,
         current_device = device_name,
         active_page='displaytemp'
         )
-
-
-@app.route('/device', methods=['GET', 'POST'])
-def setDevice():
-    form = deviceForm(device=datastore.get('CurrentDevice'))
-    if form.validate_on_submit():
-        print('Got device {}'.format(form.device.data))
-
-        device = str(form.device.data)
-        datastore.set('CurrentDevice',  device.encode("utf-8"))
-
-        # WIP
-        #return( redirect('/graph'))
-
-    return render_template(
-        'device.html', 
-        title='Device', 
-        form=form,
-        device_name=datastore.get('CurrentDevice')
-        )
-
 
 
 @app.route('/set_current', methods=['POST'])
@@ -376,20 +307,20 @@ def set_current():
 def clientmetrics():
     deviceList = datastore.lrange('DeviceList',0,999)
     for device_name in deviceList:
-        actual_temperature.labels(device_name=device_name).set( getStatusValue('TEMPERATURE',device_name))
-        bubble_count.labels(device_name=device_name).set( getStatusValue('BUBBLECOUNT',device_name))
-        heater_on.labels(device_name=device_name).set( getStatusValue('HEAT',device_name))
-        cooler_on.labels(device_name=device_name).set( getStatusValue('COOL',device_name))
-        target_temperature.labels(device_name=device_name).set( getStatusValue('TARGET',device_name))
-        current_day.labels(device_name=device_name).set( getStatusValue('DAY',device_name))
-        finish_day.labels(device_name=device_name).set( getStatusValue('FinishDay',device_name))
-        caval= (int(getStatusValue('Clearingagent',device_name)) != 0) and (int(getStatusValue('Clearingagent',device_name)) <= int(getStatusValue('DAY',device_name)))
+        actual_temperature.labels(device_name=device_name).set( getStatusValue(datastore,'TEMPERATURE',device_name))
+        bubble_count.labels(device_name=device_name).set( getStatusValue(datastore,'BUBBLECOUNT',device_name))
+        heater_on.labels(device_name=device_name).set( getStatusValue(datastore,'HEAT',device_name))
+        cooler_on.labels(device_name=device_name).set( getStatusValue(datastore,'COOL',device_name))
+        target_temperature.labels(device_name=device_name).set( getStatusValue(datastore,'TARGET',device_name))
+        current_day.labels(device_name=device_name).set( getStatusValue(datastore,'DAY',device_name))
+        finish_day.labels(device_name=device_name).set( getStatusValue(datastore,'FinishDay',device_name))
+        caval= (int(getStatusValue(datastore,'Clearingagent',device_name)) != 0) and (int(getStatusValue(datastore,'Clearingagent',device_name)) <= int(getStatusValue(datastore,'DAY',device_name)))
         clearingagent.labels(device_name=device_name).set( caval)
-        dh1val =  (int(getStatusValue('Dryhop1',device_name)) != 0) and (int(getStatusValue('Dryhop1',device_name)) <= int(getStatusValue('DAY',device_name)))
+        dh1val =  (int(getStatusValue(datastore,'Dryhop1',device_name)) != 0) and (int(getStatusValue(datastore,'Dryhop1',device_name)) <= int(getStatusValue(datastore,'DAY',device_name)))
         dryhop1.labels(device_name=device_name).set( dh1val )
-        dh2val = (int(getStatusValue('Dryhop2',device_name)) != 0) and (int(getStatusValue('Dryhop2',device_name)) <= int(getStatusValue('DAY',device_name)))
+        dh2val = (int(getStatusValue(datastore,'Dryhop2',device_name)) != 0) and (int(getStatusValue(datastore,'Dryhop2',device_name)) <= int(getStatusValue(datastore,'DAY',device_name)))
         dryhop2.labels(device_name=device_name).set( dh2val)
-        #dryhop2.labels(device_name=device_name).set( getStatusValue('Dryhop2',device_name))
+        #dryhop2.labels(device_name=device_name).set( getStatusValue(datastore,'Dryhop2',device_name))
 
 
     return generate_latest()

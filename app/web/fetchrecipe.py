@@ -122,6 +122,19 @@ def list_recipe_dicts(recipe_list):
         dict_list.append(recipe_dict)
     return(dict_list)
 
+def recipeNameListBeersmith():
+    #return([])
+    XMLrecipelist=fetch_recipe_numbers()
+    recipeList=list_recipe_names(XMLrecipelist)
+    return(recipeList)
+
+def recipeDictListBeersmith():
+    #return([])
+    XMLrecipelist=fetch_recipe_numbers()
+    recipeList=list_recipe_dicts(XMLrecipelist)
+    return(recipeList)
+
+
 if __name__ == "__main__":
     # Run the functions
     recipelist=fetch_recipe_numbers()
