@@ -91,13 +91,35 @@ class recipeForm(FlaskForm):
 
     choicesList = []
     recipeList=recipeDictListBeersmith()
+    tmpdict={}
     print("Recipelist: {}".format(recipeList))
     for recipeDict in recipeList:
         recipeName=recipeDict["recipe_name"]
         recipeJson=json.dumps(recipeDict)
         choicesList.append((recipeJson,recipeName))
+        datastore.hset('recipeChoicesList:{}'.format(recipeName),mapping=recipeDict)
+        print("-----------------")
+        print(recipeName)
+        print("-----------------")
+        print(recipeDict)
+        print("-----------------")
+        print(datastore.hgetall('recipeChoicesList:{}'.format(recipeName)))
+        tmpdict[recipeName]=recipeDict
 
-    recipeName = RadioField('Recipe', choices=choicesList)
+    print(datastore.keys('recipeChoicesList:*'))
+    sys.exit(0)
+
+    recipeListKeys=datastore.hkeys('recipeChoicesList')
+    choicesListTmp=[]
+    for recipeName in recipeListKeys:
+        recipeDict=datastore.hgetall('recipeChoicesList:{}'.format(recipeName))
+#        recipeName=recipeDict["recipe_name"]
+        recipeJson=json.dumps(recipeDict)
+        choicesListTmp.append((recipeJson,recipeName))
+
+
+    recipeName = RadioField('Recipe', choices=choicesListTmp)
+    #recipeName = RadioField('Recipe', choices=choicesList)
     submit = SubmitField('Load Recipe')
 
 
@@ -109,6 +131,9 @@ class recipeForm(FlaskForm):
 def loadRecipe():
     deviceName=datastore.get('CurrentDevice')
     form = recipeForm(recipe=getStatusValue(datastore,'RecipeName',deviceName))
+    # Here is where we update the choicelist dynamically
+    form.recipeName.choices = []
+
     if form.validate_on_submit():
         #formRawData=form.recipeName.data
         recipeDict=json.loads(form.recipeName.data)
