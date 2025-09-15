@@ -109,8 +109,19 @@ class recipeForm(FlaskForm):
 def loadRecipe():
     deviceName=datastore.get('CurrentDevice')
     form = recipeForm(recipe=getStatusValue(datastore,'RecipeName',deviceName))
+    # Here is where we update the choicelist dynamically
+    # The function should be a list of tuples (recipenumber,recipenames)
+    # form.recipeName.choices = fetchrecipe.recipeNumberNameList()
+    # To test that this is the place
+    #form.recipeName.choices = []
+
+recipeDictListBeersmith
+
     if form.validate_on_submit():
         #formRawData=form.recipeName.data
+
+        # with the recipe number (form.recipeName.data) get recipe from web
+        # Then use this to load the recipe 
         recipeDict=json.loads(form.recipeName.data)
         print('Got recipe {}'.format(recipeDict))
         print(recipeDict["targetDay1"])

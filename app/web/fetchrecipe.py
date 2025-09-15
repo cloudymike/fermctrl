@@ -96,6 +96,14 @@ def fetch_recipe_names():
         page_number += 1
     return(recipelist)
 
+def fetch_choicelist():
+    numbers=fetch_recipe_numbers()
+    names=fetch_recipe_names()
+    if len(numbers) != len(names):
+        return([])
+    recipelist = [(x,y) for x, y in zip(numbers, names)]    
+    return(recipelist)
+
 def get_recipe(recipe_number):
     base_url="https://beersmithrecipes.com/download.php?id="
     url = f"{base_url}{str(recipe_number)}"
@@ -184,8 +192,8 @@ def recipeDictListBeersmith():
 
 if __name__ == "__main__":
     # Run the functions
-    recipelist=fetch_recipe_names()
-    print(recipelist)
+    choicelist=fetch_choicelist()
+    print(choicelist)
     sys.exit(0)
 
     name_list=list_recipe_names(recipelist)
