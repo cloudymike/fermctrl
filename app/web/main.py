@@ -114,20 +114,14 @@ class recipeForm(FlaskForm):
 def loadRecipe():
     deviceName=datastore.get('CurrentDevice')
     form = recipeForm(recipe=getStatusValue(datastore,'RecipeName',deviceName))
-    # Here is where we update the choicelist dynamically
-    # The function should be a list of tuples (recipenumber,recipenames)
-    # form.recipeName.choices = fetchrecipe.recipeNumberNameList()
-    # To test that this is the place
-    #form.recipeName.choices = []
 
-recipeDictListBeersmith
+    # Here is where we update the choicelist dynamically
+    form.recipeName.choices = fetchrecipe.fetch_choicelist()
+
 
     if form.validate_on_submit():
-        formRawData=form.recipeName.data
-        print(formRawData)
-        (recipe_number,recipe_name)=formRawData
-
-        datastore.set('{}:RecipeName'.format(deviceName),  str(recipeDict["recipe_name"]))
+        recipe_number = form.recipeName.data
+        print(recipe_number)
 
         # with the recipe number (form.recipeName.data) get recipe from web
         # Then use this to load the recipe 
@@ -141,6 +135,7 @@ recipeDictListBeersmith
         print(recipeDict["targetDay1"])
         print(str(recipeDict["targetDay1"]))
 
+        datastore.set('{}:RecipeName'.format(deviceName),  str(recipeDict["recipe_name"]))
 
         profile = {}
         profile[str(recipeDict["targetDay0"])] = str(recipeDict["targetTemp0"])
