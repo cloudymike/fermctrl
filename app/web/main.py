@@ -20,6 +20,12 @@ import fetchrecipe
 
 from helpers import getStatus, getStatusValue
 
+import io
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("Agg")   
+
+
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
@@ -279,6 +285,57 @@ def setProfile():
         active_page='profile'
         )
 
+@app.route("/status")
+def status():
+    return render_template("status.html")
+
+@app.route("/plot.png")
+def plot_png():
+
+    TXTTEMPERATURE,BUBBLECOUNT,HEAT,COOL,TARGET,TXTDAY,TXTPROFILE = getStatus(datastore)
+    PROFILE={}
+    for day,temperature in TXTPROFILE.items():
+        PROFILE[int(day)]=int(temperature)
+    DAY = int(TXTDAY)
+    TEMPERATURE = float(TXTTEMPERATURE)
+
+    days = sorted(PROFILE.keys())
+
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    # Draw horizontal profile segments
+    for i in range(len(days) - 1):
+        x_start, x_end = days[i], days[i + 1]
+        y_val = PROFILE[days[i]]
+        ax.hlines(y_val, x_start, x_end, colors="dodgerblue", linewidth=2)
+        ax.plot([x_start], [y_val], "o", color="dodgerblue")
+
+    # Final point marker
+    ax.plot([days[-1]], [PROFILE[days[-1]]], "o", color="dodgerblue")
+
+    # Shaded background area
+    ax.fill_between([min(days), max(days)], 32, 120, color="dodgerblue", alpha=0.2)
+
+    # New green reference lines
+    ax.axvline(DAY, color="green", linestyle="--", linewidth=1.5)
+    ax.axhline(TEMPERATURE, color="green", linestyle="--", linewidth=1.5)
+
+    # Axis styling
+    ax.set_xlim(0, max(days))
+    ax.set_ylim(32, 120)
+    ax.set_xlabel("days")
+    ax.set_ylabel("F")
+    ax.grid(True, axis="y", alpha=0.3)
+
+    # Output as PNG
+    png_output = io.BytesIO()
+    fig.tight_layout()
+    plt.savefig(png_output, format="png", transparent=True)
+    plt.close(fig)
+    png_output.seek(0)
+    return Response(png_output.getvalue(), mimetype="image/png")
+
+
 @app.route('/')
 @app.route('/index')
 @app.route('/displaytemp')
@@ -290,7 +347,7 @@ def displayTemp():
 
     device_name=datastore.get('CurrentDevice')
 
-    return render_template('displaytemp.html', title='Status',
+    return render_template('displaytemp.html', title='DisplayTemp',
         temperature=TEMPERATURE,
         bubblecount=BUBBLECOUNT,
         heat=HEAT,

@@ -8,3 +8,4 @@ WTForms==2.3.3
 redis
 prometheus-client
 requests
+matplotlib
