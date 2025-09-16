@@ -126,14 +126,8 @@ def loadRecipe():
         # with the recipe number (form.recipeName.data) get recipe from web
         # Then use this to load the recipe 
 
-
-
-        '''
-        recipeDict=json.loads(form.recipeName.data)
-        print('Got recipe {}'.format(recipeDict))
-
-        print(recipeDict["targetDay1"])
-        print(str(recipeDict["targetDay1"]))
+        recipeDict = fetchrecipe.get_recipeDict(recipe_number)
+        print(recipeDict["recipe_name"])
 
         datastore.set('{}:RecipeName'.format(deviceName),  str(recipeDict["recipe_name"]))
 
@@ -150,7 +144,7 @@ def loadRecipe():
         datastore.delete('{}:PROFILEnew'.format(deviceName))
         datastore.hset('{}:PROFILEnew'.format(deviceName), mapping=profile)
         datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
-        '''
+        
 
 
         # Load profile in to main profile directly

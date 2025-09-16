@@ -158,6 +158,18 @@ def parse_xml(xml_content: str) -> dict:
     
     return result
 
+
+
+# Return a recipe dictionary
+# Fetch the XML file for recipe_number
+# Parse the pertinent values into a dictionary
+# Deal with XML vs json issues 
+def get_recipeDict(recipe_number):    
+    bsmx=get_recipe(recipe_number)
+    bsmxStr = bsmx.replace('&', 'AMP')
+    recipeDict=parse_xml(bsmxStr)
+    return(recipeDict)
+
 def list_recipe_names(recipe_list):
     name_list=[]
     for recipeID in recipe_list:
@@ -194,9 +206,3 @@ if __name__ == "__main__":
     # Run the functions
     choicelist=fetch_choicelist()
     print(choicelist)
-    sys.exit(0)
-
-    name_list=list_recipe_names(recipelist)
-    dict_list=list_recipe_dicts(recipelist)
-
-    print(dict_list)
