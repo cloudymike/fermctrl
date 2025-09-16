@@ -16,6 +16,7 @@ from prometheus_client import Gauge, generate_latest
 import prometheus_client
 
 from fetchrecipe import recipeDictListBeersmith
+import fetchrecipe
 
 from helpers import getStatus, getStatusValue
 
@@ -89,6 +90,9 @@ class profileForm(FlaskForm):
 
 class recipeForm(FlaskForm):
 
+    choicesList=fetchrecipe.fetch_choicelist()
+
+    '''
     choicesList = []
     recipeList=recipeDictListBeersmith()
     print("Recipelist: {}".format(recipeList))
@@ -96,6 +100,7 @@ class recipeForm(FlaskForm):
         recipeName=recipeDict["recipe_name"]
         recipeJson=json.dumps(recipeDict)
         choicesList.append((recipeJson,recipeName))
+    '''
 
     recipeName = RadioField('Recipe', choices=choicesList)
     submit = SubmitField('Load Recipe')
@@ -109,12 +114,20 @@ class recipeForm(FlaskForm):
 def loadRecipe():
     deviceName=datastore.get('CurrentDevice')
     form = recipeForm(recipe=getStatusValue(datastore,'RecipeName',deviceName))
+
+    # Here is where we update the choicelist dynamically
+    form.recipeName.choices = fetchrecipe.fetch_choicelist()
+
+
     if form.validate_on_submit():
-        #formRawData=form.recipeName.data
-        recipeDict=json.loads(form.recipeName.data)
-        print('Got recipe {}'.format(recipeDict))
-        print(recipeDict["targetDay1"])
-        print(str(recipeDict["targetDay1"]))
+        recipe_number = form.recipeName.data
+        print(recipe_number)
+
+        # with the recipe number (form.recipeName.data) get recipe from web
+        # Then use this to load the recipe 
+
+        recipeDict = fetchrecipe.get_recipeDict(recipe_number)
+        print(recipeDict["recipe_name"])
 
         datastore.set('{}:RecipeName'.format(deviceName),  str(recipeDict["recipe_name"]))
 
@@ -131,6 +144,8 @@ def loadRecipe():
         datastore.delete('{}:PROFILEnew'.format(deviceName))
         datastore.hset('{}:PROFILEnew'.format(deviceName), mapping=profile)
         datastore.set('{}:UpdateProfile'.format(deviceName), 'TRUE')
+        
+
 
         # Load profile in to main profile directly
         # This is needed CHANGE as we load profile from device

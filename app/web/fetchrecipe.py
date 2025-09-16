@@ -18,6 +18,22 @@ def extract_recipe_number(text: str) -> list:
     pattern = r"href='https://beersmithrecipes\.com/viewrecipe/(\d+)/"
     return re.findall(pattern, text)
 
+def extract_recipe_name(text: str) -> list:
+    """
+    Extracts all numbers following the viewrecipe pattern in the text.
+
+    Args:
+        text (str): Input text containing viewrecipe links.
+
+    Returns:
+        list: List of recipe numbers as strings.
+    """
+#<a title='View Recipe' href='https://beersmithrecipes.com/viewrecipe/5189856/355-neipa'>355 NEIPA</a>
+
+
+    pattern = r"href='https://beersmithrecipes\.com/viewrecipe/\d+/.*'>(.*)<"
+    return re.findall(pattern, text)
+
 def fetch_recipe_numbers():
     base_url = "https://beersmithrecipes.com/listrecipes/5399/"
     page_number = 0
@@ -34,7 +50,7 @@ def fetch_recipe_numbers():
                 print(f"No data found at page {page_number}. Exiting.")
                 break
             
-            # Extract names using regex for viewrecipe links
+            # Extract number using regex for viewrecipe links
             matches = extract_recipe_number(response.text)
             if matches:
                 recipelist.extend(matches)
@@ -47,6 +63,45 @@ def fetch_recipe_numbers():
             break
         
         page_number += 1
+    return(recipelist)
+
+def fetch_recipe_names():
+    base_url = "https://beersmithrecipes.com/listrecipes/5399/"
+    page_number = 0
+
+    recipelist=[]
+
+    while True:
+        url = f"{base_url}{page_number}"
+        try:
+            response = requests.get(url)
+            
+            # Check if the request was successful and content is not empty
+            if response.status_code != 200 or not response.content.strip():
+                print(f"No data found at page {page_number}. Exiting.")
+                break
+            
+            # Extract number using regex for viewrecipe links
+            matches = extract_recipe_name(response.text)
+            if matches:
+                recipelist.extend(matches)
+            else:
+                print(f"No recipes found on page {page_number}.")
+                return(recipelist)
+
+        except requests.RequestException as e:
+            print(f"Error fetching page {page_number}: {e}")
+            break
+        
+        page_number += 1
+    return(recipelist)
+
+def fetch_choicelist():
+    numbers=fetch_recipe_numbers()
+    names=fetch_recipe_names()
+    if len(numbers) != len(names):
+        return([])
+    recipelist = [(x,y) for x, y in zip(numbers, names)]    
     return(recipelist)
 
 def get_recipe(recipe_number):
@@ -103,6 +158,18 @@ def parse_xml(xml_content: str) -> dict:
     
     return result
 
+
+
+# Return a recipe dictionary
+# Fetch the XML file for recipe_number
+# Parse the pertinent values into a dictionary
+# Deal with XML vs json issues 
+def get_recipeDict(recipe_number):    
+    bsmx=get_recipe(recipe_number)
+    bsmxStr = bsmx.replace('&', 'AMP')
+    recipeDict=parse_xml(bsmxStr)
+    return(recipeDict)
+
 def list_recipe_names(recipe_list):
     name_list=[]
     for recipeID in recipe_list:
@@ -137,9 +204,5 @@ def recipeDictListBeersmith():
 
 if __name__ == "__main__":
     # Run the functions
-    recipelist=fetch_recipe_numbers()
-
-    name_list=list_recipe_names(recipelist)
-    dict_list=list_recipe_dicts(recipelist)
-
-    print(dict_list)
+    choicelist=fetch_choicelist()
+    print(choicelist)
