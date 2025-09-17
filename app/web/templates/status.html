@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Temperature Profile</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin: 2em; }
-    img { max-width: 100%; height: auto; }
-  </style>
-</head>
-<body>
-  <h1>Temperature Profile</h1>
+{% extends "base_template.html" %}
+
+{% block content %}
+
+  <br>
+  {{ recipeName }}
+  <br>
   <img src="{{ url_for('plot_png') }}" alt="Temperature graph">
-</body>
-</html>
+  <br>
+  Bubble count: {{ bubbleCount }} /min 
+  <br>
+
+{% endblock %}
 

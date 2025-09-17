@@ -287,15 +287,45 @@ def setProfile():
 
 @app.route("/status")
 def status():
-    return render_template("status.html")
+    device_name=datastore.get('CurrentDevice')
+    return render_template("status.html", 
+        title='Status',
+        recipeName=getStatusValue(datastore,'RecipeName',device_name),
+        bubbleCount=getStatusValue(datastore,'BUBBLECOUNT',device_name),
+        device_list=config.device_list,
+        current_device = device_name,
+        active_page='status'
+        )
 
 @app.route("/plot.png")
 def plot_png():
 
+    #diagramColor="dodgerblue"
+    diagramColor="goldenrod"
+
+
     TXTTEMPERATURE,BUBBLECOUNT,HEAT,COOL,TARGET,TXTDAY,TXTPROFILE = getStatus(datastore)
+
+    if HEAT=="1":
+        temperatureColor="red"
+    elif COOL=="1":
+        temperatureColor="blue"
+    else:
+        temperatureColor="purple"
+
     PROFILE={}
+    mintemp=200.0
+    maxtemp=0.0
     for day,temperature in TXTPROFILE.items():
-        PROFILE[int(day)]=int(temperature)
+        t=float(temperature)
+        PROFILE[int(day)]=t
+        mintemp=min(mintemp,t)
+        maxtemp=max(maxtemp,t)
+
+
+    mintemp=mintemp-20
+    maxtemp=maxtemp+20
+
     DAY = int(TXTDAY)
     TEMPERATURE = float(TXTTEMPERATURE)
 
@@ -307,22 +337,24 @@ def plot_png():
     for i in range(len(days) - 1):
         x_start, x_end = days[i], days[i + 1]
         y_val = PROFILE[days[i]]
-        ax.hlines(y_val, x_start, x_end, colors="dodgerblue", linewidth=2)
-        ax.plot([x_start], [y_val], "o", color="dodgerblue")
+        ax.hlines(y_val, x_start, x_end, colors=diagramColor, linewidth=2)
+        ax.plot([x_start], [y_val], "o", color=diagramColor)
 
     # Final point marker
-    ax.plot([days[-1]], [PROFILE[days[-1]]], "o", color="dodgerblue")
+    ax.plot([days[-1]], [PROFILE[days[-1]]], "o", color=diagramColor)
 
     # Shaded background area
-    ax.fill_between([min(days), max(days)], 32, 120, color="dodgerblue", alpha=0.2)
+    ax.fill_between([min(days), max(days)], mintemp, maxtemp, color=diagramColor, alpha=0.2)
 
     # New green reference lines
-    ax.axvline(DAY, color="green", linestyle="--", linewidth=1.5)
-    ax.axhline(TEMPERATURE, color="green", linestyle="--", linewidth=1.5)
+    #ax.axvline(DAY, color="green", linestyle="--", linewidth=1.5)
+    ax.plot([DAY], [mintemp], "v", color="green")
+    #ax.axhline(TEMPERATURE, color=temperatureColor, linestyle="--", linewidth=1.5)
+    ax.plot([DAY], [TEMPERATURE], "P", color=temperatureColor)
 
     # Axis styling
     ax.set_xlim(0, max(days))
-    ax.set_ylim(32, 120)
+    ax.set_ylim(mintemp, maxtemp)
     ax.set_xlabel("days")
     ax.set_ylabel("F")
     ax.grid(True, axis="y", alpha=0.3)
