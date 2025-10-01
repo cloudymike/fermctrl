@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+FROM python:3.7-alpine
+WORKDIR /code
+ENV FLASK_APP=main.py
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV REDIS_SERVER='redis'
+RUN apk update && \
+  apk add --no-cache gcc g++ \
+    musl-dev linux-headers build-base zlib-dev \
+    freetype-dev libpng-dev libffi-dev \
+    jpeg-dev libjpeg-turbo libjpeg-turbo-dev \
+    python3-dev py3-setuptools py-numpy-dev
+RUN pip install --upgrade pip
+RUN pip3 install matplotlib 
+
+COPY requirements.txt requirements.txt
+COPY config.py config.py
+RUN pip install -r requirements.txt
+EXPOSE 5000
+COPY . .
+CMD ["flask", "run"]
