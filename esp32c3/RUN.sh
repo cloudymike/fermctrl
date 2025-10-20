@@ -106,14 +106,14 @@ then
 fi
 
 echo "Loading micropythonexample code"
-#loadfile ${UPYEX}/wlan/wlan.py
-#loadfile ${UPYEX}/LED/LED.py
-#loadfile ${UPYEX}/oled/ssd1306.py
-#loadfile ${UPYEX}/bignumber/bignumber.py
-#loadfile ${UPYEX}/textout/textout.py
-#loadfile ${UPYEX}/save_state/savestate.py
-#loadfile ${UPYEX}/internaltemp/internaltempreader.py
-#loadfile ${UPYEX}/tempreader/tempreader.py
+loadfile ${UPYEX}/wlan/wlan.py
+loadfile ${UPYEX}/LED/LED.py
+loadfile ${UPYEX}/oled/ssd1306.py
+loadfile ${UPYEX}/bignumber/bignumber.py
+loadfile ${UPYEX}/textout/textout.py
+loadfile ${UPYEX}/save_state/savestate.py
+loadfile ${UPYEX}/internaltemp/internaltempreader.py
+loadfile ${UPYEX}/tempreader/tempreader.py
 
 echo "Loading local python code"
 loadfile mqtt_as.py
