@@ -41,7 +41,8 @@ reset ()
 
 
 IP=""
-PORT='/dev/ttyUSB0'
+USBPORT=$(ls /dev/ | grep -e USB -e ACM)
+PORT='/dev/$USBPORT'
 WEBREPLPASS="MyPass"
 FASTBUILD=0
 CONFIGONLY=0

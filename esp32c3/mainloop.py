@@ -236,6 +236,7 @@ class mainloop:
 
         old_second = 99
         old_minute = 99
+        LEDvalue=0;
         while True:
             await asyncio.sleep_ms(1000)
             #self.display_detail()
@@ -244,28 +245,31 @@ class mainloop:
 
             # Cycle over x time
             if second != old_second:
-                self.display_simple()
                 old_second = second
-                LED.LED.value(abs(LED.LED.value()-1))
-                wdt.feed()
+                # Actions every interval of seconds for C3
+                if not (second % 4):
+                    self.display_simple()
+                    LEDvalue=(LEDvalue+1)%2
+                    LED.LED.value(LEDvalue)
+                    wdt.feed()
 
-                self.thermostat()
-                self.dryhop1Action(day,hour,minute,second)
+                    self.thermostat()
+                    self.dryhop1Action(day,hour,minute,second)
 
-                publish_json = {}
-                publish_json["temperature"] = self.temp
-                publish_json["bubblecount"] = self.bubblecount
-                publish_json["heat"] = self.heat
-                publish_json["cool"] = self.cool
-                publish_json["target"] = self.target
-                publish_json["day"] = day
-                publish_json["dryhop1"] = self.dryhop1
-                publish_json["profile"] = self.profile
-                #print("Publishing: {}".format(publish_json))
-                self.publish_json=publish_json
-                self.writeStateFile()
-                print(day,hour,minute,second)
-                print(self.dryhop1)
+                    publish_json = {}
+                    publish_json["temperature"] = self.temp
+                    publish_json["bubblecount"] = self.bubblecount
+                    publish_json["heat"] = self.heat
+                    publish_json["cool"] = self.cool
+                    publish_json["target"] = self.target
+                    publish_json["day"] = day
+                    publish_json["dryhop1"] = self.dryhop1
+                    publish_json["profile"] = self.profile
+                    #print("Publishing: {}".format(publish_json))
+                    self.publish_json=publish_json
+                    self.writeStateFile()
+                    #print(day,hour,minute,second)
+                    #print(LEDvalue)
  
             if minute != old_minute:
                 old_minute = minute
