@@ -13,10 +13,12 @@ cp ../config/config.py web
 cp ../config/config.py mqttrw
 
 # Create persistent directories
-sudo mkdir -f /var/tmp/prometheus
+sudo rm -rf /var/tmp/prometheus
+sudo mkdir -p /var/tmp/prometheus
 sudo chown 65534:65534 /var/tmp/prometheus
 
-sudo mkdir -f /var/tmp/redis
+sudo rm -rf /var/tmp/redis
+sudo mkdir -p /var/tmp/redis
 sudo chown 65534:65534 /var/tmp/redis
 
 # Clean out old container images
