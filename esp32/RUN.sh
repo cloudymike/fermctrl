@@ -41,8 +41,15 @@ reset ()
 
 
 IP=""
-USBPORT=$(ls /dev/ | grep -e USB -e ACM)
-PORT='/dev/$USBPORT'
+
+USBPORT=$(ls /dev/ | grep -e ACM)
+if [ "$USBPORT" = "" ]
+then
+USBPORT=$(ls /dev/ | grep -e USB)
+fi
+PORT=/dev/$USBPORT
+echo Port used $PORT
+
 WEBREPLPASS="MyPass"
 FASTBUILD=0
 CONFIGONLY=0
