@@ -43,7 +43,7 @@ reset ()
 IP=""
 
 USBPORT=$(ls /dev/ | grep -e ACM)
-if "$USBPORT" == ""
+if [ "$USBPORT" = "" ]
 then
 USBPORT=$(ls /dev/ | grep -e USB)
 fi
