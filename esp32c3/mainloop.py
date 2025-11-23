@@ -43,9 +43,9 @@ def get_bubblecount():
     return(bubblecount)
 
 
-pir = machine.Pin(4, machine.Pin.IN)
+#pir = machine.Pin(4, machine.Pin.IN)
+#pir.irq(trigger=machine.Pin.IRQ_RISING, handler=bubble_interrupt)
 
-pir.irq(trigger=machine.Pin.IRQ_RISING, handler=bubble_interrupt)
 #===================== Bubble counter end
 
 class mainloop:
