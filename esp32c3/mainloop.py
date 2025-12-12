@@ -22,6 +22,7 @@ VERSION=0.7
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
 wdt = machine.WDT(timeout=300000)
+offonswitch = machine.Pin(21, machine.Pin.IN)
 
 #===================== Bubble counter 
 BubbleCount = 0
@@ -218,6 +219,25 @@ class mainloop:
         self.txt.rightline("Tgt:{}".format(self.target),1)
         bignumber.bigTemp(self.txt.display(), self.temp, self.unit)
 
+    def show_off(self):
+        org_y = 20
+        width = 30
+        self.txt.clear()
+        oled=self.txt.display()
+        if oled:
+            bignumber.bigDigit( oled,20, org_y, 0)
+            bignumber.bigLetter(oled,50,org_y,'F')
+            bignumber.bigLetter(oled,80,org_y,'F')
+            oled.show()
+        else:
+            print("OFF")
+
+    def everything_off(self):
+        relay.COLD.off()
+        relay.HOT.off()
+        relay.dryhop1.off()
+
+
     def currentStatus(self):
         data = bytes(json.dumps(self.publish_json), 'utf-8')
         return(data)
@@ -247,29 +267,33 @@ class mainloop:
             if second != old_second:
                 old_second = second
                 # Actions every interval of seconds for C3
-                if not (second % 4):
-                    self.display_simple()
-                    LEDvalue=(LEDvalue+1)%2
-                    LED.LED.value(LEDvalue)
-                    wdt.feed()
+                if offonswitch.value():
+                    if not (second % 4):
+                        self.display_simple()
+                        LEDvalue=(LEDvalue+1)%2
+                        LED.LED.value(LEDvalue)
+                        wdt.feed()
 
-                    self.thermostat()
-                    self.dryhop1Action(day,hour,minute,second)
+                        self.thermostat()
+                        self.dryhop1Action(day,hour,minute,second)
 
-                    publish_json = {}
-                    publish_json["temperature"] = self.temp
-                    publish_json["bubblecount"] = self.bubblecount
-                    publish_json["heat"] = self.heat
-                    publish_json["cool"] = self.cool
-                    publish_json["target"] = self.target
-                    publish_json["day"] = day
-                    publish_json["dryhop1"] = self.dryhop1
-                    publish_json["profile"] = self.profile
-                    #print("Publishing: {}".format(publish_json))
-                    self.publish_json=publish_json
-                    self.writeStateFile()
-                    #print(day,hour,minute,second)
-                    #print(LEDvalue)
+                        publish_json = {}
+                        publish_json["temperature"] = self.temp
+                        publish_json["bubblecount"] = self.bubblecount
+                        publish_json["heat"] = self.heat
+                        publish_json["cool"] = self.cool
+                        publish_json["target"] = self.target
+                        publish_json["day"] = day
+                        publish_json["dryhop1"] = self.dryhop1
+                        publish_json["profile"] = self.profile
+                        #print("Publishing: {}".format(publish_json))
+                        self.publish_json=publish_json
+                        self.writeStateFile()
+                        #print(day,hour,minute,second)
+                        #print(LEDvalue)
+                else:
+                    self.everything_off();
+                    self.show_off();
  
             if minute != old_minute:
                 old_minute = minute
