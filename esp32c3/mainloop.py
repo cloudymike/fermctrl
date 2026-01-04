@@ -22,7 +22,9 @@ VERSION=0.7
 # enable watchdog with a timeout of 5min
 # Keep a long timeout so you can reload software before timeout
 wdt = machine.WDT(timeout=300000)
-offonswitch = machine.Pin(21, machine.Pin.IN)
+
+# Sense a switch. Add pull up to allow design without switch installed
+offonswitch = machine.Pin(21, machine.Pin.IN, machine.Pin.PULL_UP)
 
 #===================== Bubble counter 
 BubbleCount = 0
