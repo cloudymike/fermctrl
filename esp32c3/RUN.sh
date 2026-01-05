@@ -118,6 +118,8 @@ loadfile ${UPYEX}/textout/textout.py
 loadfile ${UPYEX}/save_state/savestate.py
 loadfile ${UPYEX}/internaltemp/internaltempreader.py
 loadfile ${UPYEX}/tempreader/tempreader.py
+loadfile ${UPYEX}/tempreader/tempreader.py
+loadfile ../esp32/tempreader.py
 
 echo "Loading local python code"
 loadfile mqtt_as.py
