@@ -149,7 +149,11 @@ class mainloop:
             pass
         '''
         #For yeast starter, relay is backwards
-        if self.temp < self.target - self.hysterisis - self.temprange:
+        if self.temp > self.target + self.hysterisis + self.temprange:
+            relay.HOT.value(1)
+            self.heat = 0
+            self.cool = 0
+        elif self.temp < self.target - self.hysterisis - self.temprange:
             relay.HOT.value(0)
             self.heat = 1
             self.cool = 0
