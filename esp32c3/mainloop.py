@@ -128,6 +128,8 @@ class mainloop:
         self.get_mqttdata()
         self.current_target()
         self.get_temp()
+        # Remove for now as ESP32C3 is only working with yeast starter
+        '''
         if self.temp > self.target + self.hysterisis + self.temprange:
             relay.COLD.on()
             relay.HOT.off()
@@ -145,7 +147,18 @@ class mainloop:
             self.cool = 0
         else:
             pass
-
+        '''
+        #For yeast starter, relay is backwards
+        if self.temp < self.target - self.hysterisis - self.temprange:
+            relay.HOT.value(0)
+            self.heat = 1
+            self.cool = 0
+        elif self.temp < self.target + self.temprange and self.temp > self.target - self.temprange:
+            relay.HOT.value(1)
+            self.heat = 0
+            self.cool = 0
+        else:
+            pass
     def setMessage(self,message):
         self.message = message
         print(message)
