@@ -63,7 +63,7 @@ config['server'] = fermctrlconfig.hostname
 config['ssid'] = wlanconfig.ESSID
 config['wifi_pw'] = wlanconfig.PASSWORD
 
-
+print('Configuration: {}'.format(config))
 
 
 # Set up client
